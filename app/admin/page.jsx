@@ -10,6 +10,7 @@ const api = axios.create({ baseURL: '/api' })
 
 export default function AdminPage() {
   const [token, setToken] = useState(null)
+  const [checking, setChecking] = useState(true)
   const [loginForm, setLoginForm] = useState({ email: '', password: '' })
   const [logging, setLogging] = useState(false)
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -26,7 +27,23 @@ export default function AdminPage() {
 
   useEffect(() => {
     const t = localStorage.getItem('nauu_admin_token')
-    if (t) { setToken(t); api.defaults.headers.common['Authorization'] = `Bearer ${t}` }
+    if (t) {
+      api.defaults.headers.common['Authorization'] = `Bearer ${t}`
+      api.get('/auth/me').then(res => {
+        if (res.data.accountType !== 'ADMIN') {
+          localStorage.removeItem('nauu_admin_token')
+          setChecking(false)
+          return
+        }
+        setToken(t)
+        setChecking(false)
+      }).catch(() => {
+        localStorage.removeItem('nauu_admin_token')
+        setChecking(false)
+      })
+    } else {
+      setChecking(false)
+    }
   }, [])
 
   useEffect(() => {
@@ -96,6 +113,12 @@ export default function AdminPage() {
   }
 
   const logout = () => { localStorage.removeItem('nauu_admin_token'); setToken(null) }
+
+  if (checking) return (
+    <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+    </div>
+  )
 
   if (!token) return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">

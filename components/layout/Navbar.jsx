@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, LayoutDashboard, Heart, User, LogOut, Menu, X , ChevronDown } from 'lucide-react'
+import { Search, LayoutDashboard, Heart, User, LogOut, Menu, X, ChevronDown, Shield } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
 
@@ -51,6 +51,7 @@ export default function Navbar() {
               </button>
               {menuOpen && (
                 <div className="absolute right-0 top-11 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1.5 z-50">
+                  {user?.accountType === 'ADMIN' && <Link href="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-purple-600 hover:bg-purple-50"><Shield size={15} /> Admin</Link>}
                   {isArtist && <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50"><LayoutDashboard size={15} /> {t('nav.dashboard')}</Link>}
                   <Link href="/account/favorites" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50"><Heart size={15} /> {t('nav.favorites')}</Link>
                   <Link href="/account/profile" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50"><User size={15} /> {t('nav.profile')}</Link>
@@ -94,6 +95,7 @@ export default function Navbar() {
           <Link href="/artists" onClick={() => setMobileOpen(false)} className="text-sm font-bold text-gray-700 py-2 border-b border-gray-50">Artistas</Link>
           {isLoggedIn ? (
             <>
+              {user?.accountType === 'ADMIN' && <Link href="/admin" onClick={() => setMobileOpen(false)} className="text-sm font-bold text-purple-600 py-2 border-b border-gray-50">Admin</Link>}
               {isArtist && <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="text-sm font-bold text-gray-700 py-2 border-b border-gray-50">Dashboard</Link>}
               <Link href="/account/favorites" onClick={() => setMobileOpen(false)} className="text-sm font-bold text-gray-700 py-2 border-b border-gray-50">Favoritos</Link>
               <button onClick={() => { logout(); setMobileOpen(false); router.push('/') }} className="text-sm font-bold text-red-400 py-2 text-left">Sair</button>
