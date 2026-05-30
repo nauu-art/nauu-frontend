@@ -97,7 +97,6 @@ export default function Navbar() {
             <>
               {user?.accountType === 'ADMIN' && <Link href="/admin" onClick={() => setMobileOpen(false)} className="text-sm font-bold text-purple-600 py-2 border-b border-gray-50">Admin</Link>}
               {isArtist && <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="text-sm font-bold text-gray-700 py-2 border-b border-gray-50">Dashboard</Link>}
-              <Link href="/account/favorites" onClick={() => setMobileOpen(false)} className="text-sm font-bold text-gray-700 py-2 border-b border-gray-50">Favoritos</Link>
               <button onClick={() => { logout(); setMobileOpen(false); router.push('/') }} className="text-sm font-bold text-red-400 py-2 text-left">Sair</button>
             </>
           ) : (

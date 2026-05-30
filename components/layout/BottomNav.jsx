@@ -12,11 +12,11 @@ export default function BottomNav() {
   if (pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/account')) return null
 
   const items = [
-    { href: '/', icon: Home, label: 'Início' },
-    { href: '/explore', icon: Search, label: 'Explorar' },
-    { href: '/feed', icon: Rss, label: 'Feed' },
-    { href: isLoggedIn ? '/account/favorites' : '/login', icon: Heart, label: 'Favoritos' },
-    { href: isLoggedIn ? '/account/profile' : '/login', icon: User, label: 'Perfil',
+    { key: 'home', href: '/', icon: Home, label: 'Início' },
+    { key: 'explore', href: '/explore', icon: Search, label: 'Explorar' },
+    { key: 'feed', href: '/feed', icon: Rss, label: 'Feed' },
+    { key: 'favorites', href: isLoggedIn ? '/account/favorites' : '/login', icon: Heart, label: 'Favoritos' },
+    { key: 'profile', href: isLoggedIn ? '/account/profile' : '/login', icon: User, label: 'Perfil',
       avatar: isLoggedIn && user?.avatarUrl ? user.avatarUrl : null },
   ]
 
@@ -26,7 +26,7 @@ export default function BottomNav() {
         {items.map(item => {
           const active = pathname === item.href
           return (
-            <Link key={item.href} href={item.href}
+            <Link key={item.key} href={item.href}
               className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-colors">
               <div className={`relative w-6 h-6 flex items-center justify-center`}>
                 {item.avatar ? (
