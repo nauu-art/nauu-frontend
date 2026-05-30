@@ -14,8 +14,6 @@ import PriceTag from '../../components/ui/PriceTag'
 import FollowButton from '../../components/ui/FollowButton'
 import { useLocale } from '../../context/LocaleContext'
 
-const availColor = (a) => a === 'AVAILABLE' ? '#2ECC71' : a === 'RESERVED' ? '#F39C12' : '#E74C3C'
-
 export default function ArtistPage() {
   const { username } = useParams()
   const { isLoggedIn, user } = useAuth()
@@ -78,10 +76,7 @@ export default function ArtistPage() {
             {/* Avatar grande */}
             <div className="relative flex-shrink-0">
               <div className="w-28 h-28 md:w-36 md:h-36 rounded-full border-4 border-white shadow-lg overflow-hidden bg-blue-100 flex items-center justify-center">
-                {artist.user?.avatarUrl
-                  ? <img src={artist.user.avatarUrl} alt={artist.artistName} className="w-full h-full object-cover" />
-                  : <span className="text-blue-400 text-5xl font-extrabold">{artist.artistName?.[0]}</span>
-                }
+                <ArtistAvatar src={artist.user?.avatarUrl} name={artist.artistName} size={28} />
               </div>
               {artist.isFeatured && (
                 <div className="absolute -top-1 -right-1 w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center text-base shadow-md">⭐</div>
@@ -227,13 +222,8 @@ export default function ArtistPage() {
                         <div className="p-3">
                           <div className="text-sm font-bold text-gray-900 leading-tight">{w.title}</div>
                           <div className="flex justify-between items-center mt-1.5">
-                            <span className="text-sm font-bold text-gray-700">
-                              {w.priceOnRequest ? t('artwork.on_request') : w.price ? `€ ${Number(w.price).toLocaleString('pt-PT')}` : t('artwork.on_request')}
-                            </span>
-                            <span className="flex items-center gap-1 text-xs font-semibold" style={{color: availColor(w.availability)}}>
-                              <span className="w-1.5 h-1.5 rounded-full" style={{background: availColor(w.availability)}}></span>
-                              {t(`artwork.${w.availability?.toLowerCase()}`)}
-                            </span>
+                            <PriceTag price={w.price} priceOnRequest={w.priceOnRequest} className="text-sm font-bold text-gray-700" />
+                            <AvailabilityBadge availability={w.availability} />
                           </div>
                         </div>
                       </Link>

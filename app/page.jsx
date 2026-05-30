@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext'
 import Newsletter from '../components/ui/Newsletter'
 import AddToCollection from '../components/ui/AddToCollection'
 import ArtworkCard from '../components/ui/ArtworkCard'
+import ArtistCard from '../components/ui/ArtistCard'
 
 const availColor = (a) => a === 'AVAILABLE' ? '#2ECC71' : a === 'RESERVED' ? '#F39C12' : '#E74C3C'
 
@@ -166,31 +167,7 @@ export default function HomePage() {
               <Link href="/artists" className="text-sm font-bold text-blue-500 hover:text-blue-600">{t('home.artists_see_all')}</Link>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {artists.map(a => (
-                <Link href={`/${a.username}`} key={a.id} className="group bg-white border border-gray-100 rounded-2xl overflow-hidden hover:border-blue-200 hover:shadow-md transition-all">
-                  {/* Foto quadrada */}
-                  <div className="aspect-square bg-blue-50 overflow-hidden">
-                    {a.user?.avatarUrl
-                      ? <img src={a.user.avatarUrl} alt={a.artistName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      : <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-extrabold text-4xl">{a.artistName?.[0]}</div>}
-                  </div>
-                  {/* Info */}
-                  <div className="p-3">
-                    <div className="font-extrabold text-gray-900 text-sm leading-tight mb-0.5">{a.artistName}</div>
-                    {a.categories?.length > 0 && (
-                      <div className="text-xs text-blue-500 font-bold mb-1.5 truncate">{a.categories[0]?.category?.name}</div>
-                    )}
-                    {(a.city || a.country) && (
-                      <div className="text-xs text-gray-400 font-medium truncate">
-                        { [a.city, a.country].filter(Boolean).join(', ')}
-                      </div>
-                    )}
-                    <div className="flex items-center gap-3 mt-2 pt-2 border-t border-gray-50">
-                      <span className="text-xs text-gray-400 font-semibold">{a._count?.artworks || 0} obras</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+              {artists.map(a => <ArtistCard key={a.id} artist={a} />)}
             </div>
           </div>
         )}

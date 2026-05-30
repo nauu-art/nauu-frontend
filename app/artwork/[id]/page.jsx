@@ -7,10 +7,12 @@ import api from '../../../lib/api'
 import { useAuth } from '../../../context/AuthContext'
 import { useLocale } from '../../../context/LocaleContext'
 import toast from 'react-hot-toast'
+import ArtistAvatar from '../../../components/ui/ArtistAvatar'
+import AvailabilityBadge from '../../../components/ui/AvailabilityBadge'
+import PriceTag from '../../../components/ui/PriceTag'
+import ArtworkCard from '../../../components/ui/ArtworkCard'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
-
-const availColor = (a) => a === 'AVAILABLE' ? '#2ECC71' : a === 'RESERVED' ? '#F39C12' : '#E74C3C'
 
 export default function ObraPage() {
   const { id } = useParams()
@@ -69,9 +71,9 @@ export default function ObraPage() {
   }, [id])
 
   const handleFav = async () => {
-    if (!isLoggedIn) { toast.error('Faz login para guardar favoritos'); return }
+    if (!isLoggedIn) { toast.error(t('auth.login_btn') + ' ' + t('artwork.save_favorites').toLowerCase()); return }
     try {
-      if (faved) { await api.delete(`/favorites/${id}`); setFaved(false); toast.success('Removido dos favoritos') }
+      if (faved) { await api.delete(`/favorites/${id}`); setFaved(false); toast.success(t('artwork.save_favorites')) }
       else { await api.post(`/favorites/${id}`); setFaved(true); toast.success('Guardado nos favoritos!') }
     } catch { toast.error('Erro') }
   }
@@ -90,7 +92,7 @@ export default function ObraPage() {
   }
 
   if (loading) return <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
-  if (!artwork) return <div className="text-center py-24 text-gray-300 font-bold text-lg">Obra não encontrada.</div>
+  if (!artwork) return <div className="text-center py-24 text-gray-300 font-bold text-lg">{t('common.not_found')}</div>
 
   const images = artwork.images || []
   const artist = artwork.artist
@@ -116,7 +118,7 @@ export default function ObraPage() {
                   <img src={images[activeImg].imageUrl} alt={artwork.title} className="w-full h-full object-contain" />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full">
-                      🔍 Clica para ampliar
+                      🔍
                     </span>
                   </div>
                 </>
@@ -146,13 +148,8 @@ export default function ObraPage() {
 
             <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 mb-5">
               <div className="text-xs font-bold uppercase tracking-widest text-gray-300 mb-1">{t('artwork.price')}</div>
-              <div className="text-3xl font-extrabold tracking-tight text-gray-900">
-                {artwork.priceOnRequest ? t('artwork.on_request') : artwork.price ? `€ ${Number(artwork.price).toLocaleString('pt-PT')}` : t('artwork.on_request')}
-              </div>
-              <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold" style={{color: availColor(artwork.availability)}}>
-                <span className="w-2 h-2 rounded-full" style={{background: availColor(artwork.availability)}}></span>
-                {t(`artwork.${artwork.availability?.toLowerCase()}`)}
-              </div>
+              <PriceTag price={artwork.price} priceOnRequest={artwork.priceOnRequest} className="text-3xl font-extrabold tracking-tight text-gray-900 block" />
+              <AvailabilityBadge availability={artwork.availability} className="mt-2" />
             </div>
 
             <div className="flex flex-col gap-2 mb-6">
@@ -172,13 +169,13 @@ export default function ObraPage() {
               ) : (
                 <Link href="/login"
                   className="flex items-center justify-center gap-2 w-full py-3 border-2 border-blue-500 text-blue-500 hover:bg-blue-50 font-bold rounded-xl transition-colors">
-                  <Mail size={16} /> Entra para contactar o artista
+                  <Mail size={16} /> {t('artwork.contact_artist')}
                 </Link>
               )}
               <button onClick={handleFav}
                 className={`flex items-center justify-center gap-2 w-full py-2.5 border-2 font-bold rounded-xl transition-all ${faved ? 'border-red-400 text-red-500 bg-red-50 hover:bg-red-100' : 'border-gray-200 text-gray-500 hover:border-red-300 hover:text-red-400'}`}>
                 <Heart size={16} fill={faved ? 'currentColor' : 'none'} />
-                {faved ? 'Guardado nos favoritos' : t('artwork.save_favorites')}
+                {faved ? t('artwork.saved_favorites') : t('artwork.save_favorites')}
               </button>
             </div>
 
@@ -204,19 +201,17 @@ export default function ObraPage() {
 
             {artist && (
               <Link href={`/${artist.username}`} className="flex items-center gap-3 border border-gray-100 rounded-xl p-3 hover:border-blue-200 transition-colors mb-4">
-                <div className="w-12 h-12 rounded-full bg-blue-400 flex items-center justify-center text-white font-extrabold text-lg flex-shrink-0 overflow-hidden">
-                  {artist.user?.avatarUrl ? <img src={artist.user.avatarUrl} className="w-full h-full object-cover rounded-full" /> : artist.artistName?.[0]}
-                </div>
+                <ArtistAvatar src={artist.user?.avatarUrl} name={artist.artistName} size={12} />
                 <div className="flex-1">
                   <div className="text-sm font-extrabold text-gray-900">{artist.artistName}</div>
                   <div className="text-xs text-gray-400 font-medium mt-0.5">{artist.city}{artist.country ? `, ${artist.country}` : ''}</div>
-                  <div className="text-xs text-blue-500 font-bold mt-1">Ver perfil →</div>
+                  <div className="text-xs text-blue-500 font-bold mt-1">{t('common.view_profile')} →</div>
                 </div>
               </Link>
             )}
 
             <div className="flex flex-wrap gap-2">
-              <button onClick={() => { navigator.clipboard.writeText(window.location.href); toast.success('Link copiado!') }}
+              <button onClick={() => { navigator.clipboard.writeText(window.location.href); toast.success(t('artwork.share_copied')) }}
                 className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 border border-gray-200 rounded-lg text-gray-500 hover:border-blue-300 hover:text-blue-500 transition-colors">
                 <Share2 size={13} /> Copiar link
               </button>
@@ -247,20 +242,7 @@ export default function ObraPage() {
             <Link href={`/${artist?.username}`} className="text-sm font-bold text-blue-500">{t('artwork.see_all')}</Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {moreWorks.map(w => (
-              <Link href={`/artwork/${w.id}`} key={w.id} className="rounded-xl overflow-hidden border border-gray-100 hover:border-blue-200 transition-colors block">
-                <div className="bg-blue-50 aspect-[4/5] flex items-center justify-center overflow-hidden">
-                  {w.images?.[0] ? <img src={w.images[0].imageUrl} alt={w.title} className="w-full h-full object-cover" />
-                    : <span className="text-blue-200 text-3xl font-extrabold">{w.title?.[0]}</span>}
-                </div>
-                <div className="p-2.5">
-                  <div className="text-sm font-bold text-gray-900 leading-tight">{w.title}</div>
-                  <div className="text-xs text-gray-400 mt-1 font-semibold">
-                    {w.priceOnRequest ? t('artwork.on_request') : w.price ? `€ ${Number(w.price).toLocaleString('pt-PT')}` : t('artwork.on_request')}
-                  </div>
-                </div>
-              </Link>
-            ))}
+            {moreWorks.map(w => <ArtworkCard key={w.id} artwork={w} showArtist={false} />)}
           </div>
         </div>
       )}
