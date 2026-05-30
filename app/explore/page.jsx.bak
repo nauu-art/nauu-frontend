@@ -1,0 +1,207 @@
+'use client'
+import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { Search, SlidersHorizontal, X } from 'lucide-react'
+import api from '../../lib/api'
+
+const CATEGORIES = ['Pintura','Fotografia','Arte Digital','Ilustração','Escultura','Cerâmica','Gravura','Têxtil','Street Art','Design Gráfico']
+const SORTS = [
+  { label: 'Mais recentes', value: 'createdAt_desc' },
+  { label: 'Mais antigos', value: 'createdAt_asc' },
+  { label: 'Preço crescente', value: 'price_asc' },
+  { label: 'Preço decrescente', value: 'price_desc' },
+  { label: 'Mais vistos', value: 'viewCount_desc' },
+]
+
+const availColor = (a) => a === 'AVAILABLE' ? '#2ECC71' : a === 'RESERVED' ? '#F39C12' : '#E74C3C'
+const availLabel = (a) => a === 'AVAILABLE' ? 'Disponível' : a === 'RESERVED' ? 'Reservado' : 'Vendido'
+
+export default function ExplorePage() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const [artworks, setArtworks] = useState([])
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [search, setSearch] = useState(searchParams.get('search') || '')
+  const [activeCategories, setActiveCategories] = useState([])
+  const [availability, setAvailability] = useState([])
+  const [maxPrice, setMaxPrice] = useState(5000)
+  const [sort, setSort] = useState('createdAt_desc')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const fetchArtworks = useCallback(async () => {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams()
+      params.set('page', page)
+      params.set('limit', 18)
+      params.set('sort', sort)
+      if (search) params.set('search', search)
+      if (maxPrice < 5000) params.set('maxPrice', maxPrice)
+      if (activeCategories.length === 1) params.set('category', activeCategories[0].toLowerCase().replace(/ /g,'-'))
+      const res = await api.get(`/artworks?${params}`)
+      setArtworks(res.data.data || [])
+      setTotal(res.data.pagination?.total || 0)
+      setTotalPages(res.data.pagination?.totalPages || 1)
+    } catch(e) {}
+    setLoading(false)
+  }, [page, sort, search, activeCategories, maxPrice])
+
+  useEffect(() => { fetchArtworks() }, [fetchArtworks])
+
+  const toggleCategory = (cat) => {
+    setActiveCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat])
+    setPage(1)
+  }
+
+  const activeTags = [
+    ...activeCategories.map(c => ({ label: c, remove: () => toggleCategory(c) })),
+    ...(maxPrice < 5000 ? [{ label: `Até €${maxPrice}`, remove: () => setMaxPrice(5000) }] : []),
+  ]
+
+  return (
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <aside className="w-56 flex-shrink-0 border-r border-gray-100 px-5 py-6 flex flex-col gap-6">
+        <div>
+          <div className="text-xs font-extrabold uppercase tracking-widest text-gray-300 mb-3">
+            Categoria
+            {activeCategories.length > 0 && (
+              <button onClick={() => setActiveCategories([])} className="float-right text-brand-400 normal-case tracking-normal font-bold">Limpar</button>
+            )}
+          </div>
+          <div className="flex flex-col gap-0.5">
+            {CATEGORIES.map(cat => (
+              <button key={cat} onClick={() => toggleCategory(cat)}
+                className={`flex justify-between items-center px-2.5 py-2 rounded-md text-sm font-semibold transition-all text-left ${activeCategories.includes(cat) ? 'bg-brand-50 text-brand-500' : 'text-gray-500 hover:bg-gray-50'}`}>
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div className="text-xs font-extrabold uppercase tracking-widest text-gray-300 mb-3">Preço máximo</div>
+          <div className="flex justify-between text-xs font-bold text-gray-400 mb-2">
+            <span>€ 0</span><span>€ {maxPrice.toLocaleString('pt-PT')}</span>
+          </div>
+          <input type="range" min="0" max="5000" step="50" value={maxPrice}
+            onChange={e => { setMaxPrice(Number(e.target.value)); setPage(1) }}
+            className="w-full accent-brand-400" />
+        </div>
+
+        <div>
+          <div className="text-xs font-extrabold uppercase tracking-widest text-gray-300 mb-3">Disponibilidade</div>
+          <div className="flex flex-col gap-1.5">
+            {[['AVAILABLE','Disponível','#2ECC71'],['RESERVED','Reservado','#F39C12'],['SOLD','Vendido','#E74C3C']].map(([val, label, color]) => (
+              <button key={val} onClick={() => {
+                setAvailability(prev => prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val])
+                setPage(1)
+              }} className={`flex items-center gap-2 px-2.5 py-2 rounded-md text-sm font-semibold transition-all ${availability.includes(val) ? 'bg-brand-50 text-brand-500' : 'text-gray-500 hover:bg-gray-50'}`}>
+                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center text-xs ${availability.includes(val) ? 'bg-brand-400 border-brand-400 text-white' : 'border-gray-200'}`}>
+                  {availability.includes(val) && '✓'}
+                </div>
+                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{background: color}}></span>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </aside>
+
+      {/* Main */}
+      <div className="flex-1 px-8 py-6">
+        <div className="flex justify-between items-center mb-5">
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight" style={{letterSpacing:'-0.03em'}}>Explorar obras</h1>
+            <p className="text-sm text-gray-400 font-medium mt-0.5">{total.toLocaleString('pt-PT')} obras encontradas</p>
+          </div>
+          <select value={sort} onChange={e => { setSort(e.target.value); setPage(1) }}
+            className="text-sm font-semibold border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-brand-300 bg-white text-gray-600">
+            {SORTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+          </select>
+        </div>
+
+        {/* Search */}
+        <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2.5 mb-4 bg-gray-50">
+          <Search size={15} className="text-gray-300 flex-shrink-0" />
+          <input value={search} onChange={e => { setSearch(e.target.value); setPage(1) }}
+            placeholder="Pesquisar obras, artistas, técnicas…"
+            className="bg-transparent outline-none text-sm font-medium w-full placeholder:text-gray-300" />
+        </div>
+
+        {/* Active tags */}
+        {activeTags.length > 0 && (
+          <div className="flex gap-2 flex-wrap mb-4">
+            {activeTags.map((t, i) => (
+              <span key={i} className="flex items-center gap-1.5 text-xs font-bold bg-brand-50 text-brand-500 px-3 py-1.5 rounded-full">
+                {t.label}
+                <button onClick={t.remove} className="text-brand-300 hover:text-brand-500"><X size={12}/></button>
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Grid */}
+        {loading ? (
+          <div className="grid grid-cols-3 gap-3">
+            {Array.from({length:9}).map((_,i) => (
+              <div key={i} className="rounded-xl bg-gray-100 animate-pulse h-64" />
+            ))}
+          </div>
+        ) : artworks.length === 0 ? (
+          <div className="text-center py-24 text-gray-300 font-bold text-lg">Nenhuma obra encontrada.</div>
+        ) : (
+          <div className="grid grid-cols-3 gap-3">
+            {artworks.map(w => (
+              <Link href={`/obra/${w.id}`} key={w.id} className="rounded-xl overflow-hidden border border-gray-100 hover:border-brand-200 transition-colors block group">
+                <div className="relative bg-brand-50 aspect-[4/3] overflow-hidden">
+                  {w.images?.[0] ? (
+                    <img src={w.images[0].imageUrl} alt={w.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-brand-200 text-5xl font-extrabold">{w.title?.[0]}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="p-3">
+                  <div className="text-xs font-bold text-brand-300 uppercase tracking-wider mb-1">{w.categories?.[0]?.category?.name || 'Arte'}</div>
+                  <div className="text-sm font-bold text-gray-900 leading-tight">{w.title}</div>
+                  <div className="text-xs text-gray-400 mt-0.5">{w.artist?.artistName} · {w.artist?.city || ''}</div>
+                </div>
+                <div className="flex justify-between items-center px-3 py-2 border-t border-gray-50">
+                  <span className="text-sm font-bold text-gray-900">
+                    {w.priceOnRequest ? 'Sob consulta' : w.price ? `€ ${Number(w.price).toLocaleString('pt-PT')}` : 'Sob consulta'}
+                  </span>
+                  <span className="flex items-center gap-1 text-xs font-semibold" style={{color: availColor(w.availability)}}>
+                    <span className="w-1.5 h-1.5 rounded-full" style={{background: availColor(w.availability)}}></span>
+                    {availLabel(w.availability)}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center gap-2 mt-8 pt-6 border-t border-gray-100">
+            <button onClick={() => setPage(p => Math.max(1, p-1))} disabled={page===1}
+              className="w-8 h-8 border border-gray-200 rounded-lg text-sm font-bold text-gray-400 hover:border-brand-300 hover:text-brand-400 disabled:opacity-30">‹</button>
+            {Array.from({length: Math.min(5, totalPages)}, (_, i) => i + 1).map(p => (
+              <button key={p} onClick={() => setPage(p)}
+                className={`w-8 h-8 border rounded-lg text-sm font-bold transition-all ${page===p ? 'bg-brand-400 border-brand-400 text-white' : 'border-gray-200 text-gray-500 hover:border-brand-300 hover:text-brand-400'}`}>
+                {p}
+              </button>
+            ))}
+            <button onClick={() => setPage(p => Math.min(totalPages, p+1))} disabled={page===totalPages}
+              className="w-8 h-8 border border-gray-200 rounded-lg text-sm font-bold text-gray-400 hover:border-brand-300 hover:text-brand-400 disabled:opacity-30">›</button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Nunito', sans-serif;
+  --color-brand-50: #E6F4FF;
+  --color-brand-100: #B5D4F4;
+  --color-brand-200: #85B7EB;
+  --color-brand-300: #378ADD;
+  --color-brand-400: #1A7FD4;
+  --color-brand-500: #185FA5;
+  --color-brand-600: #0C447C;
+  --color-brand-700: #042C53;
+}
+
+/* Light mode (default) */
+:root {
+  --bg: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-card: #ffffff;
+  --border: #e5e7eb;
+  --border-light: #f3f4f6;
+  --text: #111111;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --navbar-bg: rgba(255,255,255,0.95);
+  --footer-bg: #ffffff;
+}
+
+/* Dark mode automático */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f0f0f;
+    --bg-secondary: #1a1a1a;
+    --bg-card: #1c1c1e;
+    --border: #2c2c2e;
+    --border-light: #1c1c1e;
+    --text: #f5f5f5;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --navbar-bg: rgba(15,15,15,0.95);
+    --footer-bg: #0f0f0f;
+  }
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.2s, color 0.2s;
+}
+
+/* Navbar */
+header {
+  background: var(--navbar-bg) !important;
+  backdrop-filter: blur(12px);
+  border-color: var(--border) !important;
+}
+
+/* Cards e backgrounds */
+.bg-white { background-color: var(--bg-card) !important; }
+.bg-gray-50 { background-color: var(--bg-secondary) !important; }
+.bg-gray-100 { background-color: var(--bg-secondary) !important; }
+
+/* Bordas */
+.border-gray-100 { border-color: var(--border-light) !important; }
+.border-gray-200 { border-color: var(--border) !important; }
+
+/* Texto */
+.text-gray-900 { color: var(--text) !important; }
+.text-gray-700 { color: var(--text-secondary) !important; }
+.text-gray-500 { color: var(--text-secondary) !important; }
+.text-gray-400 { color: var(--text-muted) !important; }
+
+/* Inputs */
+.input {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* Footer */
+footer {
+  background: var(--footer-bg) !important;
+  border-color: var(--border) !important;
+}
+
+/* Bottom nav */
+nav.fixed {
+  background: var(--navbar-bg) !important;
+  border-color: var(--border) !important;
+}
+
+/* Botões */
+.btn-primary {
+  @apply inline-flex items-center bg-blue-500 text-white font-bold text-sm px-5 py-2.5 rounded-lg hover:bg-blue-600 transition-colors no-underline;
+}
+
+.btn-outline {
+  @apply inline-flex items-center font-bold text-sm px-5 py-2.5 rounded-lg border transition-colors no-underline;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+
+.label {
+  @apply block text-xs font-extrabold uppercase tracking-widest text-gray-400 mb-1.5;
+}
+
+.input {
+  @apply block w-full px-3.5 py-2.5 text-sm font-medium rounded-lg border outline-none transition-colors;
+}
+
+.input:focus { border-color: #60a5fa; }
+
+textarea.input { resize: none; }
+
+/* Scrollbar dark mode */
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* Melhorar contraste de imagens em dark mode */
+  img { filter: brightness(0.92); }
+  
+  /* Gradientes */
+  .bg-gradient-to-br.from-blue-50 {
+    --tw-gradient-from: #1a1a2e !important;
+  }
+
+  /* Select e dropdown */
+  select {
+    background: var(--bg-card);
+    color: var(--text);
+    border-color: var(--border);
+  }
+}
+
+/* Logo branco no dark mode */
+@media (prefers-color-scheme: dark) {
+  img[alt="nauu.art"][src="/logo.svg"] {
+    filter: invert(1) brightness(2) !important;
+  }
+}
+
+/* Placeholder cards sem imagem */
+.bg-blue-50 {
+  background-color: var(--bg-secondary) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Placeholder letras mais suaves */
+  .text-blue-200 {
+    color: #2c2c3e !important;
+  }
+  /* CTA box */
+  .bg-blue-50.rounded-2xl {
+    background: var(--bg-card) !important;
+    border-color: var(--border) !important;
+  }
+}
