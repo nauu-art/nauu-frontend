@@ -1,10 +1,9 @@
 import './globals.css'
 import { AuthProvider } from '../context/AuthContext'
 import { LocaleProvider } from '../context/LocaleContext'
-import Navbar from '../components/layout/Navbar'
-import BottomNav from '../components/layout/BottomNav'
+import ConditionalLayout from '../components/layout/ConditionalLayout'
 import PWAInstall from '../components/PWAInstall'
-import Footer from '../components/layout/Footer'
+
 import { Toaster } from 'react-hot-toast'
 
 export const metadata = {
@@ -41,10 +40,7 @@ export default function RootLayout({ children }) {
         <LocaleProvider>
           <AuthProvider>
             <Toaster position="top-right" toastOptions={{ style: { fontFamily: 'Nunito', fontWeight: 600, fontSize: '14px' } }} />
-            <Navbar />
-            <main className="pb-20 md:pb-0">{children}</main>
-            <Footer />
-            <BottomNav />
+            <ConditionalLayout>{children}</ConditionalLayout>
             <PWAInstall />
           </AuthProvider>
         </LocaleProvider>

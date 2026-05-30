@@ -105,16 +105,16 @@ export default function NovaObraPage() {
   if (loading || !user) return <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 flex-col md:flex-row">
       <DashboardNav />
 
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 md:p-8 pt-16 md:pt-8">
         <div className="flex items-center gap-3 mb-7">
           <Link href="/dashboard/artworks" className="text-sm font-bold text-gray-400 hover:text-gray-600">← Voltar</Link>
           <h1 className="text-2xl font-extrabold tracking-tight" style={{letterSpacing:'-0.03em'}}>Nova obra</h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-3 gap-5">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div className="col-span-2 flex flex-col gap-5">
 
             <div className="bg-white border border-gray-100 rounded-xl p-5">
@@ -128,7 +128,7 @@ export default function NovaObraPage() {
                   <label className="label">Descrição</label>
                   <textarea value={form.description} onChange={e => set('description', e.target.value)} className="input resize-none" rows={3} placeholder="Descreve a obra..." />
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <label className="label">Técnica</label>
                     <input value={form.technique} onChange={e => set('technique', e.target.value)} className="input" placeholder="Acrílico, óleo..." />

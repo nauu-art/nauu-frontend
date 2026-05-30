@@ -8,14 +8,11 @@ const CAT_SLUG_MAP = {
 }
 
 import { useState, useEffect, useCallback } from 'react'
-import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Search, X } from 'lucide-react'
+import { Search, X, SlidersHorizontal } from 'lucide-react'
 import api from '../../lib/api'
 import ArtworkCard from '../../components/ui/ArtworkCard'
 import { useLocale } from '../../context/LocaleContext'
-
-const availColor = (a) => a === 'AVAILABLE' ? '#2ECC71' : a === 'RESERVED' ? '#F39C12' : '#E74C3C'
 
 export default function ExplorePage() {
   const { t } = useLocale()
@@ -30,6 +27,7 @@ export default function ExplorePage() {
   const [availability, setAvailability] = useState([])
   const [maxPrice, setMaxPrice] = useState(5000)
   const [sort, setSort] = useState('createdAt_desc')
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const CATEGORIES = [
     { key: 'pintura', pt: 'Pintura', slug: 'pintura' },
@@ -48,6 +46,7 @@ export default function ExplorePage() {
     { key: 'arte_multimedia', pt: 'Arte Multimédia', slug: 'arte-multimedia' },
     { key: 'performance', pt: 'Performance', slug: 'performance-instalacao' },
   ]
+
   const SORTS = [
     { label: t('explore.sort_recent'), value: 'createdAt_desc' },
     { label: t('explore.sort_oldest'), value: 'createdAt_asc' },
@@ -81,79 +80,128 @@ export default function ExplorePage() {
 
   useEffect(() => { fetchArtworks() }, [fetchArtworks])
 
-  const toggleCategory = (cat) => {
-    setActiveCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat])
+  const toggleCategory = (key) => {
+    setActiveCategories(prev => prev.includes(key) ? prev.filter(c => c !== key) : [...prev, key])
     setPage(1)
   }
+
+  const activeFiltersCount = activeCategories.length + (maxPrice < 5000 ? 1 : 0) + availability.length
 
   const activeTags = [
     ...activeCategories.map(c => { const cat = CATEGORIES.find(x => x.key === c); return { label: t(`categories.${c}`) || cat?.pt || c, remove: () => toggleCategory(c) } }),
     ...(maxPrice < 5000 ? [{ label: `Até €${maxPrice}`, remove: () => setMaxPrice(5000) }] : []),
+    ...availability.map(v => ({ label: t(`explore.${v.toLowerCase()}`), remove: () => { setAvailability(prev => prev.filter(a => a !== v)); setPage(1) } })),
   ]
+
+  const FilterPanel = () => (
+    <div className="flex flex-col gap-6">
+      <div>
+        <div className="flex justify-between items-center mb-3">
+          <div className="text-xs font-extrabold uppercase tracking-widest text-gray-300">{t('explore.category')}</div>
+          {activeCategories.length > 0 && (
+            <button onClick={() => setActiveCategories([])} className="text-xs text-blue-400 font-bold">{t('explore.clear')}</button>
+          )}
+        </div>
+        <div className="flex flex-col gap-0.5">
+          {CATEGORIES.map(cat => (
+            <button key={cat.key} onClick={() => toggleCategory(cat.key)}
+              className={`flex justify-between items-center px-2.5 py-2 rounded-md text-sm font-semibold transition-all text-left ${activeCategories.includes(cat.key) ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-50'}`}>
+              {t(`categories.${cat.key}`) || cat.pt}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div className="text-xs font-extrabold uppercase tracking-widest text-gray-300 mb-3">{t('explore.max_price')}</div>
+        <div className="flex justify-between text-xs font-bold text-gray-400 mb-2">
+          <span>€ 0</span><span>€ {maxPrice.toLocaleString('pt-PT')}</span>
+        </div>
+        <input type="range" min="0" max="5000" step="50" value={maxPrice}
+          onChange={e => { setMaxPrice(Number(e.target.value)); setPage(1) }} className="w-full" />
+      </div>
+
+      <div>
+        <div className="text-xs font-extrabold uppercase tracking-widest text-gray-300 mb-3">{t('explore.availability')}</div>
+        <div className="flex flex-col gap-1.5">
+          {[['AVAILABLE', t('explore.available'),'#2ECC71'],['RESERVED', t('explore.reserved'),'#F39C12'],['SOLD', t('explore.sold'),'#E74C3C']].map(([val, label, color]) => (
+            <button key={val} onClick={() => { setAvailability(prev => prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]); setPage(1) }}
+              className={`flex items-center gap-2 px-2.5 py-2 rounded-md text-sm font-semibold transition-all ${availability.includes(val) ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-50'}`}>
+              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center text-xs ${availability.includes(val) ? 'bg-blue-500 border-blue-500 text-white' : 'border-gray-200'}`}>
+                {availability.includes(val) && '✓'}
+              </div>
+              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{background: color}}></span>
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
+
+      {/* Sidebar desktop */}
       <aside className="hidden md:flex w-56 flex-shrink-0 border-r border-gray-100 px-5 py-6 flex-col gap-6">
-        <div>
-          <div className="text-xs font-extrabold uppercase tracking-widest text-gray-300 mb-3">
-            {t('explore.category')}
-            {activeCategories.length > 0 && (
-              <button onClick={() => setActiveCategories([])} className="float-right text-blue-400 normal-case tracking-normal font-bold">{t('explore.clear')}</button>
-            )}
-          </div>
-          <div className="flex flex-col gap-0.5">
-            {CATEGORIES.map(cat => (
-              <button key={cat.key} onClick={() => toggleCategory(cat.key)}
-                className={`flex justify-between items-center px-2.5 py-2 rounded-md text-sm font-semibold transition-all text-left ${activeCategories.includes(cat.key) ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-50'}`}>
-                {t(`categories.${cat.key}`) || cat.pt}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div>
-          <div className="text-xs font-extrabold uppercase tracking-widest text-gray-300 mb-3">{t('explore.max_price')}</div>
-          <div className="flex justify-between text-xs font-bold text-gray-400 mb-2">
-            <span>€ 0</span><span>€ {maxPrice.toLocaleString('pt-PT')}</span>
-          </div>
-          <input type="range" min="0" max="5000" step="50" value={maxPrice}
-            onChange={e => { setMaxPrice(Number(e.target.value)); setPage(1) }} className="w-full" />
-        </div>
-        <div>
-          <div className="text-xs font-extrabold uppercase tracking-widest text-gray-300 mb-3">{t('explore.availability')}</div>
-          <div className="flex flex-col gap-1.5">
-            {[['AVAILABLE', t('explore.available'),'#2ECC71'],['RESERVED', t('explore.reserved'),'#F39C12'],['SOLD', t('explore.sold'),'#E74C3C']].map(([val, label, color]) => (
-              <button key={val} onClick={() => { setAvailability(prev => prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]); setPage(1) }}
-                className={`flex items-center gap-2 px-2.5 py-2 rounded-md text-sm font-semibold transition-all ${availability.includes(val) ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-50'}`}>
-                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center text-xs ${availability.includes(val) ? 'bg-blue-500 border-blue-500 text-white' : 'border-gray-200'}`}>
-                  {availability.includes(val) && '✓'}
-                </div>
-                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{background: color}}></span>
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <FilterPanel />
       </aside>
 
-      <div className="flex-1 px-5 md:px-8 py-6">
-        <div className="flex justify-between items-center mb-5">
+      {/* Drawer mobile */}
+      {filtersOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setFiltersOpen(false)} />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <div className="text-base font-extrabold">Filtros</div>
+              <button onClick={() => setFiltersOpen(false)} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 px-5 py-4">
+              <FilterPanel />
+            </div>
+            <div className="px-5 py-4 border-t border-gray-100">
+              <button onClick={() => setFiltersOpen(false)}
+                className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-colors">
+                Ver {total} obras
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex-1 px-4 md:px-8 py-5">
+
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4">
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight">{t('explore.title')}</h1>
-            <p className="text-sm text-gray-400 font-medium mt-0.5">{total.toLocaleString('pt-PT')} {t('explore.found').replace('{count}', '').trim()}</p>
+            <h1 className="text-xl md:text-2xl font-extrabold tracking-tight">{t('explore.title')}</h1>
+            <p className="text-xs text-gray-400 font-medium mt-0.5">{total.toLocaleString('pt-PT')} {t('explore.found').replace('{count}', '').trim()}</p>
           </div>
           <select value={sort} onChange={e => { setSort(e.target.value); setPage(1) }}
-            className="text-sm font-semibold border border-gray-200 rounded-lg px-3 py-2 outline-none bg-white text-gray-600">
+            className="text-sm font-semibold border border-gray-200 rounded-lg px-2 py-2 outline-none bg-white text-gray-600 max-w-[140px] md:max-w-none">
             {SORTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
         </div>
 
-        <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2.5 mb-4 bg-gray-50">
-          <Search size={15} className="text-gray-300 flex-shrink-0" />
-          <input value={search} onChange={e => { setSearch(e.target.value); setPage(1) }}
-            placeholder={t('explore.search')}
-            className="bg-transparent outline-none text-sm font-medium w-full placeholder:text-gray-300" />
+        {/* Search + filtros mobile */}
+        <div className="flex gap-2 mb-4">
+          <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2.5 bg-gray-50 flex-1">
+            <Search size={15} className="text-gray-300 flex-shrink-0" />
+            <input value={search} onChange={e => { setSearch(e.target.value); setPage(1) }}
+              placeholder={t('explore.search')}
+              className="bg-transparent outline-none text-sm font-medium w-full placeholder:text-gray-300" />
+            {search && <button onClick={() => { setSearch(''); setPage(1) }}><X size={13} className="text-gray-300" /></button>}
+          </div>
+          <button onClick={() => setFiltersOpen(true)}
+            className={`md:hidden flex items-center gap-1.5 px-3 py-2.5 border rounded-lg text-sm font-bold transition-all ${activeFiltersCount > 0 ? 'bg-blue-500 border-blue-500 text-white' : 'border-gray-200 text-gray-500 bg-white'}`}>
+            <SlidersHorizontal size={15} />
+            {activeFiltersCount > 0 && <span>{activeFiltersCount}</span>}
+          </button>
         </div>
 
+        {/* Tags activas */}
         {activeTags.length > 0 && (
           <div className="flex gap-2 flex-wrap mb-4">
             {activeTags.map((tag, i) => (

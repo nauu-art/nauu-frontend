@@ -42,15 +42,15 @@ export default function DashboardPage() {
   ]
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 flex-col md:flex-row">
       {/* Sidenav */}
       <DashboardNav />
 
       {/* Main */}
-      <div className="flex-1 p-8">
-        <div className="flex justify-between items-center mb-7">
+      <div className="flex-1 p-4 md:p-8 pt-16 md:pt-8">
+        <div className="flex justify-between items-center mb-5 gap-3">
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight" style={{letterSpacing:'-0.03em'}}>
+            <h1 className="text-xl md:text-2xl font-extrabold tracking-tight" style={{letterSpacing:'-0.03em'}}>
               Bom dia, {user.name?.split(' ')[0]}! 👋
             </h1>
             <p className="text-sm text-gray-400 font-medium mt-0.5">{new Date().toLocaleDateString('pt-PT', {weekday:'long', day:'numeric', month:'long', year:'numeric'})}</p>
@@ -62,7 +62,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Métricas */}
-        <div className="grid grid-cols-4 gap-3 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           {[
             { label: 'Obras publicadas', value: stats?.stats?.totalArtworks ?? '—', icon: Image, color: 'text-blue-500', bg: 'bg-blue-50' },
             { label: 'Visualizações', value: stats?.stats?.totalViews ?? '—', icon: Eye, color: 'text-green-500', bg: 'bg-green-50' },
@@ -76,14 +76,14 @@ export default function DashboardPage() {
                   <m.icon size={15} className={m.color} />
                 </div>
               </div>
-              <div className="text-3xl font-extrabold tracking-tight text-gray-900">
+              <div className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900">
                 {loadingStats ? <div className="h-8 w-12 bg-gray-100 rounded animate-pulse" /> : m.value}
               </div>
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           {/* Top obras */}
           <div className="bg-white border border-gray-100 rounded-xl p-5">
             <div className="flex justify-between items-center mb-4">

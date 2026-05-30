@@ -72,7 +72,7 @@ export default function DashboardArtworksPage() {
   if (loading || !user) return <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 flex-col md:flex-row">
       <DashboardNav />
 
       <div className="flex-1 flex">
@@ -107,14 +107,14 @@ export default function DashboardArtworksPage() {
               </Link>
             </div>
           ) : (
-            <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+            <div className="bg-white rounded-xl border border-gray-100 overflow-hidden overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-100">
                     <th className="text-left px-4 py-3 text-xs font-extrabold uppercase tracking-widest text-gray-300">Obra</th>
-                    <th className="text-left px-4 py-3 text-xs font-extrabold uppercase tracking-widest text-gray-300">Preço</th>
-                    <th className="text-left px-4 py-3 text-xs font-extrabold uppercase tracking-widest text-gray-300">Estado</th>
-                    <th className="text-center px-4 py-3 text-xs font-extrabold uppercase tracking-widest text-gray-300">Vistas</th>
+                    <th className="text-left px-4 py-3 text-xs font-extrabold uppercase tracking-widest text-gray-300 hidden sm:table-cell">Preço</th>
+                    <th className="text-left px-4 py-3 text-xs font-extrabold uppercase tracking-widest text-gray-300 hidden sm:table-cell">Estado</th>
+                    <th className="text-center px-4 py-3 text-xs font-extrabold uppercase tracking-widest text-gray-300 hidden md:table-cell">Vistas</th>
                     <th className="text-right px-4 py-3 text-xs font-extrabold uppercase tracking-widest text-gray-300">Ações</th>
                   </tr>
                 </thead>
@@ -136,15 +136,15 @@ export default function DashboardArtworksPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-sm font-bold text-gray-700">
+                        <td className="px-4 py-3 text-sm font-bold text-gray-700 hidden sm:table-cell">
                           {w.priceOnRequest ? 'Sob consulta' : w.price ? `€ ${Number(w.price).toLocaleString('pt-PT')}` : '—'}
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 hidden sm:table-cell">
                           <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{background: availColor(w.availability)+'22', color: availColor(w.availability)}}>
                             {availLabel(w.availability)}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-center">
+                        <td className="px-4 py-3 text-center hidden md:table-cell">
                           <span className="flex items-center justify-center gap-1 text-xs font-bold text-gray-400">
                             <Eye size={12} /> {w.viewCount}
                           </span>

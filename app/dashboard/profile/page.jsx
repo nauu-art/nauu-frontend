@@ -113,10 +113,10 @@ export default function DashboardProfilePage() {
   const avatarSrc = avatarPreview || user.avatarUrl
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 flex-col md:flex-row">
       <DashboardNav />
 
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 md:p-8 pt-16 md:pt-8">
         <div className="flex justify-between items-center mb-7">
           <h1 className="text-2xl font-extrabold tracking-tight" style={{letterSpacing:'-0.03em'}}>Editar perfil</h1>
           <div className="flex gap-2">
@@ -163,7 +163,7 @@ export default function DashboardProfilePage() {
           </div>
         </div>
 
-        <form onSubmit={handleSave} className="grid grid-cols-3 gap-5">
+        <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div className="col-span-2 flex flex-col gap-5">
             <div className="bg-white border border-gray-100 rounded-xl p-5">
               <h2 className="text-sm font-extrabold text-gray-900 mb-4">Informação pública</h2>

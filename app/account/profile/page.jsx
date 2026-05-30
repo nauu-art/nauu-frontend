@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '../../../context/AuthContext'
 import { useLocale } from '../../../context/LocaleContext'
-import { User, Heart, Mail, LogOut, Save, ArrowRight, Bell, FolderHeart } from 'lucide-react'
+import { User, Heart, Mail, LogOut, Save, ArrowRight, Bell, FolderHeart, Key, Trash2 } from 'lucide-react'
 import api from '../../../lib/api'
 import toast from 'react-hot-toast'
 
@@ -14,6 +14,11 @@ export default function AccountProfilePage() {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({ name: '' })
+  const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
+  const [savingPw, setSavingPw] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
+  const [deletingAccount, setDeletingAccount] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   useEffect(() => {
     if (!loading && !isLoggedIn) router.push('/login')
@@ -22,6 +27,29 @@ export default function AccountProfilePage() {
   useEffect(() => {
     if (user) setForm({ name: user.name || '' })
   }, [user])
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault()
+    if (pwForm.newPassword !== pwForm.confirmPassword) { toast.error('As passwords não coincidem'); return }
+    setSavingPw(true)
+    try {
+      await api.put('/auth/change-password', { currentPassword: pwForm.currentPassword, newPassword: pwForm.newPassword })
+      toast.success('Password alterada!')
+      setPwForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+    } catch (err) { toast.error(err.response?.data?.error || 'Erro') }
+    setSavingPw(false)
+  }
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true)
+    try {
+      await api.delete('/auth/account', { data: { password: deletePassword } })
+      toast.success('Conta eliminada')
+      logout()
+      router.push('/')
+    } catch (err) { toast.error(err.response?.data?.error || 'Erro') }
+    setDeletingAccount(false)
+  }
 
   const handleSave = async (e) => {
     e.preventDefault()
@@ -120,6 +148,63 @@ export default function AccountProfilePage() {
               </Link>
             )}
           </div>
+        </div>
+
+        {/* Mudar password */}
+        <form onSubmit={handleChangePassword} className="bg-white border border-gray-100 rounded-2xl p-6 mb-4">
+          <h2 className="text-sm font-extrabold text-gray-900 mb-4 flex items-center gap-2">
+            <Key size={15} className="text-gray-400" /> Mudar password
+          </h2>
+          <div className="flex flex-col gap-3">
+            <div>
+              <label className="label">Password atual</label>
+              <input type="password" value={pwForm.currentPassword} onChange={e => setPwForm(f => ({...f, currentPassword: e.target.value}))} className="input" placeholder="••••••••" />
+            </div>
+            <div>
+              <label className="label">Nova password</label>
+              <input type="password" value={pwForm.newPassword} onChange={e => setPwForm(f => ({...f, newPassword: e.target.value}))} className="input" placeholder="Mínimo 8 caracteres" />
+            </div>
+            <div>
+              <label className="label">Confirmar nova password</label>
+              <input type="password" value={pwForm.confirmPassword} onChange={e => setPwForm(f => ({...f, confirmPassword: e.target.value}))} className="input" placeholder="••••••••" />
+            </div>
+          </div>
+          <button type="submit" disabled={savingPw}
+            className="mt-4 flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm rounded-xl transition-colors">
+            <Key size={15} /> {savingPw ? 'A guardar…' : 'Alterar password'}
+          </button>
+        </form>
+
+        {/* Apagar conta */}
+        <div className="bg-white border border-red-100 rounded-2xl p-6 mb-4">
+          <h2 className="text-sm font-extrabold text-red-500 mb-2 flex items-center gap-2">
+            <Trash2 size={15} /> Apagar conta
+          </h2>
+          <p className="text-xs text-gray-400 font-medium mb-4">Esta ação é irreversível. Todos os teus dados serão eliminados permanentemente.</p>
+          {!showDeleteConfirm ? (
+            <button onClick={() => setShowDeleteConfirm(true)}
+              className="px-4 py-2 border border-red-200 text-red-400 hover:bg-red-50 font-bold text-sm rounded-xl transition-colors">
+              Apagar a minha conta
+            </button>
+          ) : (
+            <div className="flex flex-col gap-3">
+              <div>
+                <label className="label">Confirma com a tua password</label>
+                <input type="password" value={deletePassword} onChange={e => setDeletePassword(e.target.value)}
+                  className="input border-red-200 focus:border-red-400" placeholder="••••••••" />
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => { setShowDeleteConfirm(false); setDeletePassword('') }}
+                  className="flex-1 py-2.5 border border-gray-200 text-gray-500 font-bold text-sm rounded-xl">
+                  Cancelar
+                </button>
+                <button onClick={handleDeleteAccount} disabled={deletingAccount || !deletePassword}
+                  className="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white font-bold text-sm rounded-xl disabled:opacity-50">
+                  {deletingAccount ? 'A apagar…' : 'Apagar definitivamente'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         <button onClick={() => { logout(); router.push('/') }}
