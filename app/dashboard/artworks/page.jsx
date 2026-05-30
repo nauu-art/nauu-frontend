@@ -128,7 +128,10 @@ export default function DashboardArtworksPage() {
                               {w.images?.[0] ? <img src={w.images[0].imageUrl} alt={w.title} className="w-full h-full object-cover" /> : <span className="text-blue-200 font-extrabold text-sm">{w.title?.[0]}</span>}
                             </div>
                             <div>
+                              <div className="flex items-center gap-2">
                               <div className="text-sm font-bold text-gray-900">{w.title}</div>
+                              {w.isDraft && <span className="text-xs font-bold px-1.5 py-0.5 bg-amber-100 text-amber-600 rounded">Rascunho</span>}
+                            </div>
                               <div className="text-xs text-gray-400 font-medium">{w.categories?.[0]?.category?.name}</div>
                             </div>
                           </div>

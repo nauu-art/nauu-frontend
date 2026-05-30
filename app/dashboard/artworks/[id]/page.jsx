@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '../../../../context/AuthContext'
-import { LayoutDashboard, Image, Mail, User, LogOut, Upload, X, Trash2, Save } from 'lucide-react'
+import { Upload, X, Trash2, Save } from 'lucide-react'
+import DashboardNav from '../../../../components/ui/DashboardNav'
 import api from '../../../../lib/api'
 import toast from 'react-hot-toast'
 
@@ -21,7 +22,7 @@ export default function EditArtworkPage() {
   const [form, setForm] = useState({
     title: '', description: '', technique: '', dimensions: '',
     yearCreated: new Date().getFullYear(), price: '', priceOnRequest: false,
-    availability: 'AVAILABLE', categoryIds: [],
+    availability: 'AVAILABLE', categoryIds: [], isDraft: false,
   })
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export default function EditArtworkPage() {
           priceOnRequest: w.priceOnRequest || false,
           availability: w.availability || 'AVAILABLE',
           categoryIds: w.categories?.map(c => c.categoryId) || [],
+          isDraft: w.isDraft || false,
         })
       }).catch(() => toast.error('Erro ao carregar obra'))
     }
@@ -62,6 +64,7 @@ export default function EditArtworkPage() {
     try {
       await api.put(`/artworks/${id}`, {
         ...form,
+        isDraft: false,
         price: form.priceOnRequest ? undefined : form.price ? Number(form.price) : undefined,
         yearCreated: form.yearCreated ? Number(form.yearCreated) : undefined,
       })
@@ -128,41 +131,11 @@ export default function EditArtworkPage() {
     }))
   }
 
-  const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/dashboard/artworks', label: 'As minhas obras', icon: Image, active: true },
-    { href: '/dashboard/contacts', label: 'Contactos', icon: Mail },
-    { href: '/dashboard/profile', label: 'Editar perfil', icon: User },
-  ]
-
   if (loading || !user || !artwork) return <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <aside className="w-56 bg-white border-r border-gray-100 flex flex-col">
-        <div className="p-5 border-b border-gray-100">
-          <Link href="/"><img src="/logo.svg" alt="nauu.art" className="h-7 w-auto" /></Link>
-        </div>
-        <div className="p-3 border-b border-gray-100 flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-blue-400 flex items-center justify-center text-white font-extrabold text-sm overflow-hidden flex-shrink-0">
-            {user.avatarUrl ? <img src={user.avatarUrl} className="w-full h-full object-cover" alt="" /> : user.name?.[0]}
-          </div>
-          <div><div className="text-sm font-bold text-gray-900 truncate">{user.name}</div><div className="text-xs text-gray-400">Artista</div></div>
-        </div>
-        <nav className="flex-1 p-2">
-          {navItems.map(item => (
-            <Link key={item.href} href={item.href}
-              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all mb-0.5 ${item.active ? 'bg-blue-50 text-blue-600 border-l-2 border-blue-500' : 'text-gray-500 hover:bg-gray-50'}`}>
-              <item.icon size={16} />{item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="p-3 border-t border-gray-100">
-          <button onClick={() => { logout(); router.push('/') }} className="flex items-center gap-2.5 px-3 py-2 text-sm font-semibold text-red-400 hover:bg-red-50 rounded-lg w-full">
-            <LogOut size={15} /> Sair
-          </button>
-        </div>
-      </aside>
+      <DashboardNav />
 
       <div className="flex-1 p-8">
         <div className="flex items-center justify-between mb-7">
@@ -298,9 +271,26 @@ export default function EditArtworkPage() {
               </div>
             </div>
 
+            {!form.isDraft ? (
+              <button type="button" onClick={async () => {
+                setSaving(true)
+                try {
+                  await api.put(`/artworks/${id}`, { ...form, isDraft: true, price: form.priceOnRequest ? undefined : form.price ? Number(form.price) : undefined, yearCreated: form.yearCreated ? Number(form.yearCreated) : undefined })
+                  toast.success('Guardado como rascunho')
+                  router.push('/dashboard/artworks')
+                } catch { toast.error('Erro') }
+                setSaving(false)
+              }} disabled={saving} className="w-full py-2.5 border border-gray-200 text-gray-500 hover:border-gray-300 font-bold text-sm rounded-xl transition-colors">
+                💾 Guardar como rascunho
+              </button>
+            ) : (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 text-xs font-bold text-amber-600 text-center">
+                📝 Este é um rascunho — não está visível publicamente
+              </div>
+            )}
             <button type="submit" disabled={saving}
               className="w-full flex items-center justify-center gap-2 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-colors">
-              <Save size={16} /> {saving ? 'A guardar…' : 'Guardar alterações'}
+              <Save size={16} /> {saving ? 'A guardar…' : form.isDraft ? 'Publicar obra' : 'Guardar alterações'}
             </button>
           </div>
         </form>

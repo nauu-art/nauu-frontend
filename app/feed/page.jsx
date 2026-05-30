@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
 import api from '../../lib/api'
 import AddToCollection from '../../components/ui/AddToCollection'
+import ImageCarousel from '../../components/ui/ImageCarousel'
 
 const availColor = (a) => a === 'AVAILABLE' ? '#2ECC71' : a === 'RESERVED' ? '#F39C12' : '#E74C3C'
 
@@ -138,16 +139,12 @@ export default function FeedPage() {
                     </div>
                   </div>
                 </Link>
-                <Link href={`/artwork/${item.id}`} className="block relative group">
-                  <div className="aspect-square bg-blue-50 overflow-hidden">
-                    {item.images?.[0]
-                      ? <img src={item.images[0].imageUrl} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      : <div className="w-full h-full flex items-center justify-center text-blue-200 text-8xl font-extrabold">{item.title?.[0]}</div>}
-                  </div>
-                  <div className="absolute top-3 right-3">
+                <div className="relative">
+                  <ImageCarousel images={item.images} title={item.title} aspect="1" />
+                  <div className="absolute top-3 right-3 z-20">
                     <AddToCollection artworkId={item.id} />
                   </div>
-                </Link>
+                </div>
                 <div className="px-4 py-3">
                   <div className="flex justify-between items-start mb-1">
                     <div>

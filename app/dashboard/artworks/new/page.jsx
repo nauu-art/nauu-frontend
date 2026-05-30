@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '../../../../context/AuthContext'
-import { LayoutDashboard, Image, Mail, User, LogOut, Upload, X } from 'lucide-react'
+import { Upload, X } from 'lucide-react'
+import DashboardNav from '../../../../components/ui/DashboardNav'
 import api from '../../../../lib/api'
 import toast from 'react-hot-toast'
 
@@ -50,6 +51,28 @@ export default function NovaObraPage() {
     }))
   }
 
+  const handleDraft = async () => {
+    if (!form.title) { toast.error('Título obrigatório'); return }
+    setSaving(true)
+    try {
+      const payload = {
+        ...form,
+        isDraft: true,
+        price: form.priceOnRequest ? undefined : form.price ? Number(form.price) : undefined,
+        yearCreated: form.yearCreated ? Number(form.yearCreated) : undefined,
+      }
+      const res = await api.post('/artworks', payload)
+      if (images.length > 0) {
+        const formData = new FormData()
+        images.forEach(img => formData.append('images', img))
+        await api.post(`/artworks/${res.data.id}/images`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+      }
+      toast.success('Rascunho guardado!')
+      router.push('/dashboard/artworks')
+    } catch (err) { toast.error(err.response?.data?.error || 'Erro') }
+    setSaving(false)
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.title) { toast.error('Título obrigatório'); return }
@@ -79,41 +102,11 @@ export default function NovaObraPage() {
     setSaving(false)
   }
 
-  const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/dashboard/artworks', label: 'As minhas obras', icon: Image, active: true },
-    { href: '/dashboard/contacts', label: 'Contactos', icon: Mail },
-    { href: '/dashboard/profile', label: 'Editar perfil', icon: User },
-  ]
-
   if (loading || !user) return <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <aside className="w-56 bg-white border-r border-gray-100 flex flex-col">
-        <div className="p-5 border-b border-gray-100">
-          <Link href="/" className="text-lg font-extrabold tracking-tight" style={{letterSpacing:'-0.03em'}}>
-            <img src="/logo.svg" alt="nauu.art" className="h-7 w-auto" />
-          </Link>
-        </div>
-        <div className="p-3 border-b border-gray-100 flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-blue-400 flex items-center justify-center text-white font-extrabold text-sm">{user.name?.[0]}</div>
-          <div><div className="text-sm font-bold text-gray-900">{user.name}</div><div className="text-xs text-gray-400">Artista</div></div>
-        </div>
-        <nav className="flex-1 p-2">
-          {navItems.map(item => (
-            <Link key={item.href} href={item.href}
-              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all mb-0.5 ${item.active ? 'bg-blue-50 text-blue-600 border-l-2 border-blue-500' : 'text-gray-500 hover:bg-gray-50'}`}>
-              <item.icon size={16} />{item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="p-3 border-t border-gray-100">
-          <button onClick={() => { logout(); router.push('/') }} className="flex items-center gap-2.5 px-3 py-2 text-sm font-semibold text-red-400 hover:bg-red-50 rounded-lg w-full">
-            <LogOut size={15} /> Sair
-          </button>
-        </div>
-      </aside>
+      <DashboardNav />
 
       <div className="flex-1 p-8">
         <div className="flex items-center gap-3 mb-7">
@@ -220,6 +213,10 @@ export default function NovaObraPage() {
               </div>
             </div>
 
+            <button type="button" onClick={handleDraft} disabled={saving}
+              className="w-full py-2.5 border border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700 font-bold text-sm rounded-xl transition-colors">
+              {saving ? 'A guardar…' : '💾 Guardar rascunho'}
+            </button>
             <button type="submit" disabled={saving}
               className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-colors">
               {saving ? 'A publicar…' : 'Publicar obra'}

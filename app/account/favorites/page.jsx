@@ -73,7 +73,7 @@ export default function FavoritosPage() {
                 <Link href={`/artwork/${w.id}`} className="block">
                   <div className="aspect-[4/5] bg-blue-50 overflow-hidden flex items-center justify-center">
                     {w.images?.[0]
-                      ? <img src={w.images[0].imageUrl} alt={w.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      ? <img src={w.images[0].imageUrl} alt={w.title} className="w-full h-full object-cover" />
                       : <span className="text-blue-200 text-4xl font-extrabold">{w.title?.[0]}</span>}
                   </div>
                   <div className="p-3">

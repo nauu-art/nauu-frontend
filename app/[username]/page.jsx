@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import AddToCollection from '../../components/ui/AddToCollection'
+import ImageCarousel from '../../components/ui/ImageCarousel'
 import ArtistAvatar from '../../components/ui/ArtistAvatar'
 import AvailabilityBadge from '../../components/ui/AvailabilityBadge'
 import PriceTag from '../../components/ui/PriceTag'
@@ -211,11 +212,9 @@ export default function ArtistPage() {
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {artworks.map(w => (
                       <Link href={`/artwork/${w.id}`} key={w.id} className="rounded-xl overflow-hidden border border-gray-100 hover:border-blue-200 transition-colors block group">
-                        <div className="relative bg-blue-50 aspect-[4/5] overflow-hidden flex items-center justify-center">
-                          {w.images?.[0]
-                            ? <img src={w.images[0].imageUrl} alt={w.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                            : <span className="text-blue-200 text-4xl font-extrabold">{w.title?.[0]}</span>}
-                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="relative">
+                          <ImageCarousel images={w.images} title={w.title} aspect="4/5" />
+                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                             <AddToCollection artworkId={w.id} />
                           </div>
                         </div>

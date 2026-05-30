@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import AddToCollection from './AddToCollection'
+import ImageCarousel from './ImageCarousel'
 import AvailabilityBadge from './AvailabilityBadge'
 import PriceTag from './PriceTag'
 import { useLocale } from '../../context/LocaleContext'
@@ -20,25 +21,17 @@ export default function ArtworkCard({ artwork: w, aspect = '4/5', showArtist = t
   const catLabel = catSlug ? (t(`categories.${catSlug}`) || catName) : (catName || '')
 
   return (
-    <Link href={`/artwork/${w.id}`}
-      className="block rounded-xl overflow-hidden border border-gray-100 hover:border-blue-200 transition-colors group">
-      <div className="relative bg-blue-50 overflow-hidden" style={{ aspectRatio: aspect }}>
-        {w.images?.[0] ? (
-          <img src={w.images[0].imageUrl} alt={w.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="text-blue-200 text-5xl font-extrabold">{w.title?.[0]}</span>
-          </div>
-        )}
+    <div className="rounded-xl overflow-hidden border border-gray-100 hover:border-blue-200 transition-colors group">
+      <div className="relative">
+        <ImageCarousel images={w.images} title={w.title} aspect={aspect} />
         {w.isFeatured && (
-          <div className="absolute top-2 left-2 bg-amber-400 text-white text-xs font-bold px-2 py-0.5 rounded-full">⭐</div>
+          <div className="absolute top-2 left-2 bg-amber-400 text-white text-xs font-bold px-2 py-0.5 rounded-full z-10">⭐</div>
         )}
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
           <AddToCollection artworkId={w.id} />
         </div>
       </div>
-      <div className="p-3 bg-white">
+      <Link href={`/artwork/${w.id}`} className="block p-3 bg-white hover:bg-gray-50 transition-colors">
         {catLabel && (
           <div className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">{catLabel}</div>
         )}
@@ -50,7 +43,7 @@ export default function ArtworkCard({ artwork: w, aspect = '4/5', showArtist = t
           <PriceTag price={w.price} priceOnRequest={w.priceOnRequest} className="text-sm font-bold text-gray-900" />
           <AvailabilityBadge availability={w.availability} />
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   )
 }
