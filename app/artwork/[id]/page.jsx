@@ -74,8 +74,8 @@ export default function ObraPage() {
     if (!isLoggedIn) { toast.error(t('auth.login_btn') + ' ' + t('artwork.save_favorites').toLowerCase()); return }
     try {
       if (faved) { await api.delete(`/favorites/${id}`); setFaved(false); toast.success(t('artwork.save_favorites')) }
-      else { await api.post(`/favorites/${id}`); setFaved(true); toast.success('Guardado nos favoritos!') }
-    } catch { toast.error('Erro') }
+      else { await api.post(`/favorites/${id}`); setFaved(true); toast.success(t('artwork.saved_favorites')) }
+    } catch { toast.error(t('common.error')) }
   }
 
   const handleContact = async (e) => {
@@ -141,7 +141,7 @@ export default function ObraPage() {
           {/* Info */}
           <div>
             <div className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
-              {artwork.categories?.[0]?.category?.name || 'Arte'}
+              {artwork.categories?.[0]?.category?.name || ''}
             </div>
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-1" style={{letterSpacing:'-0.03em'}}>{artwork.title}</h1>
             <p className="text-sm text-gray-400 font-medium mb-6">{artwork.yearCreated}</p>
