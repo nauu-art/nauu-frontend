@@ -57,6 +57,8 @@ export default function NotificationBell() {
     PROFILE_APPROVED: '✅',
     PROFILE_CHANGES: '✏️',
     PROFILE_REJECTED: '❌',
+  NEW_MESSAGE: '💬',
+  SHIPPING: '📦',
   }
 
   const timeAgo = (date) => {

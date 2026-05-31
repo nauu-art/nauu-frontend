@@ -31,28 +31,23 @@ export default function ObraPage() {
       }).catch(() => {})
     }
   }, [isLoggedIn, id])
-  const [modalOpen, setModalOpen] = useState(false)
   const [moreWorks, setMoreWorks] = useState([])
   const [similarWorks, setSimilarWorks] = useState([])
   const [collectionWorks, setCollectionWorks] = useState([])
-  const [form, setForm] = useState({ name: '', email: '', message: '' })
 
-  // Pré-preencher com dados do utilizador logado
-  useEffect(() => {
-    if (user) setForm(f => ({ ...f, name: user.name || '', email: user.email || '' }))
-  }, [user])
-  const [sending, setSending] = useState(false)
+
+
+
+  const [startingConversation, setStartingConversation] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
-  const [existingThread, setExistingThread] = useState(false)
+  const [existingConversation, setExistingConversation] = useState(null)
 
-  // Verificar se já existe conversa com este artista
   useEffect(() => {
-    if (isLoggedIn && artwork?.artist?.username) {
-      api.get('/contact/sent').then(res => {
-        const contacts = res.data || []
-        const hasThread = contacts.some(c => c.artist?.username === artwork.artist.username)
-        setExistingThread(hasThread)
+    if (isLoggedIn && artwork) {
+      api.get('/messages').then(res => {
+        const conv = (res.data || []).find(c => c.artwork?.id === artwork.id)
+        setExistingConversation(conv || null)
       }).catch(() => {})
     }
   }, [isLoggedIn, artwork])
@@ -83,17 +78,20 @@ export default function ObraPage() {
     } catch { toast.error(t('common.error')) }
   }
 
-  const handleContact = async (e) => {
-    e.preventDefault()
-    if (!form.name || !form.email || !form.message) { toast.error(t('contact.error_fields')); return }
-    setSending(true)
+  const handleStartConversation = async () => {
+    if (!isLoggedIn) { router.push('/login'); return }
+    setStartingConversation(true)
     try {
-      await api.post(`/contact/${artwork.artist.username}`, { ...form, artworkId: id })
-      toast.success(t('contact.success'))
-      setModalOpen(false)
-      setForm({ name: '', email: '', message: '' })
+      const artistUser = artwork.artist
+      // Obter userId do artista
+      const res = await api.post('/messages', {
+        artistUserId: artwork.artist?.userId || artwork.artist?.user?.id,
+        artworkId: id,
+        content: `Olá! Tenho interesse na obra "${artwork.title}".`
+      })
+      router.push(`/account/messages/${res.data.conversation.id}`)
     } catch { toast.error(t('common.error')) }
-    setSending(false)
+    setStartingConversation(false)
   }
 
   if (loading) return <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
@@ -168,19 +166,16 @@ export default function ObraPage() {
             </div>
 
             <div className="flex flex-col gap-2 mb-6">
-              {isLoggedIn ? (
-                <div className="flex flex-col gap-2">
-                  <button onClick={() => setModalOpen(true)}
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-colors">
-                    <Mail size={16} /> {t('artwork.contact_artist')}
-                  </button>
-                  {existingThread && (
-                    <Link href="/account/contacts"
-                      className="flex items-center justify-center gap-2 w-full py-2.5 border border-green-300 text-green-600 hover:bg-green-50 font-bold text-sm rounded-xl transition-colors">
-                      💬 {t('artwork.existing_thread')}
-                    </Link>
-                  )}
-                </div>
+              {existingConversation ? (
+                <Link href={`/account/messages/${existingConversation.id}`}
+                  className="flex items-center justify-center gap-2 w-full py-3 border-2 border-blue-500 text-blue-500 hover:bg-blue-50 font-bold rounded-xl transition-colors">
+                  💬 {t('artwork.existing_thread')}
+                </Link>
+              ) : isLoggedIn ? (
+                <button onClick={handleStartConversation} disabled={startingConversation}
+                  className="flex items-center justify-center gap-2 w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-colors disabled:opacity-50">
+                  <Mail size={16} /> {startingConversation ? 'A abrir…' : t('artwork.contact_artist')}
+                </button>
               ) : (
                 <Link href="/login"
                   className="flex items-center justify-center gap-2 w-full py-3 border-2 border-blue-500 text-blue-500 hover:bg-blue-50 font-bold rounded-xl transition-colors">
@@ -277,26 +272,7 @@ export default function ObraPage() {
         </div>
       )}
 
-      {modalOpen && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={e => e.target === e.currentTarget && setModalOpen(false)}>
-          <div className="bg-white rounded-2xl p-7 w-full max-w-md relative">
-            <button onClick={() => setModalOpen(false)} className="absolute top-4 right-4 text-gray-300 hover:text-gray-600 text-xl font-bold">×</button>
-            <h3 className="text-lg font-extrabold tracking-tight mb-1">{t('contact.title')} {artist?.artistName}</h3>
-            <p className="text-sm text-gray-400 font-medium mb-5">{t('contact.about')}: {artwork.title}</p>
-            <form onSubmit={handleContact} className="flex flex-col gap-3">
-              <div>
-                <label className="label">{t('contact.message')}</label>
-                <textarea value={form.message} onChange={e => setForm(f => ({...f, message: e.target.value}))} className="input" rows={5} placeholder={t('contact.message_placeholder')} autoFocus />
-              </div>
-              <p className="text-xs text-gray-400 font-medium">{t('contact.note')}</p>
-              <button type="submit" disabled={sending} className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-colors">
-                {sending ? t('contact.sending') : t('contact.send')}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-    {lightboxOpen && images.length > 0 && (
+      {lightboxOpen && images.length > 0 && (
         <Lightbox
           open={lightboxOpen}
           close={() => setLightboxOpen(false)}
