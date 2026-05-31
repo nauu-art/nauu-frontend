@@ -169,8 +169,8 @@ export default function OnboardingPage() {
               )}
               <div>
                 <label className="label">Username *</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">@</span>
+                <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden focus-within:border-blue-400 transition-colors">
+                  <span className="px-3 text-sm text-gray-400 bg-gray-50 border-r border-gray-200 py-2.5 font-bold flex-shrink-0">@</span>
                   <input value={form.username}
                     onChange={e => {
                       const val = e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '')
@@ -179,10 +179,10 @@ export default function OnboardingPage() {
                       const uid = user?.id
       if (val.length >= 3) setTimeout(() => checkUsername(val, uid), 600)
                     }}
-                    className={`input pl-7 ${usernameAvailable === true ? 'border-green-400' : usernameAvailable === false ? 'border-red-400' : ''}`}
+                    className="flex-1 px-3 py-2.5 text-sm outline-none font-medium bg-transparent"
                     placeholder="o.teu.username" />
-                  {checkingUsername && <div className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500" />}
-                  {usernameAvailable === true && <Check size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" />}
+                  {checkingUsername && <div className="mr-3 animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 flex-shrink-0" />}
+                  {usernameAvailable === true && <Check size={16} className="mr-3 text-green-500 flex-shrink-0" />}
                 </div>
                 {usernameAvailable === false && <p className="text-xs text-red-400 mt-1">Username já em uso</p>}
               </div>
