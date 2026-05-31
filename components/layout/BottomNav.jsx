@@ -30,12 +30,12 @@ export default function BottomNav() {
               className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-colors">
               <div className={`relative w-6 h-6 flex items-center justify-center`}>
                 {item.avatar ? (
-                  <img src={item.avatar} alt="" className={`w-6 h-6 rounded-full object-cover border-2 ${active ? 'border-black' : 'border-transparent'}`} />
+                  <img src={item.avatar} alt="" className={`w-6 h-6 rounded-full object-cover border-2 ${active ? 'border-blue-500' : 'border-transparent'}`} />
                 ) : (
-                  <item.icon size={22} strokeWidth={active ? 2.5 : 1.8} className={active ? 'text-black' : 'text-gray-400'} />
+                  <item.icon size={22} strokeWidth={active ? 2.5 : 1.8} className={active ? 'text-blue-500' : 'text-gray-400'} />
                 )}
               </div>
-              <span className={`text-xs font-semibold ${active ? 'text-black' : 'text-gray-400'}`}>{item.label}</span>
+              <span className={`text-xs font-semibold ${active ? 'text-blue-500' : 'text-gray-400'}`}>{item.label}</span>
             </Link>
           )
         })}

@@ -149,7 +149,17 @@ export default function ObraPage() {
               {artwork.categories?.[0]?.category?.name || ''}
             </div>
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-1" style={{letterSpacing:'-0.03em'}}>{artwork.title}</h1>
-            <p className="text-sm text-gray-400 font-medium mb-6">{artwork.yearCreated}</p>
+            <div className="flex items-center gap-2 mb-6">
+              <p className="text-sm text-gray-400 font-medium">{artwork.yearCreated}</p>
+              {artwork.collection && (
+                <>
+                  <span className="text-gray-300">·</span>
+                  <a href={`/collection/${artwork.collectionId}`} className="text-sm text-purple-500 italic font-medium hover:text-purple-600 transition-colors">
+                    {artwork.collection.name}
+                  </a>
+                </>
+              )}
+            </div>
 
             <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 mb-5">
               <div className="text-xs font-bold uppercase tracking-widest text-gray-300 mb-1">{t('artwork.price')}</div>

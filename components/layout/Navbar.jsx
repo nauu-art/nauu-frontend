@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Search, LayoutDashboard, Heart, User, LogOut, Menu, X, ChevronDown, Shield } from 'lucide-react'
+import NotificationBell from '../ui/NotificationBell'
 import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
 
@@ -40,6 +41,8 @@ export default function Navbar() {
               className="bg-transparent outline-none text-sm w-44 font-medium placeholder:text-gray-300" />
           </form>
           {isLoggedIn ? (
+            <div className="flex items-center gap-1">
+            <NotificationBell />
             <div className="relative">
               <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-full bg-blue-400 flex items-center justify-center text-white text-sm font-extrabold overflow-hidden border-2 border-white shadow-sm">
@@ -60,6 +63,7 @@ export default function Navbar() {
                 </div>
               )}
             </div>
+            </div>
           ) : (
             <>
               <Link href="/login" className="text-sm font-bold text-gray-500 px-3 py-2 hover:text-gray-900">{t('nav.login')}</Link>
@@ -77,7 +81,7 @@ export default function Navbar() {
                 : <span>{user?.name?.[0]}</span>}
             </div>
           )}
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 text-gray-600">
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400">
             {mobileOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
@@ -85,18 +89,18 @@ export default function Navbar() {
 
       {/* Menu mobile */}
       {mobileOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-5 py-4 flex flex-col gap-3">
+        <div className="md:hidden bg-white border-t border-gray-100 px-5 py-4 flex flex-col gap-3" style={{color:"var(--text)", backgroundColor:"var(--bg-card)"}}>
           <form onSubmit={handleSearch} className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2.5 bg-gray-50">
             <Search size={14} className="text-gray-300" />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Pesquisar…"
               className="bg-transparent outline-none text-sm w-full font-medium placeholder:text-gray-300" />
           </form>
-          <Link href="/explore" onClick={() => setMobileOpen(false)} className="text-sm font-bold text-gray-700 py-2 border-b border-gray-50">Explorar</Link>
-          <Link href="/artists" onClick={() => setMobileOpen(false)} className="text-sm font-bold text-gray-700 py-2 border-b border-gray-50">Artistas</Link>
+          <Link href="/explore" onClick={() => setMobileOpen(false)} className="text-sm font-bold py-2 border-b" style={{color:"var(--text)", borderColor:"var(--border-light)"}}>Explorar</Link>
+          <Link href="/artists" onClick={() => setMobileOpen(false)} className="text-sm font-bold py-2 border-b" style={{color:"var(--text)", borderColor:"var(--border-light)"}}>Artistas</Link>
           {isLoggedIn ? (
             <>
-              {user?.accountType === 'ADMIN' && <Link href="/admin" onClick={() => setMobileOpen(false)} className="text-sm font-bold text-purple-600 py-2 border-b border-gray-50">Admin</Link>}
-              {isArtist && <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="text-sm font-bold text-gray-700 py-2 border-b border-gray-50">Dashboard</Link>}
+              {user?.accountType === 'ADMIN' && <Link href="/admin" onClick={() => setMobileOpen(false)} className="text-sm font-bold text-purple-500 py-2 border-b border-gray-50">Admin</Link>}
+              {isArtist && <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="text-sm font-bold py-2 border-b" style={{color:"var(--text)", borderColor:"var(--border-light)"}}>Dashboard</Link>}
               <button onClick={() => { logout(); setMobileOpen(false); router.push('/') }} className="text-sm font-bold text-red-400 py-2 text-left">Sair</button>
             </>
           ) : (
