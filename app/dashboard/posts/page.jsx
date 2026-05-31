@@ -216,7 +216,7 @@ export default function PostsPage() {
                       </span>
                     </div>
                     <p className="text-sm text-gray-500 font-medium mt-1.5 line-clamp-2"
-                      dangerouslySetInnerHTML={{ __html: post.content?.replace(/<[^>]*>/g, '').slice(0, 120) + '…' }} />
+                      dangerouslySetInnerHTML={{ __html: (post.content || '').replace(/<[^>]*>/g, '').slice(0, 120) + '…' }} />
                   </div>
                 </div>
                 <div className="flex gap-1 px-4 pb-3 border-t border-gray-50 pt-2.5">

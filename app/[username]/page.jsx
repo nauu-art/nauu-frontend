@@ -201,7 +201,7 @@ export default function ArtistPage() {
                       </div>
                       <h3 className="text-xl font-extrabold text-gray-900 mb-3 tracking-tight" style={{letterSpacing:'-0.02em'}}>{post.title}</h3>
                       <div className={`text-gray-600 font-medium leading-relaxed text-sm ${expandedPost === post.id ? '' : 'line-clamp-3'}`}
-                        dangerouslySetInnerHTML={{ __html: expandedPost === post.id ? post.content : post.content?.replace(/<[^>]*>/g, '') }} />
+                        dangerouslySetInnerHTML={{ __html: expandedPost === post.id ? DOMPurify.sanitize(post.content || '') : (post.content || '').replace(/<[^>]*>/g, '') }} />
                     <button onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
                       className="text-xs font-bold text-blue-500 hover:text-blue-600 mt-2">
                       {expandedPost === post.id ? t('feed.collapse') : t('feed.read_more')}

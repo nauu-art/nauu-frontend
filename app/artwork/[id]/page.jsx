@@ -182,6 +182,12 @@ export default function ObraPage() {
                   <Mail size={16} /> {t('artwork.contact_artist')}
                 </Link>
               )}
+              {artwork.availability === 'AVAILABLE' && !artwork.priceOnRequest && artwork.price && artwork.artist?.stripeOnboarded && (
+                <a href={`/checkout/${artwork.id}`}
+                  className="flex items-center justify-center gap-2 w-full py-3 bg-green-500 hover:bg-green-600 text-white font-extrabold rounded-xl transition-colors">
+                  🛒 Comprar — € {Number(artwork.price).toLocaleString('pt-PT')}
+                </a>
+              )}
               <button onClick={handleFav}
                 className={`flex items-center justify-center gap-2 w-full py-2.5 border-2 font-bold rounded-xl transition-all ${faved ? 'border-red-400 text-red-500 bg-red-50 hover:bg-red-100' : 'border-gray-200 text-gray-500 hover:border-red-300 hover:text-red-400'}`}>
                 <Heart size={16} fill={faved ? 'currentColor' : 'none'} />

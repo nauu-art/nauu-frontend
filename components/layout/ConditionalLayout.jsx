@@ -6,7 +6,7 @@ import BottomNav from './BottomNav'
 
 export default function ConditionalLayout({ children }) {
   const pathname = usePathname()
-  const isDashboard = pathname.startsWith('/dashboard') || pathname.startsWith('/admin')
+  const isDashboard = pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/onboarding')
 
   return (
     <>

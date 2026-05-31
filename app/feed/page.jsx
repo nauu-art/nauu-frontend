@@ -118,7 +118,7 @@ export default function FeedPage() {
                 <div className="p-5">
                   <h3 className="text-lg font-extrabold text-gray-900 mb-2">{item.title}</h3>
                   <div className="text-sm text-gray-600 font-medium leading-relaxed line-clamp-3"
-                    dangerouslySetInnerHTML={{ __html: item.content?.replace(/<[^>]*>/g, '').slice(0, 200) + '…' }} />
+                    dangerouslySetInnerHTML={{ __html: (item.content || '').replace(/<[^>]*>/g, '').slice(0, 200) + '…' }} />
                   <a href={`/${item.artist.username}?tab=posts`} className="text-xs font-bold text-blue-500 hover:text-blue-600 mt-2 block">
                     {t('feed.read_more')}
                   </a>

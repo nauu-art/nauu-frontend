@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('nauu_token')
     if (token) {
       api.get('/auth/me')
-        .then(res => setUser(res.data))
+        .then(res => { setUser(res.data); if (!res.data.onboardingCompleted && typeof window !== 'undefined' && !window.location.pathname.startsWith('/onboarding')) { window.location.href = '/onboarding' } })
         .catch(() => {
           localStorage.removeItem('nauu_token')
           localStorage.removeItem('nauu_user')

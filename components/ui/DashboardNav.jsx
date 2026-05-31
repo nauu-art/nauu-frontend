@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, Image, Mail, User, LogOut, FileText, Menu, X, FolderOpen, MessageSquare } from 'lucide-react'
+import { LayoutDashboard, Image, Mail, User, LogOut, FileText, Menu, X, FolderOpen, MessageSquare, CreditCard } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 
@@ -17,6 +17,7 @@ export default function DashboardNav() {
     { href: '/dashboard/posts', label: 'Posts', icon: FileText },
     { href: '/dashboard/collections', label: 'Coleções', icon: FolderOpen },
     { href: '/dashboard/messages', label: 'Mensagens', icon: MessageSquare },
+    { href: '/dashboard/payments', label: 'Pagamentos', icon: CreditCard },
     { href: '/dashboard/contacts', label: 'Contactos', icon: Mail },
     { href: '/dashboard/profile', label: 'Perfil', icon: User },
   ]

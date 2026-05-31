@@ -57,6 +57,9 @@ export default function Navbar() {
                   {user?.accountType === 'ADMIN' && <Link href="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-purple-600 hover:bg-purple-50"><Shield size={15} /> Admin</Link>}
                   {isArtist && <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50"><LayoutDashboard size={15} /> {t('nav.dashboard')}</Link>}
                   <Link href="/account/favorites" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50"><Heart size={15} /> {t('nav.favorites')}</Link>
+                  {user?.username && !user?.artistProfile && (
+                    <Link href={`/u/${user.username}`} onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50"><User size={15} /> Ver perfil público</Link>
+                  )}
                   <Link href="/account/profile" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50"><User size={15} /> {t('nav.profile')}</Link>
                   <hr className="my-1 border-gray-100" />
                   <button onClick={() => { logout(); setMenuOpen(false); router.push('/') }} className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-red-400 hover:bg-red-50 w-full text-left"><LogOut size={15} /> {t('nav.logout')}</button>
