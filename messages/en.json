@@ -173,7 +173,7 @@
   },
   "feed": {
     "feed_title": "Feed",
-    "feed_subtitle": "Latest from artists you follow",
+    "feed_subtitle": "Only artists you follow, in chronological order",
     "feed_empty": "Your feed is empty",
     "feed_empty_sub": "Follow artists to see their latest works here.",
     "discover_artists": "Discover artists →",

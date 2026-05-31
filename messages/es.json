@@ -173,7 +173,7 @@
   },
   "feed": {
     "feed_title": "Feed",
-    "feed_subtitle": "Novedades de los artistas que sigues",
+    "feed_subtitle": "Solo artistas que sigues, en orden cronológico",
     "feed_empty": "Tu feed está vacío",
     "feed_empty_sub": "Sigue artistas para ver sus últimas obras aquí.",
     "discover_artists": "Descubrir artistas →",
