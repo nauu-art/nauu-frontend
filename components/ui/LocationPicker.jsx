@@ -45,18 +45,18 @@ export default function LocationPicker({ city, country, onChange, className = ''
     setPais(p)
     setDistrito('')
     setConcelho('')
-    onChange({ city: '', country: p })
+    onChange({ city: '', country: p, district: '' })
   }
 
   const handleDistrito = (d) => {
     setDistrito(d)
     setConcelho('')
-    onChange({ city: d, country: 'Portugal' })
+    onChange({ city: d, country: 'Portugal', district: d })
   }
 
   const handleConcelho = (c) => {
     setConcelho(c)
-    onChange({ city: c, country: 'Portugal' })
+    onChange({ city: c, country: 'Portugal', district: distrito })
   }
 
   return (
@@ -92,7 +92,7 @@ export default function LocationPicker({ city, country, onChange, className = ''
       {pais !== 'Portugal' && (
         <div>
           <label className="label">Cidade</label>
-          <input value={concelho} onChange={e => { setConcelho(e.target.value); onChange({ city: e.target.value, country: pais }) }}
+          <input value={concelho} onChange={e => { setConcelho(e.target.value); onChange({ city: e.target.value, country: pais, district: '' }) }}
             className="input" placeholder="A tua cidade" />
         </div>
       )}

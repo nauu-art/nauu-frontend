@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext'
 import api from '../../lib/api'
 import toast from 'react-hot-toast'
 import { Upload, ArrowRight, ArrowLeft, Check } from 'lucide-react'
+import LocationPicker from '../../components/ui/LocationPicker'
 
 const CATEGORIES = [
   { key: 'pintura', label: 'Pintura', emoji: '🎨' },
@@ -26,7 +27,7 @@ export default function OnboardingPage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [accountType, setAccountType] = useState(null)
-  const [form, setForm] = useState({ username: '', bio: '', city: '', country: 'Portugal' })
+  const [form, setForm] = useState({ username: '', bio: '', city: '', country: 'Portugal', district: '', artistName: '' })
   const [interests, setInterests] = useState([])
   const [avatar, setAvatar] = useState(null)
   const [avatarPreview, setAvatarPreview] = useState(null)
@@ -41,15 +42,22 @@ export default function OnboardingPage() {
     if (user?.username) setForm(f => ({ ...f, username: user.username }))
   }, [loading, isLoggedIn, user])
 
-  const checkUsername = async (val, uid) => {
-    if (val.length < 3) return
+  const checkUsername = async (val) => {
+    if (!val || val.length < 3) { setUsernameAvailable(null); return }
     setCheckingUsername(true)
     try {
-      await api.get(`/auth/check-username?username=${val}${uid ? '&userId=' + uid : ''}`)
+      const userId = user?.id || ''
+      await api.get(`/auth/check-username?username=${val}&userId=${userId}`)
       setUsernameAvailable(true)
     } catch { setUsernameAvailable(false) }
     setCheckingUsername(false)
   }
+
+  useEffect(() => {
+    if (!form.username || form.username.length < 3) { setUsernameAvailable(null); return }
+    const timer = setTimeout(() => checkUsername(form.username), 600)
+    return () => clearTimeout(timer)
+  }, [form.username, user?.id])
 
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0]
@@ -72,9 +80,9 @@ export default function OnboardingPage() {
         fd.append('avatar', avatar)
         await api.post('/profile/avatar', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       }
-      await api.post('/profile/complete-onboarding', { ...form, interests })
+      const res2 = await api.post('/profile/complete-onboarding', { ...form, interests, accountType })
       toast.success('Perfil criado!')
-      window.location.href = '/'
+      window.location.href = res2.data.isArtist ? '/dashboard' : '/'
     } catch (err) { toast.error(err.response?.data?.error || 'Erro') }
     setSaving(false)
   }
@@ -112,13 +120,11 @@ export default function OnboardingPage() {
                 <div className="text-xs text-gray-400 font-medium">Descobres e coleccionas arte que te inspira</div>
                 {accountType === 'collector' && <div className="mt-3 text-blue-500"><Check size={16} /></div>}
               </button>
-              <button
-                onClick={() => user?.accountType === 'ARTIST' && setAccountType('artist')}
-                className={`p-6 rounded-2xl border-2 text-left transition-all ${accountType === 'artist' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'} ${user?.accountType !== 'ARTIST' ? 'opacity-40 cursor-not-allowed' : 'hover:border-blue-300'}`}>
+              <button onClick={() => setAccountType('artist')}
+                className={`p-6 rounded-2xl border-2 text-left transition-all ${accountType === 'artist' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-300'}`}>
                 <div className="text-4xl mb-3">🎨</div>
                 <div className="font-extrabold text-gray-900 mb-1">Artista</div>
                 <div className="text-xs text-gray-400 font-medium">Publicas e vendes as tuas obras</div>
-                {user?.accountType !== 'ARTIST' && <div className="text-xs text-gray-300 mt-2">Regista-te como artista</div>}
                 {accountType === 'artist' && <div className="mt-3 text-blue-500"><Check size={16} /></div>}
               </button>
             </div>
@@ -154,6 +160,13 @@ export default function OnboardingPage() {
             </div>
 
             <div className="flex flex-col gap-3 mb-6">
+              {accountType === 'artist' && (
+                <div>
+                  <label className="label">Nome artístico *</label>
+                  <input value={form.artistName} onChange={e => setForm(f => ({ ...f, artistName: e.target.value }))}
+                    className="input" placeholder="O teu nome artístico" />
+                </div>
+              )}
               <div>
                 <label className="label">Username *</label>
                 <div className="relative">
@@ -178,16 +191,11 @@ export default function OnboardingPage() {
                 <textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
                   className="input resize-none" rows={3} placeholder="Conta-nos um pouco sobre ti…" />
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="label">Cidade</label>
-                  <input value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} className="input" placeholder="Lisboa" />
-                </div>
-                <div>
-                  <label className="label">País</label>
-                  <input value={form.country} onChange={e => setForm(f => ({ ...f, country: e.target.value }))} className="input" />
-                </div>
-              </div>
+              <LocationPicker
+                city={form.city}
+                country={form.country}
+                onChange={({ city, country, district }) => setForm(f => ({ ...f, city, country, district: district || '' }))}
+              />
             </div>
 
             <div className="flex gap-3">

@@ -21,7 +21,12 @@ export default function LoginPage() {
       const res = await api.post('/auth/login', form)
       login(res.data.token, res.data.user)
       toast.success(t('auth.welcome_back'))
-      router.push(res.data.user.accountType === 'ARTIST' ? '/dashboard' : '/feed')
+      const u = res.data.user
+      if (!u.onboardingCompleted) {
+        router.push('/onboarding')
+      } else {
+        router.push(u.accountType === 'ARTIST' ? '/dashboard' : '/feed')
+      }
     } catch (err) {
       toast.error(err.response?.data?.error || t('common.error'))
     }
