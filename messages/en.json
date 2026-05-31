@@ -18,7 +18,9 @@
     "hero_cta": "Publish as an artist →",
     "artists_title": "Featured artists",
     "artists_see_all": "See all →",
-    "filter_all": "All"
+    "filter_all": "All",
+    "stats": "{artworks} works · {artists} artists",
+    "marketplace": "Art marketplace"
   },
   "explore": {
     "title": "Explore artworks",
@@ -65,7 +67,8 @@
     "no_certificate": "No certificate",
     "edition": "Edition",
     "weight": "Weight",
-    "materials": "Materials"
+    "materials": "Materials",
+    "existing_thread": "You already have a conversation with this artist →"
   },
   "contact": {
     "title": "Contact",
@@ -148,7 +151,8 @@
     "artists_count": "{count} artists",
     "portfolio": "Portfolio",
     "view_artwork": "View artwork",
-    "view_profile": "View profile"
+    "view_profile": "View profile",
+    "search_btn": "Search"
   },
   "categories": {
     "pintura": "Painting",

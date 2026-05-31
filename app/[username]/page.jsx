@@ -26,7 +26,8 @@ export default function ArtistPage() {
   const [contactOpen, setContactOpen] = useState(false)
   const [posts, setPosts] = useState([])
   const [activeTab, setActiveTab] = useState('obras')
-  const [expandedPost, setExpandedPost] = useState(null) // 'obras' | 'posts'
+  const [expandedPost, setExpandedPost] = useState(null)
+  const [collections, setCollections] = useState([])
   const [contactForm, setContactForm] = useState({ message: '' })
   const [sending, setSending] = useState(false)
 
@@ -39,6 +40,7 @@ export default function ArtistPage() {
       setArtworks(w.data.data || [])
     }).catch(() => {}).finally(() => setLoading(false))
     api.get(`/posts/artist/${username}`).then(r => setPosts(r.data || [])).catch(() => {})
+    api.get(`/artist-collections/by/${username}`).then(r => setCollections(r.data || [])).catch(() => {})
   }, [username])
 
   const handleContact = async (e) => {
@@ -174,6 +176,12 @@ export default function ArtistPage() {
                 className={`px-4 py-2.5 text-sm font-bold transition-all ${activeTab === 'posts' ? 'text-blue-500 border-b-2 border-blue-500 -mb-px' : 'text-gray-400 hover:text-gray-600'}`}>
                 ✍️ {t('artist_profile.posts')} <span className="ml-1 text-xs bg-blue-50 text-blue-400 px-1.5 py-0.5 rounded-full font-extrabold">{posts.length}</span>
               </button>
+              {collections.length > 0 && (
+                <button onClick={() => setActiveTab('colecoes')}
+                  className={`px-4 py-2.5 text-sm font-bold transition-all ${activeTab === 'colecoes' ? 'text-blue-500 border-b-2 border-blue-500 -mb-px' : 'text-gray-400 hover:text-gray-600'}`}>
+                  🗂️ Coleções <span className="ml-1 text-xs bg-blue-50 text-blue-400 px-1.5 py-0.5 rounded-full font-extrabold">{collections.length}</span>
+                </button>
+              )}
             </div>
 
             {activeTab === 'posts' && (
@@ -200,6 +208,28 @@ export default function ArtistPage() {
                     </button>
                     </div>
                   </article>
+                ))}
+              </div>
+            )}
+
+            {activeTab === 'colecoes' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                {collections.map(col => (
+                  <Link key={col.id} href={`/collection/${col.id}`}
+                    className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:border-blue-200 hover:shadow-md transition-all group">
+                    <div className="h-36 bg-gray-50 overflow-hidden">
+                      {col.coverImageUrl
+                        ? <img src={col.coverImageUrl} alt={col.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        : col.artworks?.[0]?.images?.[0]
+                          ? <img src={col.artworks[0].images[0].imageUrl} alt={col.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          : <div className="w-full h-full flex items-center justify-center text-4xl">🖼️</div>}
+                    </div>
+                    <div className="p-4">
+                      <div className="font-extrabold text-gray-900 mb-0.5">{col.name}</div>
+                      {col.description && <p className="text-xs text-gray-400 font-medium line-clamp-2 mb-2">{col.description}</p>}
+                      <div className="text-xs text-blue-500 font-bold">{col._count?.artworks || 0} obras</div>
+                    </div>
+                  </Link>
                 ))}
               </div>
             )}

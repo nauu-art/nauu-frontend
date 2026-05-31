@@ -12,19 +12,21 @@ export default function NovaObraPage() {
   const { user, isArtist, isLoggedIn, loading, logout } = useAuth()
   const router = useRouter()
   const [categories, setCategories] = useState([])
+  const [collections, setCollections] = useState([])
   const [saving, setSaving] = useState(false)
   const [images, setImages] = useState([])
   const [previews, setPreviews] = useState([])
   const [form, setForm] = useState({
     title: '', description: '', technique: '', dimensions: '',
     yearCreated: new Date().getFullYear(), price: '', priceOnRequest: false,
-    availability: 'AVAILABLE', categoryIds: [],
+    availability: 'AVAILABLE', categoryIds: [], collectionId: '',
   })
 
   useEffect(() => {
     if (!loading && !isLoggedIn) router.push('/login')
     if (!loading && !isArtist) router.push('/')
     api.get('/categories').then(res => setCategories(res.data || [])).catch(() => {})
+    api.get('/artist-collections/my/all').then(res => setCollections(res.data || [])).catch(() => {})
   }, [loading, isLoggedIn, isArtist])
 
   const set = (k, v) => setForm(f => ({...f, [k]: v}))
@@ -199,6 +201,17 @@ export default function NovaObraPage() {
                   </label>
                 ))}
               </div>
+            </div>
+
+            <div className="bg-white border border-gray-100 rounded-xl p-5">
+              <h2 className="text-sm font-extrabold text-gray-900 mb-4">Coleção</h2>
+              <select value={form.collectionId} onChange={e => set('collectionId', e.target.value)}
+                className="input text-sm">
+                <option value="">Sem coleção</option>
+                {collections.map(col => (
+                  <option key={col.id} value={col.id}>{col.name}</option>
+                ))}
+              </select>
             </div>
 
             <div className="bg-white border border-gray-100 rounded-xl p-5">

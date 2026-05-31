@@ -84,7 +84,7 @@ export default function HomePage() {
       <div className="px-5 md:px-10 py-14 border-b" style={{borderColor:"var(--border)",background:"var(--bg)"}}>
         <div className="max-w-3xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-600 text-xs font-bold px-3 py-1.5 rounded-full mb-5">
-            <TrendingUp size={12} /> {stats.artworks > 0 ? `${stats.artworks} obras · ${stats.artists} artistas` : 'Marketplace de arte'}
+            <TrendingUp size={12} /> {stats.artworks > 0 ? t('home.stats').replace('{artworks}', stats.artworks).replace('{artists}', stats.artists) : t('home.marketplace')}
           </div>
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 mb-4" style={{letterSpacing:'-0.035em'}}>
             {t('home.hero_title')}<br/>{t('home.hero_title2')}
@@ -100,7 +100,7 @@ export default function HomePage() {
                 className="bg-transparent outline-none text-sm font-medium w-full placeholder:text-gray-300" />
             </div>
             <button type="submit" className="px-5 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm rounded-xl transition-colors">
-              {t('common.home') === 'Início' ? 'Pesquisar' : 'Search'}
+              {t('common.search_btn')}
             </button>
           </form>
           <div className="flex gap-3 justify-center flex-wrap">

@@ -16,13 +16,14 @@ export default function EditArtworkPage() {
   const [deleting, setDeleting] = useState(false)
   const [uploadingImages, setUploadingImages] = useState(false)
   const [categories, setCategories] = useState([])
+  const [collections, setCollections] = useState([])
   const [artwork, setArtwork] = useState(null)
   const [newImages, setNewImages] = useState([])
   const [newPreviews, setNewPreviews] = useState([])
   const [form, setForm] = useState({
     title: '', description: '', technique: '', dimensions: '',
     yearCreated: new Date().getFullYear(), price: '', priceOnRequest: false,
-    availability: 'AVAILABLE', categoryIds: [], isDraft: false,
+    availability: 'AVAILABLE', categoryIds: [], isDraft: false, collectionId: '',
   })
 
   useEffect(() => {
@@ -35,7 +36,9 @@ export default function EditArtworkPage() {
       Promise.all([
         api.get(`/artworks/${id}`),
         api.get('/categories'),
-      ]).then(([artRes, catRes]) => {
+        api.get('/artist-collections/my/all'),
+      ]).then(([artRes, catRes, colRes]) => {
+        setCollections(colRes.data || [])
         const w = artRes.data
         setArtwork(w)
         setCategories(catRes.data || [])
@@ -50,6 +53,7 @@ export default function EditArtworkPage() {
           availability: w.availability || 'AVAILABLE',
           categoryIds: w.categories?.map(c => c.categoryId) || [],
           isDraft: w.isDraft || false,
+          collectionId: w.collectionId || '',
         })
       }).catch(() => toast.error('Erro ao carregar obra'))
     }
@@ -256,6 +260,18 @@ export default function EditArtworkPage() {
                   </label>
                 ))}
               </div>
+            </div>
+
+            {/* Coleção */}
+            <div className="bg-white border border-gray-100 rounded-xl p-5">
+              <h2 className="text-sm font-extrabold text-gray-900 mb-4">Coleção</h2>
+              <select value={form.collectionId} onChange={e => set('collectionId', e.target.value)}
+                className="input text-sm">
+                <option value="">Sem coleção</option>
+                {collections.map(col => (
+                  <option key={col.id} value={col.id}>{col.name}</option>
+                ))}
+              </select>
             </div>
 
             {/* Categoria */}

@@ -18,7 +18,9 @@
     "hero_cta": "Publicar como artista →",
     "artists_title": "Artistas em destaque",
     "artists_see_all": "Ver todos →",
-    "filter_all": "Tudo"
+    "filter_all": "Tudo",
+    "stats": "{artworks} obras · {artists} artistas",
+    "marketplace": "Marketplace de arte"
   },
   "explore": {
     "title": "Explorar obras",
@@ -65,7 +67,8 @@
     "no_certificate": "Sem certificado",
     "edition": "Edição",
     "weight": "Peso",
-    "materials": "Materiais"
+    "materials": "Materiais",
+    "existing_thread": "Já tens conversa com este artista →"
   },
   "contact": {
     "title": "Contactar",
@@ -148,7 +151,8 @@
     "artists_count": "{count} artistas",
     "portfolio": "Portfólio",
     "view_artwork": "Ver obra",
-    "view_profile": "Ver perfil"
+    "view_profile": "Ver perfil",
+    "search_btn": "Pesquisar"
   },
   "categories": {
     "pintura": "Pintura",

@@ -34,6 +34,7 @@ export default function ObraPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [moreWorks, setMoreWorks] = useState([])
   const [similarWorks, setSimilarWorks] = useState([])
+  const [collectionWorks, setCollectionWorks] = useState([])
   const [form, setForm] = useState({ name: '', email: '', message: '' })
 
   // Pré-preencher com dados do utilizador logado
@@ -66,6 +67,10 @@ export default function ObraPage() {
         }
         api.get(`/artworks/${id}/similar`)
           .then(r => setSimilarWorks(r.data || []))
+          .catch(() => {})
+        // Carregar obras da mesma coleção
+        res.data.collectionId && api.get(`/artist-collections/collection/${res.data.collectionId}`)
+          .then(r => setCollectionWorks((r.data.artworks || []).filter(w => w.id !== id).slice(0, 4)))
           .catch(() => {})
       }).catch(() => {}).finally(() => setLoading(false))
   }, [id])
@@ -162,7 +167,7 @@ export default function ObraPage() {
                   {existingThread && (
                     <Link href="/account/contacts"
                       className="flex items-center justify-center gap-2 w-full py-2.5 border border-green-300 text-green-600 hover:bg-green-50 font-bold text-sm rounded-xl transition-colors">
-                      💬 Já tens conversa com este artista →
+                      💬 {t('artwork.existing_thread')}
                     </Link>
                   )}
                 </div>
@@ -234,6 +239,21 @@ export default function ObraPage() {
           </div>
         </div>
       </div>
+
+      {artwork.collection && collectionWorks.length > 0 && (
+        <div className="px-5 md:px-10 py-8 border-t border-gray-100">
+          <div className="flex justify-between items-center mb-5">
+            <div>
+              <div className="text-xs font-extrabold uppercase tracking-widest text-gray-300 mb-1">Coleção</div>
+              <h2 className="text-lg font-extrabold tracking-tight">{artwork.collection.name}</h2>
+            </div>
+            <a href={`/collection/${artwork.collectionId}`} className="text-sm font-bold text-blue-500 hover:text-blue-600">Ver coleção →</a>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {collectionWorks.map(w => <ArtworkCard key={w.id} artwork={w} showArtist={false} />)}
+          </div>
+        </div>
+      )}
 
       {moreWorks.length > 0 && (
         <div className="px-5 md:px-10 py-8 border-t border-gray-100">
