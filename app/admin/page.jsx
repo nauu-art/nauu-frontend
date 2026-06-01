@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { Users, Image, Mail, Star, TrendingUp, LogOut, Search, Shield, Settings, Upload, CheckCircle, BarChart2, Layers, ChevronRight, X, Eye, Clock, CreditCard, ShoppingCart } from 'lucide-react'
+import { Users, Image, Mail, Star, TrendingUp, LogOut, Search, Shield, Settings, Upload, CheckCircle, BarChart2, Layers, ChevronRight, X, Eye, Clock, CreditCard, ShoppingCart, Plus, Trash2 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 const RichEditor = dynamic(() => import('../../components/ui/RichEditor'), { ssr: false })
 import toast from 'react-hot-toast'
@@ -55,6 +55,10 @@ export default function AdminPage() {
   const [blogPosts, setBlogPosts] = useState([])
   const [newPost, setNewPost] = useState({ title: '', slug: '', content: '' })
   const [savingContent, setSavingContent] = useState('')
+  const [analytics, setAnalytics] = useState(null)
+  const [curated, setCurated] = useState([])
+  const [newCollection, setNewCollection] = useState({ title: '', slug: '', description: '' })
+  const [savingCollection, setSavingCollection] = useState(false)
 
   useEffect(() => {
     const t = localStorage.getItem('nauu_admin_token')
@@ -62,7 +66,7 @@ export default function AdminPage() {
   }, [])
 
   useEffect(() => {
-    if (token) { fetchStats(); fetchUsers(); fetchArtists(); fetchArtworks(); fetchSettings(); fetchContent() }
+    if (token) { fetchStats(); fetchUsers(); fetchArtists(); fetchArtworks(); fetchSettings(); fetchContent(); fetchAnalytics(); fetchCurated() }
   }, [token])
 
   const handleUnauthorized = () => {
@@ -92,6 +96,13 @@ export default function AdminPage() {
   }
   const fetchArtworks = async () => { try { const r = await api.get(`/admin/artworks?limit=100&search=${search}`); setArtworks(r.data.data || []) } catch {} }
   const fetchSettings = async () => { try { const r = await api.get('/admin/settings'); setLogoUrl(r.data.logoUrl) } catch {} }
+  const fetchAnalytics = async () => {
+    try { const r = await api.get('/analytics'); setAnalytics(r.data) } catch {}
+  }
+  const fetchCurated = async () => {
+    try { const r = await api.get('/curated/admin/all'); setCurated(r.data || []) } catch {}
+  }
+
   const fetchContent = async () => {
     try {
       const [t, p] = await Promise.all([api.get('/admin/content/termos'), api.get('/admin/content/privacidade')])
@@ -159,6 +170,8 @@ export default function AdminPage() {
     { id: 'artists', label: 'Artistas', icon: Star, badge: pendingArtists },
     { id: 'users', label: 'Utilizadores', icon: Users },
     { id: 'artworks', label: 'Obras', icon: Image },
+    { id: 'analytics', label: 'Analytics', icon: BarChart2 },
+    { id: 'curated', label: 'Curadoria', icon: Layers },
     { id: 'blog', label: 'Blog', icon: Mail },
     { id: 'settings', label: 'Definições', icon: Settings },
   ]
@@ -414,6 +427,111 @@ export default function AdminPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+
+          {/* Analytics */}
+          {activeTab === 'analytics' && analytics && (
+            <div>
+              <h1 className="text-2xl font-extrabold mb-6">Analytics</h1>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                {[
+                  { label: 'Utilizadores', value: analytics.users?.total, sub: `+${analytics.users?.newWeek} esta semana`, color: 'text-blue-400', bg: 'bg-blue-500/10', icon: Users },
+                  { label: 'Artistas aprovados', value: analytics.artists?.approved, sub: `${analytics.artists?.total} total`, color: 'text-purple-400', bg: 'bg-purple-500/10', icon: Star },
+                  { label: 'Obras publicadas', value: analytics.artworks?.total, sub: `${analytics.artworks?.totalViews} visitas`, color: 'text-amber-400', bg: 'bg-amber-500/10', icon: Image },
+                  { label: 'Receita total', value: `€${Number(analytics.orders?.revenue || 0).toFixed(2)}`, sub: `${analytics.orders?.paid} vendas`, color: 'text-green-400', bg: 'bg-green-500/10', icon: ShoppingCart },
+                ].map(m => (
+                  <div key={m.label} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="text-xs font-bold uppercase tracking-widest text-gray-500 leading-tight">{m.label}</div>
+                      <div className={`w-8 h-8 ${m.bg} rounded-lg flex items-center justify-center flex-shrink-0`}><m.icon size={14} className={m.color} /></div>
+                    </div>
+                    <div className="text-2xl font-extrabold">{m.value}</div>
+                    <div className="text-xs text-gray-500 mt-1">{m.sub}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: 'Likes em obras', value: analytics.engagement?.likes, color: 'text-red-400' },
+                  { label: 'Comentários', value: analytics.engagement?.comments, color: 'text-blue-400' },
+                  { label: 'Conversas', value: analytics.engagement?.conversations, color: 'text-indigo-400' },
+                  { label: 'Seguidores', value: analytics.engagement?.follows, color: 'text-purple-400' },
+                ].map(m => (
+                  <div key={m.label} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+                    <div className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">{m.label}</div>
+                    <div className={`text-2xl font-extrabold ${m.color}`}>{m.value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+
+          {/* Curadoria */}
+          {activeTab === 'curated' && (
+            <div>
+              <h1 className="text-2xl font-extrabold mb-6">Curadoria</h1>
+
+              {/* Nova coleção */}
+              <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-6">
+                <h2 className="text-sm font-extrabold uppercase tracking-widest text-gray-500 mb-4">Nova coleção</h2>
+                <div className="grid grid-cols-3 gap-3 mb-3">
+                  <input value={newCollection.title} onChange={e => setNewCollection(f => ({...f, title: e.target.value}))}
+                    placeholder="Título" className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm outline-none col-span-2" />
+                  <input value={newCollection.slug} onChange={e => setNewCollection(f => ({...f, slug: e.target.value.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'')}))}
+                    placeholder="slug-url" className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm outline-none" />
+                </div>
+                <input value={newCollection.description} onChange={e => setNewCollection(f => ({...f, description: e.target.value}))}
+                  placeholder="Descrição (opcional)" className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm outline-none mb-3" />
+                <button onClick={async () => {
+                  if (!newCollection.title || !newCollection.slug) { return }
+                  setSavingCollection(true)
+                  try {
+                    await api.post('/curated', newCollection)
+                    toast.success('Coleção criada!')
+                    setNewCollection({ title: '', slug: '', description: '' })
+                    fetchCurated()
+                  } catch (e) { toast.error(e.response?.data?.error || 'Erro — slug pode já existir') }
+                  setSavingCollection(false)
+                }} disabled={savingCollection} className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm rounded-lg flex items-center gap-2">
+                  <Plus size={14} /> {savingCollection ? 'A criar…' : 'Criar coleção'}
+                </button>
+              </div>
+
+              {/* Lista de coleções */}
+              <div className="flex flex-col gap-3">
+                {curated.map(col => (
+                  <div key={col.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <div className="font-extrabold">{col.title}</div>
+                        <div className="text-xs text-gray-500 mt-0.5">/curated/{col.slug} · {col._count?.items || 0} itens</div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${col.published ? 'bg-green-500/20 text-green-400' : 'bg-gray-700 text-gray-400'}`}>
+                          {col.published ? 'Publicado' : 'Rascunho'}
+                        </span>
+                        <button onClick={async () => {
+                          try { await api.put(`/curated/${col.id}`, { published: !col.published }); fetchCurated() }
+                          catch { toast.error('Erro') }
+                        }} className={`text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors ${col.published ? 'bg-gray-700 text-gray-400 hover:bg-gray-600' : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'}`}>
+                          {col.published ? 'Ocultar' : 'Publicar'}
+                        </button>
+                        <button onClick={async () => {
+                          if (!confirm(`Eliminar "${col.title}"?`)) return
+                          try { await api.delete(`/curated/${col.id}`); fetchCurated(); toast.success('Eliminada') }
+                          catch { toast.error('Erro') }
+                        }} className="text-xs font-bold px-2.5 py-1.5 bg-gray-700 text-gray-400 hover:bg-red-500/20 hover:text-red-400 rounded-lg transition-colors">
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {curated.length === 0 && <div className="text-center py-12 text-gray-600 font-bold">Sem coleções ainda</div>}
               </div>
             </div>
           )}
