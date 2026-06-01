@@ -28,6 +28,7 @@ export default function Footer() {
               <Link href="/explore" className="text-sm text-gray-400 font-medium hover:text-gray-700 transition-colors">{t('nav.explore')}</Link>
               <Link href="/artists" className="text-sm text-gray-400 font-medium hover:text-gray-700 transition-colors">{t('nav.artists')}</Link>
               <Link href="/feed" className="text-sm text-gray-400 font-medium hover:text-gray-700 transition-colors">Feed</Link>
+              <Link href="/curated" className="text-sm text-gray-400 font-medium hover:text-gray-700 transition-colors">Curated</Link>
               <Link href="/map" className="text-sm text-gray-400 font-medium hover:text-gray-700 transition-colors">{t('footer.map')}</Link>
             </div>
           </div>
