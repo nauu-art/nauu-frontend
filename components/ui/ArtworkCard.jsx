@@ -34,7 +34,7 @@ export default function ArtworkCard({ artwork: w, aspect = '4/5', showArtist = t
       <Link href={`/artwork/${w.id}`} className="block p-3 bg-white hover:bg-gray-50 transition-colors">
         <div className="flex items-center justify-between gap-2 mb-1">
           {catLabel && <div className="text-xs font-bold text-blue-400 uppercase tracking-wider">{catLabel}</div>}
-          {w.collection && (
+          {w.collection && w.collection.name && w.collection.name.length > 2 && (
             <span className="text-xs font-bold text-purple-500 bg-purple-50 px-1.5 py-0.5 rounded truncate max-w-[100px]">
               {w.collection.name}
             </span>

@@ -22,6 +22,7 @@ export default function ArtistPage() {
   const { t } = useLocale()
   const [artist, setArtist] = useState(null)
   const [artworks, setArtworks] = useState([])
+  const [stats, setStats] = useState({ views: 0, favs: 0 })
   const [loading, setLoading] = useState(true)
   const [contactOpen, setContactOpen] = useState(false)
   const [posts, setPosts] = useState([])
@@ -40,6 +41,7 @@ export default function ArtistPage() {
       setArtworks(w.data.data || [])
     }).catch(() => {}).finally(() => setLoading(false))
     api.get(`/posts/artist/${username}`).then(r => setPosts(r.data || [])).catch(() => {})
+    api.get(`/artists/${username}/stats`).then(r => setStats(r.data || { views: 0, favs: 0 })).catch(() => {})
     api.get(`/artist-collections/by/${username}`).then(r => setCollections(r.data || [])).catch(() => {})
   }, [username])
 
@@ -116,8 +118,8 @@ export default function ArtistPage() {
             <div className="grid grid-cols-3 border border-gray-100 rounded-xl overflow-hidden">
               {[
                 { n: artist._count?.artworks || 0, l: t('artist_profile.works') },
-                { n: '—', l: 'Visitas' },
-                { n: '—', l: 'Favs' },
+                { n: stats.views?.toLocaleString('pt-PT') || '0', l: 'Visitas' },
+                { n: stats.favs?.toLocaleString('pt-PT') || '0', l: 'Favs' },
               ].map(s => (
                 <div key={s.l} className="text-center py-3 border-r border-gray-100 last:border-0">
                   <div className="text-lg font-extrabold text-gray-900">{s.n}</div>

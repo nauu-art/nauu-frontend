@@ -5,7 +5,7 @@ export async function generateMetadata({ params }) {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/artists/${params.username}`, { next: { revalidate: 60 } })
     if (!res.ok) return { title: 'Artista | nauu.art' }
     const artist = await res.json()
-    const title = `${artist.artistName} — Artista | nauu.art`
+    const title = `${artist.artistName} — Artista`
     const description = artist.bio?.slice(0, 160) || `Descobre as obras de ${artist.artistName} no nauu.art.`
     const image = artist.user?.avatarUrl ? `${BASE_URL}${artist.user.avatarUrl}` : `${BASE_URL}/og-default.jpg`
     return {

@@ -213,13 +213,13 @@ export default function ExplorePage() {
         )}
 
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {Array.from({length:9}).map((_,i) => <div key={i} className="rounded-xl bg-gray-100 animate-pulse aspect-[4/5]" />)}
           </div>
         ) : artworks.length === 0 ? (
           <div className="text-center py-24 text-gray-300 font-bold text-lg">{t('explore.no_results')}</div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {artworks.map(w => <ArtworkCard key={w.id} artwork={w} />)}
           </div>
         )}
