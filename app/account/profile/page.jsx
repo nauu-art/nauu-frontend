@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '../../../context/AuthContext'
 import { useLocale } from '../../../context/LocaleContext'
-import { User, Heart, Mail, LogOut, Save, ArrowRight, Bell, FolderHeart, Key, Trash2, Package } from 'lucide-react'
+import { User, Heart, Mail, LogOut, Save, ArrowRight, Bell, FolderHeart, Key, Trash2, Package, FileText } from 'lucide-react'
 import api from '../../../lib/api'
 import toast from 'react-hot-toast'
 
@@ -136,6 +136,10 @@ export default function AccountProfilePage() {
             <Link href="/account/contacts" className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors">
               <Mail size={15} className="text-gray-400" />
               <span className="text-sm font-semibold text-gray-700">Contactos enviados</span>
+            </Link>
+            <Link href="/account/posts" className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors">
+              <FileText size={15} className="text-gray-400" />
+              <span className="text-sm font-semibold text-gray-700">Os meus posts</span>
             </Link>
             <Link href="/account/orders" className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors">
               <Package size={15} className="text-gray-400" />
