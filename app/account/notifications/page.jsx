@@ -57,7 +57,7 @@ export default function NotificationsPage() {
   const order = ['Hoje', 'Ontem', 'Esta semana', 'Semana passada', 'Mais antigas']
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <div className="max-w-xl mx-auto px-4 py-8 md:py-12">
         <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -69,9 +69,9 @@ export default function NotificationsPage() {
         {loadingN ? (
           <div className="space-y-3">{Array.from({length:5}).map((_,i) => <div key={i} className="h-16 bg-white rounded-xl animate-pulse" />)}</div>
         ) : notifications.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
+          <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
             <div className="text-4xl mb-3">🔔</div>
-            <div className="text-gray-300 font-bold text-lg">Sem notificações</div>
+            <div className="text-gray-400 dark:text-gray-500 font-bold text-lg">Sem notificações</div>
           </div>
         ) : (
           <div className="flex flex-col gap-6">

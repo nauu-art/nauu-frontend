@@ -5,10 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
 import api from '../../lib/api'
-import AddToCollection from '../../components/ui/AddToCollection'
-import ImageCarousel from '../../components/ui/ImageCarousel'
-
-const availColor = (a) => a === 'AVAILABLE' ? '#2ECC71' : a === 'RESERVED' ? '#F39C12' : '#E74C3C'
+import ArtworkCard from '../../components/ui/ArtworkCard'
 
 export default function FeedPage() {
   const { isLoggedIn, loading } = useAuth()
@@ -125,48 +122,7 @@ export default function FeedPage() {
                 </div>
               </div>
             ) : (
-              <div key={item.id} className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
-                <Link href={`/${item.artist.username}`} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
-                  <div className="w-9 h-9 rounded-full overflow-hidden bg-blue-100 flex-shrink-0">
-                    {item.artist.user?.avatarUrl
-                      ? <img src={item.artist.user.avatarUrl} alt={item.artist.artistName} className="w-full h-full object-cover" />
-                      : <div className="w-full h-full flex items-center justify-center text-blue-400 font-extrabold text-sm">{item.artist.artistName?.[0]}</div>}
-                  </div>
-                  <div>
-                    <div className="text-sm font-extrabold text-gray-900">{item.artist.artistName}</div>
-                    <div className="text-xs text-gray-400 font-medium">
-                      {new Date(item.createdAt).toLocaleDateString('pt-PT', { day: 'numeric', month: 'long' })}
-                    </div>
-                  </div>
-                </Link>
-                <div className="relative">
-                  <ImageCarousel images={item.images} title={item.title} aspect="1" />
-                  <div className="absolute top-3 right-3 z-20">
-                    <AddToCollection artworkId={item.id} />
-                  </div>
-                </div>
-                <div className="px-4 py-3">
-                  <div className="flex justify-between items-start mb-1">
-                    <div>
-                      <Link href={`/artwork/${item.id}`} className="text-base font-extrabold text-gray-900 hover:text-blue-500 transition-colors">{item.title}</Link>
-                      <div className="text-xs text-blue-400 font-bold mt-0.5">{item.categories?.[0]?.category?.name}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-base font-extrabold text-gray-900">
-                        {item.priceOnRequest ? t('artwork.on_request') : item.price ? `€ ${Number(item.price).toLocaleString('pt-PT')}` : t('artwork.on_request')}
-                      </div>
-                      <div className="flex items-center gap-1 text-xs font-semibold justify-end mt-0.5" style={{color: availColor(item.availability)}}>
-                        <span className="w-1.5 h-1.5 rounded-full" style={{background: availColor(item.availability)}}></span>
-                        {item.availability === 'AVAILABLE' ? t('artwork.available') : item.availability === 'RESERVED' ? t('artwork.reserved') : t('artwork.sold')}
-                      </div>
-                    </div>
-                  </div>
-                  <Link href={`/artwork/${item.id}`}
-                    className="mt-2 block w-full text-center py-2 border border-blue-200 text-blue-500 hover:bg-blue-50 font-bold text-sm rounded-xl transition-colors">
-                    {t('common.view_artwork')}
-                  </Link>
-                </div>
-              </div>
+              <ArtworkCard key={item.id} artwork={item} followingIds={following.map(f => f.id)} />
             ))}
           </div>
         )}
