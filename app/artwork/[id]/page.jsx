@@ -11,6 +11,7 @@ import ArtistAvatar from '../../../components/ui/ArtistAvatar'
 import AvailabilityBadge from '../../../components/ui/AvailabilityBadge'
 import PriceTag from '../../../components/ui/PriceTag'
 import ArtworkCard from '../../../components/ui/ArtworkCard'
+import ArtworkComments from '../../../components/ui/ArtworkComments'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
 
@@ -279,6 +280,9 @@ export default function ObraPage() {
           </div>
         </div>
       )}
+
+      {/* Comentários e likes */}
+      <ArtworkComments artworkId={id} artistUserId={artwork?.artist?.userId} />
 
       {moreWorks.length > 0 && (
         <div className="px-5 md:px-10 py-8 border-t border-gray-100">

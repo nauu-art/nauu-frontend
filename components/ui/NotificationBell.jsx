@@ -58,6 +58,7 @@ export default function NotificationBell() {
     PROFILE_CHANGES: '✏️',
     PROFILE_REJECTED: '❌',
   NEW_MESSAGE: '💬',
+  NEW_COMMENT: '💬',
   SHIPPING: '📦',
   }
 
