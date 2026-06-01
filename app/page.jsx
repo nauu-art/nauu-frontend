@@ -35,6 +35,7 @@ export default function HomePage() {
   const { t } = useLocale()
   const { isLoggedIn, loading: authLoading } = useAuth()
   const [artworks, setArtworks] = useState([])
+  const [followingIds, setFollowingIds] = useState([])
   const [artists, setArtists] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeFilter, setActiveFilter] = useState('createdAt_desc')
@@ -65,6 +66,14 @@ export default function HomePage() {
     } catch {}
     setLoading(false)
   }, [activeFilter, activeCategory])
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      api.get('/follow/following').then(res => {
+        setFollowingIds((res.data || []).map(f => f.id || f.artistId))
+      }).catch(() => {})
+    }
+  }, [isLoggedIn])
 
   useEffect(() => {
     fetchArtworks()
@@ -149,7 +158,7 @@ export default function HomePage() {
           <div className="text-center py-16 text-gray-300 font-bold">{t('explore.no_results')}</div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-12">
-            {artworks.map(w => <ArtworkCard key={w.id} artwork={w} />)}
+            {artworks.map(w => <ArtworkCard key={w.id} artwork={w} followingIds={followingIds} />)}
           </div>
         )}
 

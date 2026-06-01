@@ -1,7 +1,7 @@
 'use client'
 import { useAuth } from '../../context/AuthContext'
 import api from '../../lib/api'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import AddToCollection from './AddToCollection'
 import ImageCarousel from './ImageCarousel'
@@ -19,10 +19,16 @@ const CAT_SLUG_MAP = {
   'Caligrafia & Lettering': 'caligrafia', 'Arte Multimédia': 'arte_multimedia', 'Performance & Instalação': 'performance'
 }
 
-export default function ArtworkCard({ artwork: w, aspect = '4/5', showArtist = true }) {
+export default function ArtworkCard({ artwork: w, aspect = '4/5', showArtist = true, followingIds = [] }) {
   const { t } = useLocale()
   const { isLoggedIn, user } = useAuth()
   const [followed, setFollowed] = useState(false)
+
+  useEffect(() => {
+    if (followingIds.length > 0 && w.artist?.id) {
+      setFollowed(followingIds.includes(w.artist.id))
+    }
+  }, [followingIds, w.artist?.id])
   const catName = w.categories?.[0]?.category?.name
   const catSlug = CAT_SLUG_MAP[catName]
   const catLabel = catSlug ? (t(`categories.${catSlug}`) || catName) : (catName || '')
@@ -39,7 +45,7 @@ export default function ArtworkCard({ artwork: w, aspect = '4/5', showArtist = t
       return
     }
     try {
-      await api.post(`/artists/${w.artist.id}/follow`)
+      await api.post(`/follow/${w.artist.id}`)
       setFollowed(f => !f)
       toast.success(followed ? 'Deixaste de seguir' : 'A seguir!')
     } catch {}

@@ -81,7 +81,7 @@ export default function DashboardArtworksPage() {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-2xl font-extrabold tracking-tight" style={{letterSpacing:'-0.03em'}}>As minhas obras</h1>
-              <p className="text-sm text-gray-400 font-medium mt-0.5">{artworks.length} obras publicadas</p>
+              <p className="text-sm text-gray-400 font-medium mt-0.5">{artworks.filter(w => !w.isDraft).length} obras publicadas</p>
             </div>
             <div className="flex gap-2 items-center">
               <select value={sort} onChange={e => setSort(e.target.value)}

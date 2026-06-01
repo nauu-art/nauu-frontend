@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <div className="text-center max-w-sm">
         <div className="mb-6">
           <img src="/logo.svg" alt="nauu.art" className="h-10 w-auto mx-auto mb-8 opacity-30" />

@@ -12,12 +12,15 @@ import { useSearchParams } from 'next/navigation'
 import { Search, X, SlidersHorizontal } from 'lucide-react'
 import api from '../../lib/api'
 import ArtworkCard from '../../components/ui/ArtworkCard'
+import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
 
 export default function ExplorePage() {
   const { t } = useLocale()
+  const { isLoggedIn } = useAuth()
   const searchParams = useSearchParams()
   const [artworks, setArtworks] = useState([])
+  const [followingIds, setFollowingIds] = useState([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
@@ -220,7 +223,7 @@ export default function ExplorePage() {
           <div className="text-center py-24 text-gray-300 font-bold text-lg">{t('explore.no_results')}</div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {artworks.map(w => <ArtworkCard key={w.id} artwork={w} />)}
+            {artworks.map(w => <ArtworkCard key={w.id} artwork={w} followingIds={followingIds} />)}
           </div>
         )}
 
