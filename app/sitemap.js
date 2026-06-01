@@ -1,47 +1,38 @@
-export default async function sitemap() {
-  const baseUrl = 'https://nauu.art'
+const BASE_URL = 'https://nauu.art'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
-  // Páginas estáticas
+export default async function sitemap() {
   const staticPages = [
-    { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
-    { url: `${baseUrl}/explore`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
-    { url: `${baseUrl}/artists`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
-    { url: `${baseUrl}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${baseUrl}/how-it-works`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${baseUrl}/feedback`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
-    { url: `${baseUrl}/donate`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
+    { url: BASE_URL, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
+    { url: `${BASE_URL}/explore`, lastModified: new Date(), changeFrequency: 'hourly', priority: 0.9 },
+    { url: `${BASE_URL}/artists`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
+    { url: `${BASE_URL}/curated`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${BASE_URL}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
   ]
 
-  // Obras e artistas dinâmicos
-  let artworkPages = []
-  let artistPages = []
-
   try {
-    const [artworksRes, artistsRes] = await Promise.all([
-      fetch(`http://localhost:3001/api/artworks?limit=500`),
-      fetch(`http://localhost:3001/api/artists?limit=500`),
-    ])
+    // Obras
+    const artworksRes = await fetch(`${API_URL}/api/artworks?limit=500`, { next: { revalidate: 3600 } })
+    const artworksData = await artworksRes.json()
+    const artworkPages = (artworksData.data || []).map(w => ({
+      url: `${BASE_URL}/artwork/${w.id}`,
+      lastModified: new Date(w.updatedAt || w.createdAt),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    }))
 
-    if (artworksRes.ok) {
-      const artworks = await artworksRes.json()
-      artworkPages = (artworks.data || []).map(w => ({
-        url: `${baseUrl}/artwork/${w.id}`,
-        lastModified: new Date(w.updatedAt || w.createdAt),
-        changeFrequency: 'weekly',
-        priority: 0.7,
-      }))
-    }
+    // Artistas
+    const artistsRes = await fetch(`${API_URL}/api/artists?limit=500`, { next: { revalidate: 3600 } })
+    const artistsData = await artistsRes.json()
+    const artistPages = (artistsData.data || []).map(a => ({
+      url: `${BASE_URL}/${a.username}`,
+      lastModified: new Date(a.updatedAt || a.createdAt),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    }))
 
-    if (artistsRes.ok) {
-      const artists = await artistsRes.json()
-      artistPages = (artists.data || []).map(a => ({
-        url: `${baseUrl}/${a.username}`,
-        lastModified: new Date(a.createdAt),
-        changeFrequency: 'weekly',
-        priority: 0.8,
-      }))
-    }
-  } catch {}
-
-  return [...staticPages, ...artworkPages, ...artistPages]
+    return [...staticPages, ...artworkPages, ...artistPages]
+  } catch {
+    return staticPages
+  }
 }

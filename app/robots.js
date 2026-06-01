@@ -4,10 +4,9 @@ export default function robots() {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/dashboard', '/dashboard/', '/admin', '/admin/', '/account/', '/api/'],
+        disallow: ['/dashboard/', '/admin/', '/account/', '/onboarding', '/checkout/'],
       },
     ],
     sitemap: 'https://nauu.art/sitemap.xml',
-    host: 'https://nauu.art',
   }
 }
