@@ -17,6 +17,7 @@ export default function EditArtworkPage() {
   const [uploadingImages, setUploadingImages] = useState(false)
   const [categories, setCategories] = useState([])
   const [collections, setCollections] = useState([])
+  const [shipping, setShipping] = useState({ freeShipping: false, portugal: '', europe: '', world: '' })
   const [artwork, setArtwork] = useState(null)
   const [newImages, setNewImages] = useState([])
   const [newPreviews, setNewPreviews] = useState([])
@@ -37,8 +38,10 @@ export default function EditArtworkPage() {
         api.get(`/artworks/${id}`),
         api.get('/categories'),
         api.get('/artist-collections/my/all'),
-      ]).then(([artRes, catRes, colRes]) => {
+        api.get(`/payments/shipping/${id}`),
+      ]).then(([artRes, catRes, colRes, shipRes]) => {
         setCollections(colRes.data || [])
+        if (shipRes.data) setShipping({ freeShipping: shipRes.data.freeShipping || false, portugal: shipRes.data.portugal || '', europe: shipRes.data.europe || '', world: shipRes.data.world || '' })
         const w = artRes.data
         setArtwork(w)
         setCategories(catRes.data || [])
@@ -72,6 +75,8 @@ export default function EditArtworkPage() {
         price: form.priceOnRequest ? undefined : form.price ? Number(form.price) : undefined,
         yearCreated: form.yearCreated ? Number(form.yearCreated) : undefined,
       })
+      // Guardar portes
+      await api.put(`/payments/shipping/${id}`, shipping).catch(() => {})
       toast.success('Obra atualizada!')
       router.push('/dashboard/artworks')
     } catch (err) {

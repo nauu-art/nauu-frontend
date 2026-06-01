@@ -39,6 +39,7 @@ export default function ObraPage() {
 
 
   const [startingConversation, setStartingConversation] = useState(false)
+  const [artworkShipping, setArtworkShipping] = useState(null)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
   const [existingConversation, setExistingConversation] = useState(null)
@@ -64,6 +65,7 @@ export default function ObraPage() {
           .then(r => setSimilarWorks(r.data || []))
           .catch(() => {})
         // Carregar obras da mesma coleção
+        api.get(`/payments/shipping/${id}`).then(r => setArtworkShipping(r.data)).catch(() => {})
         res.data.collectionId && api.get(`/artist-collections/collection/${res.data.collectionId}`)
           .then(r => setCollectionWorks((r.data.artworks || []).filter(w => w.id !== id).slice(0, 4)))
           .catch(() => {})
@@ -166,6 +168,18 @@ export default function ObraPage() {
             </div>
 
             <div className="flex flex-col gap-2 mb-6">
+              {/* Botão Comprar */}
+              {artwork.availability === 'AVAILABLE' && !artwork.priceOnRequest && artwork.price && artwork.artist?.stripeOnboarded && (
+                <Link href={`/checkout/${id}`}
+                  className="flex items-center justify-center gap-2 w-full py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-colors mb-2">
+                  🛒 Comprar — € {parseFloat(artwork.price).toFixed(2)}
+                  {artworkShipping && !artworkShipping.freeShipping && artworkShipping.portugal && (
+                    <span className="text-xs font-medium opacity-80">+ €{parseFloat(artworkShipping.portugal).toFixed(2)} portes</span>
+                  )}
+                  {artworkShipping?.freeShipping && <span className="text-xs font-medium opacity-80">portes incluídos</span>}
+                </Link>
+              )}
+
               {existingConversation ? (
                 <Link href={`/account/messages/${existingConversation.id}`}
                   className="flex items-center justify-center gap-2 w-full py-3 border-2 border-blue-500 text-blue-500 hover:bg-blue-50 font-bold rounded-xl transition-colors">

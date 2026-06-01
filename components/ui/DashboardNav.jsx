@@ -18,6 +18,7 @@ export default function DashboardNav() {
     { href: '/dashboard/collections', label: 'Coleções', icon: FolderOpen },
     { href: '/dashboard/messages', label: 'Mensagens', icon: MessageSquare },
     { href: '/dashboard/payments', label: 'Pagamentos', icon: CreditCard },
+    { href: '/dashboard/payments', label: 'Pagamentos', icon: CreditCard },
     { href: '/dashboard/contacts', label: 'Contactos', icon: Mail },
     { href: '/dashboard/profile', label: 'Perfil', icon: User },
   ]
