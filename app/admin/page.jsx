@@ -59,6 +59,10 @@ export default function AdminPage() {
   const [curated, setCurated] = useState([])
   const [newCollection, setNewCollection] = useState({ title: '', slug: '', description: '' })
   const [savingCollection, setSavingCollection] = useState(false)
+  const [expandedCol, setExpandedCol] = useState(null)
+  const [itemInput, setItemInput] = useState('')
+  const [addingItem, setAddingItem] = useState(false)
+  const [colItems, setColItems] = useState({})
 
   useEffect(() => {
     const t = localStorage.getItem('nauu_admin_token')
@@ -99,6 +103,13 @@ export default function AdminPage() {
   const fetchAnalytics = async () => {
     try { const r = await api.get('/analytics'); setAnalytics(r.data) } catch {}
   }
+  const fetchColItems = async (colId) => {
+    try {
+      const r = await api.get(`/curated/admin/${colId}/items`)
+      setColItems(prev => ({ ...prev, [colId]: r.data || [] }))
+    } catch {}
+  }
+
   const fetchCurated = async () => {
     try { const r = await api.get('/curated/admin/all'); setCurated(r.data || []) } catch {}
   }
@@ -504,13 +515,18 @@ export default function AdminPage() {
               {/* Lista de coleções */}
               <div className="flex flex-col gap-3">
                 {curated.map(col => (
-                  <div key={col.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-                    <div className="flex items-center justify-between gap-3">
+                  <div key={col.id} className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+                    <div className="flex items-center justify-between gap-3 p-4 cursor-pointer hover:bg-gray-800/50 transition-colors"
+                      onClick={() => {
+                        const next = expandedCol === col.id ? null : col.id
+                        setExpandedCol(next)
+                        if (next) fetchColItems(next)
+                      }}>
                       <div>
                         <div className="font-extrabold">{col.title}</div>
                         <div className="text-xs text-gray-500 mt-0.5">/curated/{col.slug} · {col._count?.items || 0} itens</div>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="flex items-center gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
                         <span className={`text-xs font-bold px-2 py-1 rounded-full ${col.published ? 'bg-green-500/20 text-green-400' : 'bg-gray-700 text-gray-400'}`}>
                           {col.published ? 'Publicado' : 'Rascunho'}
                         </span>
@@ -527,8 +543,86 @@ export default function AdminPage() {
                         }} className="text-xs font-bold px-2.5 py-1.5 bg-gray-700 text-gray-400 hover:bg-red-500/20 hover:text-red-400 rounded-lg transition-colors">
                           <Trash2 size={12} />
                         </button>
+                        <span className="text-gray-600 text-sm">{expandedCol === col.id ? '▲' : '▼'}</span>
                       </div>
                     </div>
+
+                    {expandedCol === col.id && (
+                      <div className="border-t border-gray-800 p-4">
+                        <div className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Adicionar item</div>
+                        <div className="flex gap-2 mb-2">
+                          <input value={itemInput} onChange={e => setItemInput(e.target.value)}
+                            placeholder="ID da obra ou artista…"
+                            className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500" />
+                          <button onClick={async () => {
+                            if (!itemInput.trim()) return
+                            setAddingItem(true)
+                            // Extrair ID do URL se necessário
+                            let rawInput = itemInput.trim()
+                            const artworkMatch = rawInput.match(/artwork\/([a-f0-9-]{36})/)
+                            const artistMatch = rawInput.match(/\/([a-z0-9_-]+)$/)
+                            if (artworkMatch) rawInput = artworkMatch[1]
+                            try {
+                              await api.post(`/curated/${col.id}/items`, { artworkId: rawInput })
+                              toast.success('Obra adicionada!')
+                              setItemInput(''); fetchCurated(); fetchColItems(col.id)
+                            } catch {
+                              try {
+                                const slug = artistMatch ? artistMatch[1] : rawInput
+                                await api.post(`/curated/${col.id}/items`, { artistId: slug })
+                                toast.success('Artista adicionado!')
+                                setItemInput(''); fetchCurated(); fetchColItems(col.id)
+                              } catch { toast.error('ID inválido — verifica o URL ou ID') }
+                            }
+                            setAddingItem(false)
+                          }} disabled={addingItem} className="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm rounded-lg flex items-center gap-1.5">
+                            <Plus size={13} /> {addingItem ? '…' : 'Adicionar'}
+                          </button>
+                        </div>
+                        <p className="text-xs text-gray-600">Podes colar o URL completo da obra ou artista</p>
+                        {colItems[col.id]?.length > 0 && (
+                          <div className="mt-4">
+                            <div className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Items ({colItems[col.id].length})</div>
+                            <div className="flex flex-col gap-2">
+                              {colItems[col.id].map(item => (
+                                <div key={item.id} className="flex items-center gap-3 bg-gray-800 rounded-lg px-3 py-2">
+                                  {item.artwork && (
+                                    <>
+                                      {item.artwork.images?.[0] && <img src={item.artwork.images[0].imageUrl} className="w-10 h-8 object-cover rounded" />}
+                                      <div className="flex-1 min-w-0">
+                                        <div className="text-sm font-bold truncate">{item.artwork.title}</div>
+                                        <div className="text-xs text-gray-500">{item.artwork.artist?.artistName}</div>
+                                      </div>
+                                      <span className="text-xs text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full">Obra</span>
+                                    </>
+                                  )}
+                                  {item.artist && (
+                                    <>
+                                      <div className="w-10 h-8 rounded bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold text-xs">{item.artist.artistName?.[0]}</div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="text-sm font-bold truncate">{item.artist.artistName}</div>
+                                        <div className="text-xs text-gray-500">@{item.artist.username}</div>
+                                      </div>
+                                      <span className="text-xs text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full">Artista</span>
+                                    </>
+                                  )}
+                                  <button onClick={async () => {
+                                    try {
+                                      await api.delete(`/curated/${col.id}/items/${item.id}`)
+                                      toast.success('Removido')
+                                      fetchColItems(col.id); fetchCurated()
+                                      setColItems(prev => ({ ...prev, [col.id]: (prev[col.id] || []).filter(i => i.id !== item.id) }))
+                                    } catch { toast.error('Erro') }
+                                  }} className="text-gray-600 hover:text-red-400 transition-colors flex-shrink-0">
+                                    <Trash2 size={13} />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
                 {curated.length === 0 && <div className="text-center py-12 text-gray-600 font-bold">Sem coleções ainda</div>}
