@@ -21,7 +21,7 @@ export default function BottomNav() {
   ]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white border-t border-gray-100 safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white border-t border-gray-100" style={{paddingBottom: "env(safe-area-inset-bottom, 0px)"}}>
       <div className="flex items-center justify-around px-2 py-2">
         {items.map(item => {
           const active = pathname === item.href

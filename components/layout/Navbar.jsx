@@ -53,7 +53,7 @@ export default function Navbar() {
                 <ChevronDown size={14} className="text-gray-400" />
               </button>
               {menuOpen && (
-                <div className="absolute right-0 top-11 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1.5 z-50">
+                <div className="absolute right-0 top-11 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1.5 z-[60]">
                   {user?.accountType === 'ADMIN' && <Link href="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-purple-600 hover:bg-purple-50"><Shield size={15} /> Admin</Link>}
                   {isArtist && <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50"><LayoutDashboard size={15} /> {t('nav.dashboard')}</Link>}
                   <Link href="/account/favorites" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50"><Heart size={15} /> {t('nav.favorites')}</Link>

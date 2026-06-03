@@ -226,9 +226,9 @@ export default function MapaClient() {
       </div>
 
       {view === 'map' ? (
-        <div className="flex" style={{height: 'calc(100vh - 140px)'}}>
+        <div className="flex flex-col md:flex-row" style={{height: 'calc(100dvh - 140px)'}}>
           {/* Mapa */}
-          <div className="flex-1 relative">
+          <div className="flex-1 relative min-h-0">
             {!MapComponents ? (
               <div className="flex items-center justify-center h-full bg-blue-50">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
@@ -272,7 +272,7 @@ export default function MapaClient() {
           </div>
 
           {/* Painel lateral */}
-          <div className="w-72 border-l border-gray-100 bg-white overflow-auto flex flex-col">
+          <div className="w-full md:w-72 h-48 md:h-auto border-t md:border-t-0 md:border-l border-gray-100 bg-white overflow-auto flex flex-col">
             <div className="p-4 border-b border-gray-100">
               <div className="text-xs font-extrabold uppercase tracking-widest text-gray-300 mb-2">
                 {selected ? byCity[selected]?.distrito : selectedDistrito ? selectedDistrito : 'Distritos'}

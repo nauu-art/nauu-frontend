@@ -6,6 +6,13 @@ import PWAInstall from '../components/PWAInstall'
 
 import { Toaster } from 'react-hot-toast'
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
+
 export const metadata = {
   metadataBase: new URL('https://nauu.art'),
   title: { default: 'nauu.art — Arte original, do artista para ti', template: '%s | nauu.art' },

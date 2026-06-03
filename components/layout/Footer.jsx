@@ -15,7 +15,7 @@ export default function Footer() {
   const [langOpen, setLangOpen] = useState(false)
 
   return (
-    <footer className="border-t border-gray-100 px-5 md:px-10 py-8">
+    <footer className="border-t border-gray-100 px-5 md:px-10 py-8 pb-8 md:pb-8">
       <div className="flex flex-col md:flex-row justify-between gap-8 mb-8">
         <div className="max-w-xs">
           <Link href="/"><img src="/logo.svg" alt="nauu.art" className="h-7 w-auto mb-3" /></Link>
@@ -57,7 +57,7 @@ export default function Footer() {
         <Newsletter compact />
       </div>
 
-      <div className="border-t border-gray-100 pt-5 flex flex-col md:flex-row justify-between items-center gap-3">
+      <div className="border-t border-gray-100 pt-5 mb-16 md:mb-0 flex flex-col md:flex-row justify-between items-center gap-3">
         <div className="text-xs text-gray-300 font-medium">© {new Date().getFullYear()} nauu.art — {t('footer.copyright')}</div>
         <div className="relative">
           <button onClick={() => setLangOpen(!langOpen)}
@@ -67,8 +67,8 @@ export default function Footer() {
           </button>
           {langOpen && (
             <>
-              <div className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} />
-              <div className="absolute bottom-10 right-0 bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden w-40">
+              <div className="fixed inset-0 z-[45]" onClick={() => setLangOpen(false)} />
+              <div className="absolute bottom-10 right-0 bg-white border border-gray-100 rounded-xl shadow-lg z-[80] overflow-hidden w-40">
                 {LANGS.map(lang => (
                   <button key={lang.code} onClick={() => { setLocale(lang.code); setLangOpen(false) }}
                     className={`flex items-center gap-2.5 w-full px-3 py-2.5 text-sm font-semibold hover:bg-gray-50 transition-colors ${locale === lang.code ? 'text-blue-500' : 'text-gray-600'}`}>

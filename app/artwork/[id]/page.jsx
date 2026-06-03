@@ -12,6 +12,7 @@ import AvailabilityBadge from '../../../components/ui/AvailabilityBadge'
 import PriceTag from '../../../components/ui/PriceTag'
 import ArtworkCard from '../../../components/ui/ArtworkCard'
 import ArtworkComments from '../../../components/ui/ArtworkComments'
+import ImageCarousel from '../../../components/ui/ImageCarousel'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
 
@@ -117,31 +118,10 @@ export default function ObraPage() {
         <div className="grid md:grid-cols-2 gap-8 md:gap-12">
           {/* Galeria */}
           <div>
-            <div className="rounded-xl overflow-hidden bg-blue-50 mb-3 aspect-[4/5] flex items-center justify-center cursor-zoom-in relative group"
+            <div className="rounded-xl overflow-hidden mb-3 cursor-zoom-in"
               onClick={() => { if(images[activeImg]) { setLightboxIndex(activeImg); setLightboxOpen(true) } }}>
-              {images[activeImg] ? (
-                <>
-                  <img src={images[activeImg].imageUrl} alt={artwork.title} className="w-full h-full object-contain" />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                    <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full">
-                      🔍
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <span className="text-blue-200 text-8xl font-extrabold">{artwork.title?.[0]}</span>
-              )}
+              <ImageCarousel images={images} title={artwork.title} aspect="4/5" />
             </div>
-            {images.length > 1 && (
-              <div className="flex gap-2">
-                {images.map((img, i) => (
-                  <button key={i} onClick={() => setActiveImg(i)}
-                    className={`w-16 h-12 rounded-lg overflow-hidden border-2 transition-all ${activeImg === i ? 'border-blue-500' : 'border-transparent'}`}>
-                    <img src={img.imageUrl} alt="" className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Info */}

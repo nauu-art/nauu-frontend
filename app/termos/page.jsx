@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 async function getContent() {
   try {
-    const res = await fetch('http://localhost:3001/api/admin/content/termos', {
+    const res = await fetch('http://localhost:3001/api/admin/public/content/termos', {
       next: { revalidate: 300 }
     })
     if (res.ok) return await res.json()
