@@ -19,7 +19,7 @@ export default function NovaObraPage() {
   const [form, setForm] = useState({
     title: '', description: '', technique: '', dimensions: '',
     yearCreated: new Date().getFullYear(), price: '', priceOnRequest: false,
-    availability: 'AVAILABLE', categoryIds: [], collectionId: '',
+    availability: 'AVAILABLE', categoryIds: [], collectionId: '', stock: 1, commissionPercent: 5,
   })
 
   useEffect(() => {

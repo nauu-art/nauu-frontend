@@ -129,7 +129,13 @@ export default function ObraPage() {
             <div className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
               {artwork.categories?.[0]?.category?.name || ''}
             </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-1" style={{letterSpacing:'-0.03em'}}>{artwork.title}</h1>
+            <div className="flex items-start justify-between gap-3 mb-1">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight" style={{letterSpacing:'-0.03em'}}>{artwork.title}</h1>
+              <button onClick={handleFav} title={faved ? t('artwork.saved_favorites') : t('artwork.save_favorites')}
+                className={`flex-shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center transition-all mt-1 ${faved ? 'border-red-400 bg-red-50 text-red-500' : 'border-gray-200 text-gray-400 hover:border-red-300 hover:text-red-400'}`}>
+                <Heart size={15} fill={faved ? 'currentColor' : 'none'} />
+              </button>
+            </div>
             <div className="flex items-center gap-2 mb-6">
               <p className="text-sm text-gray-400 font-medium">{artwork.yearCreated}</p>
               {artwork.collection && (
@@ -177,17 +183,8 @@ export default function ObraPage() {
                   <Mail size={16} /> {t('artwork.contact_artist')}
                 </Link>
               )}
-              {artwork.availability === 'AVAILABLE' && !artwork.priceOnRequest && artwork.price && artwork.artist?.stripeOnboarded && (
-                <a href={`/checkout/${artwork.id}`}
-                  className="flex items-center justify-center gap-2 w-full py-3 bg-green-500 hover:bg-green-600 text-white font-extrabold rounded-xl transition-colors">
-                  🛒 Comprar — € {Number(artwork.price).toLocaleString('pt-PT')}
-                </a>
-              )}
-              <button onClick={handleFav}
-                className={`flex items-center justify-center gap-2 w-full py-2.5 border-2 font-bold rounded-xl transition-all ${faved ? 'border-red-400 text-red-500 bg-red-50 hover:bg-red-100' : 'border-gray-200 text-gray-500 hover:border-red-300 hover:text-red-400'}`}>
-                <Heart size={16} fill={faved ? 'currentColor' : 'none'} />
-                {faved ? t('artwork.saved_favorites') : t('artwork.save_favorites')}
-              </button>
+
+
             </div>
 
             <div className="grid grid-cols-2 border border-gray-100 rounded-xl overflow-hidden mb-6">
