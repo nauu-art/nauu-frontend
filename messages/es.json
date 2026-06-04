@@ -5,11 +5,12 @@
     "search": "Obras, artistas, técnicas…",
     "login": "Entrar",
     "register": "Registrarse",
-    "favorites": "Favoritos",
+    "favorites": "Anclados",
     "profile": "Perfil",
     "dashboard": "Panel",
     "logout": "Salir",
-    "feed": "Feed"
+    "feed": "Feed",
+    "collections": "Cofres"
   },
   "home": {
     "hero_title": "Arte original,",
@@ -44,8 +45,8 @@
   },
   "artwork": {
     "contact_artist": "Contactar artista",
-    "save_favorites": "Guardar en favoritos",
-    "saved_favorites": "Guardado en favoritos",
+    "save_favorites": "Anclar",
+    "saved_favorites": "Anclado",
     "share": "Compartir obra",
     "more_works": "Más obras de",
     "see_all": "Ver todas →",
@@ -59,7 +60,7 @@
     "available": "Disponible",
     "reserved": "Reservado",
     "sold": "Vendido",
-    "add_collection": "Añadir a la colección",
+    "add_collection": "Añadir al cofre",
     "views": "visualizaciones",
     "share_copied": "¡Enlace copiado!",
     "original": "Obra original",
@@ -215,5 +216,17 @@
     "share": "Compartir perfil",
     "copy_link": "¡Enlace copiado!",
     "load_more": "Cargar más"
+  },
+  "anchors": {
+    "title": "Anclados",
+    "chests": "Cofres",
+    "default_chest": "Favoritos",
+    "new_chest": "Nuevo cofre",
+    "add_to_chest": "Añadir al cofre",
+    "save_quick": "¡Anclado!",
+    "no_anchors": "Todavía no has anclado ninguna obra",
+    "no_chests": "Todavía no tienes cofres",
+    "create_first": "Crear primer cofre",
+    "hold_to_choose": "Mantén pulsado para elegir el cofre"
   }
 }

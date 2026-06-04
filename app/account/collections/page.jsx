@@ -67,7 +67,7 @@ export default function CollectionsPage() {
             </div>
             <div>
               <h1 className="text-xl font-extrabold text-gray-900">As minhas coleções</h1>
-              <p className="text-sm text-gray-400 font-medium mt-0.5">{collections.length} coleções</p>
+              <p className="text-sm text-gray-400 font-medium mt-0.5">{collections.length} coleções · adiciona obras com o ❤️ nos cards</p>
             </div>
           </div>
           <button onClick={() => setShowForm(!showForm)}
@@ -122,7 +122,7 @@ export default function CollectionsPage() {
         ) : (
           <div className="grid grid-cols-2 gap-4">
             {collections.map(col => (
-              <div key={col.id} className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:border-blue-200 transition-colors group">
+              <Link key={col.id} href={`/collection/${col.id}`} className="block bg-white border border-gray-100 rounded-2xl overflow-hidden hover:border-blue-200 transition-colors group">
                 {/* Preview das primeiras 4 obras */}
                 <div className="grid grid-cols-2 gap-0.5 aspect-video bg-gray-50">
                   {col.items.slice(0, 4).map((item, i) => (
@@ -152,7 +152,7 @@ export default function CollectionsPage() {
                   {col.description && <p className="text-xs text-gray-400 font-medium mb-2">{col.description}</p>}
                   <div className="text-xs text-gray-400 font-semibold">{col._count?.items || 0} obras</div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

@@ -5,11 +5,12 @@
     "search": "Obras, artistas, técnicas…",
     "login": "Entrar",
     "register": "Registar",
-    "favorites": "Favoritos",
+    "favorites": "Âncoras",
     "profile": "Perfil",
     "dashboard": "Dashboard",
     "logout": "Sair",
-    "feed": "Feed"
+    "feed": "Feed",
+    "collections": "Baús"
   },
   "home": {
     "hero_title": "Arte original,",
@@ -44,8 +45,8 @@
   },
   "artwork": {
     "contact_artist": "Contactar artista",
-    "save_favorites": "Guardar nos favoritos",
-    "saved_favorites": "Guardado nos favoritos",
+    "save_favorites": "Ancorar",
+    "saved_favorites": "Ancorado",
     "share": "Partilhar obra",
     "more_works": "Mais obras de",
     "see_all": "Ver todas →",
@@ -59,7 +60,7 @@
     "available": "Disponível",
     "reserved": "Reservado",
     "sold": "Vendido",
-    "add_collection": "Adicionar à coleção",
+    "add_collection": "Adicionar ao baú",
     "views": "visualizações",
     "share_copied": "Link copiado!",
     "original": "Obra original",
@@ -215,5 +216,17 @@
     "share": "Partilhar perfil",
     "copy_link": "Link copiado!",
     "load_more": "Carregar mais"
+  },
+  "anchors": {
+    "title": "Âncoras",
+    "chests": "Baús",
+    "default_chest": "Favoritos",
+    "new_chest": "Novo baú",
+    "add_to_chest": "Adicionar ao baú",
+    "save_quick": "Ancorado!",
+    "no_anchors": "Ainda não ancorastes nenhuma obra",
+    "no_chests": "Ainda não tens baús",
+    "create_first": "Criar primeiro baú",
+    "hold_to_choose": "Mantém pressionado para escolher o baú"
   }
 }

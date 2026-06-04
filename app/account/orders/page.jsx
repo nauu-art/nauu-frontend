@@ -4,14 +4,95 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '../../../context/AuthContext'
 import api from '../../../lib/api'
-import { Package, ChevronRight } from 'lucide-react'
+import { Package, ChevronDown, ChevronUp, MessageSquare, ExternalLink } from 'lucide-react'
 
-const STATUS_LABELS = {
-  PENDING: { label: 'Pendente', color: 'bg-amber-100 text-amber-600' },
-  PAID: { label: 'Pago', color: 'bg-blue-100 text-blue-600' },
-  SHIPPED: { label: 'Enviado', color: 'bg-purple-100 text-purple-600' },
-  DELIVERED: { label: 'Entregue', color: 'bg-green-100 text-green-600' },
-  CANCELLED: { label: 'Cancelado', color: 'bg-red-100 text-red-600' },
+const FULFILLMENT = {
+  PAID:       { label: 'Pago',        color: 'text-blue-500 bg-blue-50',    step: 0 },
+  PROCESSING: { label: 'A preparar',  color: 'text-yellow-600 bg-yellow-50', step: 1 },
+  SHIPPED:    { label: 'Enviado',     color: 'text-purple-600 bg-purple-50', step: 2 },
+  DELIVERED:  { label: 'Entregue',    color: 'text-green-600 bg-green-50',   step: 3 },
+  CANCELLED:  { label: 'Cancelado',   color: 'text-red-500 bg-red-50',       step: -1 },
+}
+
+const STEPS = ['Pago', 'A preparar', 'Enviado', 'Entregue']
+
+function OrderTimeline({ status }) {
+  const current = FULFILLMENT[status]?.step ?? 0
+  if (status === 'CANCELLED') return <span className="text-xs font-bold text-red-500 bg-red-50 px-2 py-1 rounded-full">Cancelado</span>
+  return (
+    <div className="flex items-center gap-1 flex-wrap">
+      {STEPS.map((step, i) => (
+        <div key={step} className="flex items-center gap-1">
+          <div className={`text-xs font-bold px-2 py-1 rounded-full ${i <= current ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
+            {i < current && '✓ '}{step}
+          </div>
+          {i < STEPS.length - 1 && <div className={`w-3 h-0.5 ${i < current ? 'bg-blue-400' : 'bg-gray-200'}`} />}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function OrderDetail({ order }) {
+  const address = order.shippingAddress ? (() => { try { return JSON.parse(order.shippingAddress) } catch { return null } })() : null
+
+  return (
+    <div className="border-t border-gray-100 p-4 bg-gray-50 grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Morada */}
+      {address && (
+        <div>
+          <div className="text-xs font-extrabold uppercase tracking-widest text-gray-400 mb-2">Morada de entrega</div>
+          <div className="text-sm text-gray-700 leading-relaxed">
+            {address.name && <div className="font-bold">{address.name}</div>}
+            <div>{address.street}</div>
+            <div>{address.postalCode} {address.city}</div>
+            <div>{address.country}</div>
+            {address.phone && <div className="mt-1 text-gray-500">📞 {address.phone}</div>}
+          </div>
+        </div>
+      )}
+
+      {/* Resumo financeiro + tracking */}
+      <div>
+        <div className="text-xs font-extrabold uppercase tracking-widest text-gray-400 mb-2">Detalhes</div>
+        <div className="flex flex-col gap-1.5 text-sm">
+          <div className="flex justify-between"><span className="text-gray-500">Valor pago</span><span className="font-bold">€ {Number(order.amount).toFixed(2)}</span></div>
+          {order.paidAt && <div className="flex justify-between"><span className="text-gray-500">Data de pagamento</span><span className="font-medium">{new Date(order.paidAt).toLocaleDateString('pt-PT')}</span></div>}
+          {order.shippedAt && <div className="flex justify-between"><span className="text-gray-500">Data de envio</span><span className="font-medium">{new Date(order.shippedAt).toLocaleDateString('pt-PT')}</span></div>}
+          {order.deliveredAt && <div className="flex justify-between"><span className="text-gray-500">Data de entrega</span><span className="font-medium">{new Date(order.deliveredAt).toLocaleDateString('pt-PT')}</span></div>}
+          <div className="flex justify-between"><span className="text-gray-500">Referência</span><span className="font-mono text-xs">{order.id.slice(0,8).toUpperCase()}</span></div>
+        </div>
+
+        {/* Tracking */}
+        {order.trackingNumber && (
+          <div className="mt-3 p-3 bg-blue-50 border border-blue-100 rounded-xl">
+            <div className="text-xs font-extrabold text-blue-700 mb-1">📦 Tracking</div>
+            <div className="text-sm font-bold text-gray-900">{order.trackingNumber}</div>
+            {order.trackingUrl && (
+              <a href={order.trackingUrl} target="_blank" rel="noopener noreferrer"
+                className="text-xs text-blue-500 hover:text-blue-600 font-bold mt-1 flex items-center gap-1">
+                <ExternalLink size={11} /> Acompanhar envio
+              </a>
+            )}
+          </div>
+        )}
+
+        {/* Acções */}
+        <div className="flex gap-2 mt-3">
+          {order.conversationId && (
+            <Link href={`/account/messages/${order.conversationId}`}
+              className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 hover:border-blue-300 hover:text-blue-500 text-gray-600 font-bold text-xs rounded-lg transition-colors">
+              <MessageSquare size={12} /> Falar com o artista
+            </Link>
+          )}
+          <Link href={`/artwork/${order.artworkId}`}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 hover:border-blue-300 hover:text-blue-500 text-gray-600 font-bold text-xs rounded-lg transition-colors">
+            <ExternalLink size={12} /> Ver obra
+          </Link>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function OrdersPage() {
@@ -19,6 +100,7 @@ export default function OrdersPage() {
   const router = useRouter()
   const [orders, setOrders] = useState([])
   const [loadingOrders, setLoadingOrders] = useState(true)
+  const [expanded, setExpanded] = useState(null)
 
   useEffect(() => {
     if (!loading && !isLoggedIn) router.push('/login')
@@ -35,65 +117,56 @@ export default function OrdersPage() {
 
   return (
     <div className="p-5 md:p-8">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-            <Package size={18} className="text-blue-500" />
-          </div>
-          <div>
-            <h1 className="text-xl font-extrabold text-gray-900">As minhas compras</h1>
-            <p className="text-sm text-gray-400 font-medium mt-0.5">{orders.length} encomendas</p>
-          </div>
-        </div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-xl font-extrabold text-gray-900">As minhas compras</h1>
+        <span className="text-sm text-gray-400 font-medium">{orders.length} encomendas</span>
+      </div>
 
-        {loadingOrders ? (
-          <div className="space-y-3">{Array.from({length:3}).map((_,i) => <div key={i} className="h-20 bg-white rounded-2xl animate-pulse" />)}</div>
-        ) : orders.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
-            <div className="text-4xl mb-3">🛒</div>
-            <div className="text-gray-300 font-bold text-lg mb-2">Ainda não fizeste compras</div>
-            <p className="text-gray-400 text-sm font-medium mb-6">Explora o catálogo e encontra obras que te inspiram.</p>
-            <Link href="/explore" className="inline-block px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm rounded-xl">
-              Explorar obras
-            </Link>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {orders.map(order => {
-              const st = STATUS_LABELS[order.status] || STATUS_LABELS.PENDING
-              return (
-                <div key={order.id} className="bg-white border border-gray-100 rounded-2xl p-5 hover:border-blue-100 transition-colors">
-                  <div className="flex gap-4">
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0">
-                      {order.artwork?.images?.[0]
-                        ? <img src={order.artwork.images[0].imageUrl} alt={order.artwork.title} className="w-full h-full object-cover" />
-                        : <div className="w-full h-full flex items-center justify-center text-gray-200 text-2xl font-bold">{order.artwork?.title?.[0]}</div>}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <Link href={`/artwork/${order.artworkId}`} className="font-extrabold text-gray-900 hover:text-blue-500 transition-colors truncate block">{order.artwork?.title}</Link>
-                          <div className="text-sm text-gray-400 font-medium">{order.artist?.artistName}</div>
-                        </div>
-                        <span className={`flex-shrink-0 text-xs font-bold px-2.5 py-1 rounded-full ${st.color}`}>{st.label}</span>
-                      </div>
-                      <div className="flex items-center justify-between mt-3">
-                        <div className="text-lg font-extrabold text-gray-900">€ {parseFloat(order.amount).toFixed(2)}</div>
-                        <div className="text-xs text-gray-400 font-medium">{new Date(order.createdAt).toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
-                      </div>
-                    </div>
+      {loadingOrders ? (
+        <div className="flex flex-col gap-3">{[1,2,3].map(i => <div key={i} className="h-20 bg-white rounded-xl animate-pulse border border-gray-100" />)}</div>
+      ) : orders.length === 0 ? (
+        <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
+          <div className="text-4xl mb-3">🛒</div>
+          <div className="text-gray-400 font-bold text-lg mb-2">Ainda não fizeste compras</div>
+          <p className="text-gray-400 text-sm mb-6">Explora o catálogo e encontra obras que te inspiram.</p>
+          <Link href="/explore" className="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm rounded-xl">
+            Explorar obras
+          </Link>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {orders.map(order => {
+            const fs = FULFILLMENT[order.fulfillmentStatus || 'PAID']
+            const isExpanded = expanded === order.id
+            return (
+              <div key={order.id} className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+                <div className="flex items-center gap-3 p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                  onClick={() => setExpanded(isExpanded ? null : order.id)}>
+                  {/* Imagem */}
+                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                    {order.artwork?.images?.[0]
+                      ? <img src={order.artwork.images[0].imageUrl} className="w-full h-full object-cover" alt="" />
+                      : <div className="w-full h-full flex items-center justify-center text-2xl">🖼️</div>}
                   </div>
-                  {order.conversationId && (
-                    <div className="mt-3 pt-3 border-t border-gray-50">
-                      <Link href={`/account/messages/${order.conversationId}`} className="text-xs font-bold text-blue-500 hover:text-blue-600 flex items-center gap-1">
-                        💬 Ver conversa com o artista <ChevronRight size={12} />
-                      </Link>
-                    </div>
-                  )}
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-extrabold text-gray-900 truncate">{order.artwork?.title}</div>
+                    <div className="text-xs text-gray-500">{order.artist?.artistName} · {new Date(order.createdAt).toLocaleDateString('pt-PT')}</div>
+                    <div className="mt-1.5"><OrderTimeline status={order.fulfillmentStatus || 'PAID'} /></div>
+                  </div>
+                  {/* Valor + toggle */}
+                  <div className="text-right flex-shrink-0 flex flex-col items-end gap-1">
+                    <div className="text-sm font-extrabold text-gray-900">€ {Number(order.amount).toFixed(2)}</div>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${fs.color}`}>{fs.label}</span>
+                  </div>
+                  {isExpanded ? <ChevronUp size={15} className="text-gray-400 flex-shrink-0" /> : <ChevronDown size={15} className="text-gray-400 flex-shrink-0" />}
                 </div>
-              )
-            })}
-          </div>
-        )}
+                {isExpanded && <OrderDetail order={order} />}
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

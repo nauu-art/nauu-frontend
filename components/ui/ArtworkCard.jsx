@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext'
 import api from '../../lib/api'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import AddToCollection from './AddToCollection'
+import AnchorButton from './AnchorButton'
 import ImageCarousel from './ImageCarousel'
 import AvailabilityBadge from './AvailabilityBadge'
 import PriceTag from './PriceTag'
@@ -87,9 +87,9 @@ export default function ArtworkCard({ artwork: w, aspect = '4/5', showArtist = t
         {w.isFeatured && (
           <div className="absolute top-2 left-2 bg-amber-400 text-white text-xs font-bold px-2 py-0.5 rounded-full z-10">⭐</div>
         )}
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+        <div className="absolute top-2 right-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10 select-none" style={{WebkitTouchCallout:"none"}}
           onClick={e => e.preventDefault()}>
-          <AddToCollection artworkId={w.id} />
+          <AnchorButton artworkId={w.id} />
         </div>
       </Link>
 

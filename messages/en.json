@@ -5,11 +5,12 @@
     "search": "Artworks, artists, techniques…",
     "login": "Log in",
     "register": "Sign up",
-    "favorites": "Favorites",
+    "favorites": "Anchors",
     "profile": "Profile",
     "dashboard": "Dashboard",
     "logout": "Log out",
-    "feed": "Feed"
+    "feed": "Feed",
+    "collections": "Chests"
   },
   "home": {
     "hero_title": "Original art,",
@@ -44,8 +45,8 @@
   },
   "artwork": {
     "contact_artist": "Contact artist",
-    "save_favorites": "Save to favorites",
-    "saved_favorites": "Saved to favorites",
+    "save_favorites": "Anchor",
+    "saved_favorites": "Anchored",
     "share": "Share artwork",
     "more_works": "More works by",
     "see_all": "See all →",
@@ -59,7 +60,7 @@
     "available": "Available",
     "reserved": "Reserved",
     "sold": "Sold",
-    "add_collection": "Add to collection",
+    "add_collection": "Add to chest",
     "views": "views",
     "share_copied": "Link copied!",
     "original": "Original work",
@@ -215,5 +216,17 @@
     "share": "Share profile",
     "copy_link": "Link copied!",
     "load_more": "Load more"
+  },
+  "anchors": {
+    "title": "Anchors",
+    "chests": "Chests",
+    "default_chest": "Favourites",
+    "new_chest": "New chest",
+    "add_to_chest": "Add to chest",
+    "save_quick": "Anchored!",
+    "no_anchors": "You haven't anchored any artworks yet",
+    "no_chests": "You don't have any chests yet",
+    "create_first": "Create first chest",
+    "hold_to_choose": "Hold to choose a chest"
   }
 }
