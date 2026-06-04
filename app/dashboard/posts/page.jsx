@@ -115,10 +115,10 @@ export default function PostsPage() {
   if (loading || !user) return <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
 
   return (
-    <div className="flex min-h-screen bg-gray-50 flex-col md:flex-row">
+    <div className="flex min-h-screen bg-gray-50">
       <DashboardNav />
 
-      <div className="flex-1 p-4 md:p-8 pt-16 md:pt-8 max-w-3xl">
+      <div className="flex-1 md:ml-52 p-5 md:p-8 max-w-3xl">
         <div className="flex justify-between items-center mb-5 gap-3">
           <div>
             <h1 className="text-xl md:text-2xl font-extrabold tracking-tight" style={{letterSpacing:'-0.03em'}}>Posts</h1>

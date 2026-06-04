@@ -57,13 +57,12 @@ export default function NotificationsPage() {
   const order = ['Hoje', 'Ontem', 'Esta semana', 'Semana passada', 'Mais antigas']
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-xl mx-auto px-4 py-8 md:py-12">
+    <div className="p-5 md:p-8">
         <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
             <Bell size={18} className="text-blue-500" />
           </div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Notificações</h1>
+          <h1 className="text-xl font-extrabold text-gray-900">Notificações</h1>
         </div>
 
         {loadingN ? (
@@ -97,7 +96,6 @@ export default function NotificationsPage() {
             ))}
           </div>
         )}
-      </div>
     </div>
   )
 }

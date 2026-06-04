@@ -45,7 +45,7 @@ export default function DashboardContactsPage() {
   )
 
   return (
-    <div className="flex min-h-screen bg-gray-50 flex-col md:flex-row">
+    <div className="flex min-h-screen bg-gray-50">
       <DashboardNav />
 
       <div className="flex-1 flex flex-col md:flex-row pt-16 md:pt-0 overflow-hidden" style={{height: '100vh'}}>
@@ -67,7 +67,7 @@ export default function DashboardContactsPage() {
               <div className="text-gray-300 font-bold text-sm">Ainda não recebeste contactos</div>
             </div>
           ) : (
-            <div className="flex-1 overflow-auto">
+            <div className="flex-1 md:ml-52 overflow-auto">
               {threads.map(thread => {
                 const lastMsg = thread.messages[thread.messages.length - 1]
                 const isSelected = selectedThread?.email === thread.email

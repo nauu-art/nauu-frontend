@@ -16,7 +16,7 @@ export default function BottomNav() {
     { key: 'explore', href: '/explore', icon: Search, label: 'Explorar' },
     { key: 'feed', href: '/feed', icon: Rss, label: 'Feed' },
     { key: 'favorites', href: isLoggedIn ? '/account/favorites' : '/login', icon: Heart, label: 'Favoritos' },
-    { key: 'profile', href: isLoggedIn ? '/account/profile' : '/login', icon: User, label: 'Perfil',
+    { key: 'profile', href: isLoggedIn ? '/account/profile' : '/login', icon: User, label: 'Dashboard',
       avatar: isLoggedIn && user?.avatarUrl ? user.avatarUrl : null },
   ]
 

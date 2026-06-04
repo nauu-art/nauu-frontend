@@ -155,9 +155,9 @@ export default function EditArtworkPage() {
   )
 
   return (
-    <div className="flex min-h-screen bg-gray-50 flex-col md:flex-row">
+    <div className="flex min-h-screen bg-gray-50">
       <DashboardNav />
-      <div className="flex-1 p-4 md:p-8 pt-16 md:pt-8 max-w-5xl">
+      <div className="flex-1 md:ml-52 p-4 md:p-8 pt-16 md:pt-8 max-w-5xl">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6">

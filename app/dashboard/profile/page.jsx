@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '../../../context/AuthContext'
-import { LayoutDashboard, Image, Mail, User, LogOut, Save, Camera } from 'lucide-react'
+import { LayoutDashboard, Image, Mail, User, LogOut, Save, Camera, Key, Trash2 } from 'lucide-react'
 import DashboardNav from '../../../components/ui/DashboardNav'
 import api from '../../../lib/api'
 import LocationPicker from '../../../components/ui/LocationPicker'
@@ -13,6 +13,8 @@ export default function DashboardProfilePage() {
   const { user, isArtist, isLoggedIn, loading, logout } = useAuth()
   const router = useRouter()
   const [saving, setSaving] = useState(false)
+  const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
+  const [savingPw, setSavingPw] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [uploadingCover, setUploadingCover] = useState(false)
   const [avatarPreview, setAvatarPreview] = useState(null)
@@ -60,6 +62,18 @@ export default function DashboardProfilePage() {
   }, [isArtist, user])
 
   const set = (k, v) => setForm(f => ({...f, [k]: v}))
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault()
+    if (pwForm.newPassword !== pwForm.confirmPassword) { toast.error('As passwords não coincidem'); return }
+    setSavingPw(true)
+    try {
+      await api.put('/auth/change-password', { currentPassword: pwForm.currentPassword, newPassword: pwForm.newPassword })
+      toast.success('Password alterada!')
+      setPwForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+    } catch (err) { toast.error(err.response?.data?.error || 'Erro') }
+    setSavingPw(false)
+  }
 
   const handleSave = async (e) => {
     e.preventDefault()
@@ -113,10 +127,10 @@ export default function DashboardProfilePage() {
   const avatarSrc = avatarPreview || user.avatarUrl
 
   return (
-    <div className="flex min-h-screen bg-gray-50 flex-col md:flex-row">
+    <div className="flex min-h-screen bg-gray-50">
       <DashboardNav />
 
-      <div className="flex-1 p-4 md:p-8 pt-16 md:pt-8">
+      <div className="flex-1 md:ml-52 p-5 md:p-8">
         <div className="flex justify-between items-center mb-7">
           <h1 className="text-2xl font-extrabold tracking-tight" style={{letterSpacing:'-0.03em'}}>Editar perfil</h1>
           <div className="flex gap-2">
@@ -243,6 +257,33 @@ export default function DashboardProfilePage() {
               <Save size={16} /> {saving ? 'A guardar…' : 'Guardar alterações'}
             </button>
           </div>
+        </form>
+
+        {/* Mudar password */}
+        <form onSubmit={handleChangePassword} className="bg-white border border-gray-100 rounded-xl p-5 mt-5">
+          <h2 className="text-sm font-extrabold text-gray-900 mb-4 flex items-center gap-2">
+            <Key size={15} className="text-gray-400" /> Mudar password
+          </h2>
+          <div className="flex flex-col gap-3">
+            <div>
+              <label className="label">Password atual</label>
+              <input type="password" value={pwForm.currentPassword} onChange={e => setPwForm(f => ({...f, currentPassword: e.target.value}))} className="input" placeholder="••••••••" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="label">Nova password</label>
+                <input type="password" value={pwForm.newPassword} onChange={e => setPwForm(f => ({...f, newPassword: e.target.value}))} className="input" placeholder="Mínimo 8 caracteres" />
+              </div>
+              <div>
+                <label className="label">Confirmar</label>
+                <input type="password" value={pwForm.confirmPassword} onChange={e => setPwForm(f => ({...f, confirmPassword: e.target.value}))} className="input" placeholder="••••••••" />
+              </div>
+            </div>
+          </div>
+          <button type="submit" disabled={savingPw}
+            className="mt-4 flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm rounded-xl">
+            <Key size={15} /> {savingPw ? 'A guardar…' : 'Alterar password'}
+          </button>
         </form>
       </div>
     </div>

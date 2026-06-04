@@ -59,15 +59,14 @@ export default function CollectionsPage() {
   if (loading) return <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-3xl mx-auto px-5 py-12">
+    <div className="p-5 md:p-8">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
               <FolderHeart size={18} className="text-purple-500" />
             </div>
             <div>
-              <h1 className="text-2xl font-extrabold tracking-tight text-gray-900" style={{letterSpacing:'-0.03em'}}>As minhas coleções</h1>
+              <h1 className="text-xl font-extrabold text-gray-900">As minhas coleções</h1>
               <p className="text-sm text-gray-400 font-medium mt-0.5">{collections.length} coleções</p>
             </div>
           </div>
@@ -157,7 +156,6 @@ export default function CollectionsPage() {
             ))}
           </div>
         )}
-      </div>
     </div>
   )
 }

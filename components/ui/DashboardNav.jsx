@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { ArrowUpRight } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { LayoutDashboard, Image, Mail, User, LogOut, FileText, Menu, X, FolderOpen, MessageSquare, CreditCard } from 'lucide-react'
 import { useState } from 'react'
@@ -18,7 +19,6 @@ export default function DashboardNav() {
     { href: '/dashboard/collections', label: 'Coleções', icon: FolderOpen },
     { href: '/dashboard/messages', label: 'Mensagens', icon: MessageSquare },
     { href: '/dashboard/payments', label: 'Pagamentos', icon: CreditCard },
-    { href: '/dashboard/contacts', label: 'Contactos', icon: Mail },
     { href: '/dashboard/profile', label: 'Perfil', icon: User },
   ]
 
@@ -27,7 +27,7 @@ export default function DashboardNav() {
   return (
     <>
       {/* ── Desktop sidebar ── */}
-      <aside className="hidden md:flex w-56 bg-white border-r border-gray-100 flex-col flex-shrink-0 sticky top-0 h-screen">
+      <aside className="hidden md:flex w-52 bg-white border-r border-gray-100 flex-col flex-shrink-0 fixed left-0 top-0 h-full z-20">
         <div className="p-5 border-b border-gray-100">
           <Link href="/"><img src="/logo.svg" alt="nauu.art" className="h-7 w-auto" /></Link>
         </div>
@@ -48,7 +48,11 @@ export default function DashboardNav() {
             </Link>
           ))}
         </nav>
-        <div className="p-3 border-t border-gray-100">
+        <div className="p-3 border-t border-gray-100 flex flex-col gap-1">
+          <Link href="/"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition-colors">
+            <ArrowUpRight size={13} /> Ver site
+          </Link>
           <button onClick={() => { logout(); router.push('/') }}
             className="flex items-center gap-2.5 px-3 py-2 text-sm font-semibold text-red-400 hover:bg-red-50 rounded-lg w-full">
             <LogOut size={15} /> Sair

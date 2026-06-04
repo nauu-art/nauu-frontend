@@ -107,10 +107,10 @@ export default function NovaObraPage() {
   if (loading || !user) return <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
 
   return (
-    <div className="flex min-h-screen bg-gray-50 flex-col md:flex-row">
+    <div className="flex min-h-screen bg-gray-50">
       <DashboardNav />
 
-      <div className="flex-1 p-4 md:p-8 pt-16 md:pt-8">
+      <div className="flex-1 md:ml-52 p-4 md:p-8 pt-16 md:pt-8">
         <div className="flex items-center gap-3 mb-7">
           <Link href="/dashboard/artworks" className="text-sm font-bold text-gray-400 hover:text-gray-600">← Voltar</Link>
           <h1 className="text-2xl font-extrabold tracking-tight" style={{letterSpacing:'-0.03em'}}>Nova obra</h1>

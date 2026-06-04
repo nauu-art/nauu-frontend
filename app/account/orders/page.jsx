@@ -34,14 +34,13 @@ export default function OrdersPage() {
   }, [isLoggedIn])
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-2xl mx-auto px-4 py-8 md:py-12">
+    <div className="p-5 md:p-8">
         <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
             <Package size={18} className="text-blue-500" />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight">As minhas compras</h1>
+            <h1 className="text-xl font-extrabold text-gray-900">As minhas compras</h1>
             <p className="text-sm text-gray-400 font-medium mt-0.5">{orders.length} encomendas</p>
           </div>
         </div>
@@ -95,7 +94,6 @@ export default function OrdersPage() {
             })}
           </div>
         )}
-      </div>
     </div>
   )
 }
