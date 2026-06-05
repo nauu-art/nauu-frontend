@@ -16,7 +16,7 @@ export default function UserProfilePage() {
   const [following, setFollowing] = useState(false)
   const [posts, setPosts] = useState([])
   const [anchors, setAnchors] = useState([])
-  const [activeTab, setActiveTab] = useState('anchors')
+  const [activeTab, setActiveTab] = useState('posts')
   const [followLoading, setFollowLoading] = useState(false)
 
   useEffect(() => {
@@ -63,9 +63,9 @@ export default function UserProfilePage() {
   const totalAnchors = anchors.length
 
   const tabs = [
+    ...(posts.length > 0 ? [{ id: 'posts', label: 'Posts', icon: FileText, count: posts.length }] : []),
     { id: 'anchors', label: 'Âncoras', icon: Anchor, count: totalAnchors },
     { id: 'chests', label: 'Baús', icon: Package, count: publicCollections.length },
-    ...(posts.length > 0 ? [{ id: 'posts', label: 'Posts', icon: FileText, count: posts.length }] : []),
   ]
 
   return (
