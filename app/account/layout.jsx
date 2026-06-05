@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { User, Heart, Mail, Bell, Package, FolderHeart, LogOut, LayoutDashboard, ArrowUpRight } from 'lucide-react'
+import { User, Anchor, Mail, Bell, Package, LogOut, LayoutDashboard, ArrowUpRight } from 'lucide-react'
 
 export default function AccountLayout({ children }) {
   const { user, isLoggedIn, isArtist, loading, logout } = useAuth()
@@ -18,8 +18,8 @@ export default function AccountLayout({ children }) {
   const items = [
     { href: '/account/profile', icon: User, label: 'Perfil' },
     { href: '/account/orders', icon: Package, label: 'Compras' },
-    { href: '/account/favorites', icon: Heart, label: 'Favoritos' },
-    { href: '/account/collections', icon: FolderHeart, label: 'Coleções' },
+    { href: '/account/favorites', icon: Anchor, label: 'Âncoras' },
+    
     { href: '/account/messages', icon: Mail, label: 'Mensagens' },
     { href: '/account/notifications', icon: Bell, label: 'Notificações' },
   ]

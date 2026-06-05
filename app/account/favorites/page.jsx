@@ -2,104 +2,175 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Heart, Trash2 } from 'lucide-react'
+import { Anchor, Package, Star, Plus, Trash2, ChevronRight } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
-import { useLocale } from '../../../context/LocaleContext'
 import api from '../../../lib/api'
 import toast from 'react-hot-toast'
 
-const availColor = (a) => a === 'AVAILABLE' ? '#2ECC71' : a === 'RESERVED' ? '#F39C12' : '#E74C3C'
-
-export default function FavoritosPage() {
+export default function AncorasPage() {
   const { isLoggedIn, loading } = useAuth()
-  const { t } = useLocale()
   const router = useRouter()
-  const [artworks, setArtworks] = useState([])
-  const [loadingFavs, setLoadingFavs] = useState(true)
+  const [anchors, setAnchors] = useState([])
+  const [collections, setCollections] = useState([])
+  const [loadingData, setLoadingData] = useState(true)
 
   useEffect(() => {
     if (!loading && !isLoggedIn) router.push('/login')
   }, [loading, isLoggedIn])
 
   useEffect(() => {
-    if (isLoggedIn) {
-      api.get('/favorites')
-        .then(res => setArtworks(res.data || []))
-        .catch(() => {})
-        .finally(() => setLoadingFavs(false))
-    }
+    if (!isLoggedIn) return
+    Promise.all([
+      api.get('/favorites'),
+      api.get('/collections'),
+    ]).then(([favsRes, colsRes]) => {
+      setAnchors(favsRes.data || [])
+      setCollections(colsRes.data || [])
+    }).catch(() => {}).finally(() => setLoadingData(false))
   }, [isLoggedIn])
 
-  const handleRemove = async (id, title) => {
+  const handleRemoveAnchor = async (id, title) => {
     try {
       await api.delete(`/favorites/${id}`)
-      setArtworks(prev => prev.filter(w => w.id !== id))
-      toast.success(`"${title}" removido dos favoritos`)
-    } catch { toast.error(t('common.error')) }
+      setAnchors(prev => prev.filter(w => w.id !== id))
+      toast.success('Âncora removida')
+    } catch { toast.error('Erro') }
   }
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
+  const handleDeleteChest = async (id, name) => {
+    if (!confirm(`Eliminar baú "${name}"?`)) return
+    try {
+      await api.delete(`/collections/${id}`)
+      setCollections(prev => prev.filter(c => c.id !== id))
+      toast.success('Baú eliminado')
+    } catch { toast.error('Erro') }
+  }
+
+  if (loading) return null
 
   return (
     <div className="p-5 md:p-8">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center">
-            <Heart size={18} className="text-pink-500" />
+
+      {/* Últimas Âncoras */}
+      <div className="mb-10">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Anchor size={18} className="text-blue-500" />
+            <h1 className="text-xl font-extrabold text-gray-900">Últimas Âncoras</h1>
+            <span className="text-sm text-gray-400 font-medium">{anchors.length} obras</span>
           </div>
-          <div>
-            <h1 className="text-xl font-extrabold text-gray-900">Favoritos</h1>
-            <p className="text-sm text-gray-400 font-medium mt-0.5">{artworks.length} obras guardadas</p>
+          <div className="flex items-center gap-2">
+            <Link href="/account/anchors" className="text-xs font-bold px-3 py-1.5 border border-gray-200 text-gray-500 hover:border-blue-300 hover:text-blue-500 rounded-lg transition-colors flex items-center gap-1">
+              <Anchor size={11} /> Ver todas
+            </Link>
+            <Link href="/explore" className="text-xs font-bold px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center gap-1">
+              <Plus size={11} /> Explorar obras
+            </Link>
           </div>
         </div>
 
-        {loadingFavs ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {Array.from({length: 4}).map((_, i) => <div key={i} className="aspect-[4/5] bg-white rounded-xl animate-pulse" />)}
+        {loadingData ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[1,2,3,4].map(i => <div key={i} className="aspect-[4/5] bg-white rounded-xl animate-pulse border border-gray-100" />)}
           </div>
-        ) : artworks.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
-            <Heart size={40} className="text-gray-200 mx-auto mb-4" />
-            <div className="text-gray-300 font-bold text-lg mb-2">Ainda não tens favoritos</div>
-            <p className="text-gray-400 text-sm font-medium mb-6">Explora o catálogo e guarda as obras que mais gostas.</p>
-            <Link href="/explore" className="inline-block px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm rounded-xl transition-colors">
-              {t('nav.explore')}
+        ) : anchors.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-2xl border border-gray-100">
+            <Anchor size={32} className="text-gray-200 mx-auto mb-3" />
+            <div className="text-gray-300 font-bold mb-1">Ainda não ancorastes nenhuma obra</div>
+            <p className="text-gray-400 text-sm mb-4">Clica na âncora em qualquer obra para a guardar aqui.</p>
+            <Link href="/explore" className="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm rounded-xl">
+              Explorar obras
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {artworks.map(w => (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {anchors.slice(0, 8).map(w => (
               <div key={w.id} className="bg-white border border-gray-100 rounded-xl overflow-hidden hover:border-blue-200 transition-colors group">
                 <Link href={`/artwork/${w.id}`} className="block">
                   <div className="aspect-[4/5] bg-blue-50 overflow-hidden flex items-center justify-center">
                     {w.images?.[0]
-                      ? <img src={w.images[0].imageUrl} alt={w.title} className="w-full h-full object-cover" />
+                      ? <img src={w.images[0].imageUrl} alt={w.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       : <span className="text-blue-200 text-4xl font-extrabold">{w.title?.[0]}</span>}
                   </div>
-                  <div className="p-3">
-                    <div className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">{w.categories?.[0]?.category?.name}</div>
-                    <div className="text-sm font-bold text-gray-900 leading-tight mb-1">{w.title}</div>
-                    <div className="text-xs text-gray-400 font-medium">{w.artist?.artistName}</div>
+                  <div className="p-2.5">
+                    <div className="text-xs font-bold text-gray-900 truncate">{w.title}</div>
+                    <div className="text-xs text-gray-400">{w.artist?.artistName}</div>
+                    <div className="text-xs font-bold text-gray-700 mt-1">
+                      {w.priceOnRequest ? 'Sob consulta' : w.price ? `€ ${Number(w.price).toFixed(2)}` : '—'}
+                    </div>
                   </div>
                 </Link>
-                <div className="flex justify-between items-center px-3 py-2 border-t border-gray-50">
-                  <span className="text-sm font-bold text-gray-900">
-                    {w.priceOnRequest ? t('artwork.on_request') : w.price ? `€ ${Number(w.price).toLocaleString('pt-PT')}` : '—'}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className="flex items-center gap-1 text-xs font-semibold" style={{color: availColor(w.availability)}}>
-                      <span className="w-1.5 h-1.5 rounded-full" style={{background: availColor(w.availability)}}></span>
-                      {t(`artwork.${w.availability?.toLowerCase()}`)}
-                    </span>
-                    <button onClick={() => handleRemove(w.id, w.title)}
-                      className="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-red-400 hover:bg-red-50 rounded-lg transition-colors">
-                      <Trash2 size={13} />
-                    </button>
-                  </div>
-                </div>
+                <button onClick={() => handleRemoveAnchor(w.id, w.title)}
+                  className="w-full flex items-center justify-center gap-1 py-1.5 text-xs text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors border-t border-gray-50">
+                  <Trash2 size={11} /> Remover
+                </button>
               </div>
             ))}
           </div>
         )}
+      </div>
+
+      {/* Baús */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Package size={18} className="text-blue-500" />
+            <h2 className="text-xl font-extrabold text-gray-900">Baús</h2>
+            <span className="text-sm text-gray-400 font-medium">{collections.length} baús</span>
+          </div>
+<Link href="/account/collections" className="text-xs font-bold px-3 py-1.5 border border-gray-200 text-gray-500 hover:border-blue-300 hover:text-blue-500 rounded-lg transition-colors flex items-center gap-1">
+            <Package size={11} /> Gerir baús
+          </Link>
+        </div>
+
+        {loadingData ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[1,2,3,4].map(i => <div key={i} className="h-32 bg-white rounded-xl animate-pulse border border-gray-100" />)}
+          </div>
+        ) : collections.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-2xl border border-gray-100">
+            <Package size={32} className="text-gray-200 mx-auto mb-3" />
+            <div className="text-gray-300 font-bold mb-1">Ainda não tens baús</div>
+            <p className="text-gray-400 text-sm mb-4">Mantém pressionado a âncora numa obra para criar um baú.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {collections.map(col => (
+              <Link key={col.id} href={`/collection/${col.id}`}
+                className="bg-white border border-gray-100 rounded-xl overflow-hidden hover:border-blue-200 transition-colors group block">
+                {/* Preview 4 obras */}
+                <div className="grid grid-cols-2 gap-0.5 aspect-square bg-gray-50">
+                  {col.items?.slice(0, 4).map((item, i) => (
+                    <div key={i} className="bg-gray-100 overflow-hidden">
+                      {item.artwork?.images?.[0]
+                        ? <img src={item.artwork.images[0].imageUrl} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        : <div className="w-full h-full" />}
+                    </div>
+                  ))}
+                  {Array.from({length: Math.max(0, 4 - (col.items?.length || 0))}).map((_, i) => (
+                    <div key={`e-${i}`} className="bg-gray-100" />
+                  ))}
+                </div>
+                <div className="p-3 flex items-center gap-2">
+                  {col.isDefault
+                    ? <Star size={14} className="text-amber-400 flex-shrink-0" fill="currentColor" />
+                    : <Package size={14} className="text-blue-400 flex-shrink-0" />}
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-extrabold text-gray-900 truncate">{col.name}</div>
+                    <div className="text-xs text-gray-400">{col._count?.items || 0} obras</div>
+                  </div>
+                  <button
+                    onClick={e => { e.preventDefault(); e.stopPropagation(); handleDeleteChest(col.id, col.name) }}
+                    className="w-6 h-6 flex items-center justify-center text-gray-200 hover:text-red-400 transition-colors flex-shrink-0">
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
     </div>
   )
 }

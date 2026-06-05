@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { Heart, Mail, Share2, ChevronRight } from 'lucide-react'
+import { Mail, Share2, ChevronRight } from 'lucide-react'
 import api from '../../../lib/api'
 import { useAuth } from '../../../context/AuthContext'
 import { useLocale } from '../../../context/LocaleContext'
@@ -12,6 +12,7 @@ import AvailabilityBadge from '../../../components/ui/AvailabilityBadge'
 import PriceTag from '../../../components/ui/PriceTag'
 import ArtworkCard from '../../../components/ui/ArtworkCard'
 import ArtworkComments from '../../../components/ui/ArtworkComments'
+import AnchorButton from '../../../components/ui/AnchorButton'
 import ImageCarousel from '../../../components/ui/ImageCarousel'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
@@ -23,16 +24,7 @@ export default function ObraPage() {
   const [artwork, setArtwork] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activeImg, setActiveImg] = useState(0)
-  const [faved, setFaved] = useState(false)
 
-  // Verificar se já está nos favoritos
-  useEffect(() => {
-    if (isLoggedIn) {
-      api.get('/favorites').then(res => {
-        setFaved((res.data || []).some(f => f.id === id))
-      }).catch(() => {})
-    }
-  }, [isLoggedIn, id])
   const [moreWorks, setMoreWorks] = useState([])
   const [similarWorks, setSimilarWorks] = useState([])
   const [collectionWorks, setCollectionWorks] = useState([])
@@ -131,10 +123,7 @@ export default function ObraPage() {
             </div>
             <div className="flex items-start justify-between gap-3 mb-1">
               <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight" style={{letterSpacing:'-0.03em'}}>{artwork.title}</h1>
-              <button onClick={handleFav} title={faved ? t('artwork.saved_favorites') : t('artwork.save_favorites')}
-                className={`flex-shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center transition-all mt-1 ${faved ? 'border-red-400 bg-red-50 text-red-500' : 'border-gray-200 text-gray-400 hover:border-red-300 hover:text-red-400'}`}>
-                <Heart size={15} fill={faved ? 'currentColor' : 'none'} />
-              </button>
+              <AnchorButton artworkId={id} />
             </div>
             <div className="flex items-center gap-2 mb-6">
               <p className="text-sm text-gray-400 font-medium">{artwork.yearCreated}</p>

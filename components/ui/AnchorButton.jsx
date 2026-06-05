@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { Anchor, Plus, X, Check } from 'lucide-react'
+import { Anchor, Plus, X, Check, Star, Package, Globe, Lock } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
 import api from '../../lib/api'
@@ -133,13 +133,22 @@ export default function AnchorButton({ artworkId, className = '' }) {
     } catch { toast.error('Já está neste baú') }
   }
 
+  const toggleChestPublic = async (e, colId, isPublic) => {
+    e.stopPropagation()
+    try {
+      await api.put(`/collections/${colId}`, { isPublic: !isPublic })
+      setCollections(prev => prev.map(c => c.id === colId ? {...c, isPublic: !isPublic} : c))
+      toast.success(!isPublic ? 'Baú tornado público' : 'Baú tornado privado')
+    } catch { toast.error('Erro') }
+  }
+
   const handleCreateChest = async (e) => {
     e.preventDefault()
     e.stopPropagation()
     if (!newChestName.trim()) return
     setCreating(true)
     try {
-      const res = await api.post('/collections', { name: newChestName.trim(), isPublic: false })
+      const res = await api.post('/collections', { name: newChestName.trim(), isPublic: true })
       const newCol = res.data
       setCollections(prev => [...prev, { ...newCol, _count: { items: 0 } }])
       setNewChestName('')
@@ -192,22 +201,29 @@ export default function AnchorButton({ artworkId, className = '' }) {
             `}</style>
             <div className="px-3 py-2.5 border-b border-gray-50 flex items-center justify-between">
               <div className="text-xs font-extrabold text-gray-400 uppercase tracking-wider">Os meus baús</div>
-              <button onClick={handleClose} className="text-gray-300 hover:text-gray-500"><X size={13} /></button>
+<button onClick={(e) => { e.stopPropagation(); handleClose() }} className="text-gray-300 hover:text-gray-500"><X size={13} /></button>
             </div>
             <div className="py-1 max-h-60 overflow-auto">
               {collections.length === 0 && !showNewForm && (
                 <div className="px-3 py-3 text-xs text-gray-400 text-center">Ainda não tens baús</div>
               )}
               {collections.map(col => (
-                <button key={col.id} onClick={() => addToCollection(col.id, col.name)}
+                <button key={col.id} onClick={(e) => { e.stopPropagation(); addToCollection(col.id, col.name) }}
                   className={`flex items-center gap-2.5 w-full px-3 py-2.5 text-left transition-colors
                     ${added[col.id] ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-50 text-gray-700'}`}>
-                  <span className="text-base leading-none">{col.isDefault ? '⭐' : '📦'}</span>
+                  {col.isDefault ? <Star size={15} className="text-amber-400 flex-shrink-0" fill="currentColor" /> : <Package size={15} className="text-blue-400 flex-shrink-0" />}
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold truncate">{col.name}</div>
                     <div className="text-xs text-gray-400">{col._count?.items || 0} obras</div>
                   </div>
                   {added[col.id] && <Check size={12} className="text-blue-500 flex-shrink-0" />}
+                  <button onClick={(e) => toggleChestPublic(e, col.id, col.isPublic)}
+                    title={col.isPublic ? 'Público — clica para tornar privado' : 'Privado — clica para tornar público'}
+                    className="flex-shrink-0 ml-1 hover:scale-110 transition-transform">
+                    {col.isPublic
+                      ? <Globe size={11} className="text-blue-400" />
+                      : <Lock size={11} className="text-gray-300" />}
+                  </button>
                 </button>
               ))}
             </div>
@@ -228,7 +244,7 @@ export default function AnchorButton({ artworkId, className = '' }) {
                   </button>
                 </form>
               ) : (
-                <button onClick={() => setShowNewForm(true)}
+                <button onClick={(e) => { e.stopPropagation(); setShowNewForm(true) }}
                   className="flex items-center gap-2 w-full px-3 py-2.5 text-xs font-bold text-gray-400 hover:text-blue-500 hover:bg-gray-50 transition-colors">
                   <Plus size={12} /> Novo baú
                 </button>

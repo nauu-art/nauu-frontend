@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Package, Star } from 'lucide-react'
 import api from '../../../lib/api'
 import ArtworkCard from '../../../components/ui/ArtworkCard'
 import ArtistAvatar from '../../../components/ui/ArtistAvatar'
@@ -10,30 +10,80 @@ import ArtistAvatar from '../../../components/ui/ArtistAvatar'
 export default function CollectionPage() {
   const { id } = useParams()
   const [collection, setCollection] = useState(null)
+  const [isUserCollection, setIsUserCollection] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.get(`/artist-collections/collection/${id}`)
-      .then(res => setCollection(res.data))
-      .catch(() => {})
+    // Tentar primeiro baú de utilizador, depois coleção de artista
+    api.get(`/collections/${id}`)
+      .then(res => { setCollection(res.data); setIsUserCollection(true) })
+      .catch(() => api.get(`/artist-collections/collection/${id}`)
+        .then(res => { setCollection(res.data); setIsUserCollection(false) })
+        .catch(() => {})
+      )
       .finally(() => setLoading(false))
   }, [id])
 
   if (loading) return <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
   if (!collection) return <div className="text-center py-24 text-gray-300 font-bold text-lg">Coleção não encontrada.</div>
 
+  // Baú de utilizador
+  if (isUserCollection) {
+    const artworks = collection.items?.map(i => i.artwork).filter(Boolean) || []
+    return (
+      <div>
+        <div className="px-5 md:px-10 py-3 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
+            <Link href="/" className="hover:text-gray-700">Início</Link>
+            <ChevronRight size={12} />
+            {collection.user && (
+              <>
+                <Link href={`/u/${collection.user.username}`} className="hover:text-gray-700">{collection.user.name}</Link>
+                <ChevronRight size={12} />
+              </>
+            )}
+            <span className="text-gray-600">{collection.name}</span>
+          </div>
+          <Link href="/account/favorites" className="text-xs font-bold text-gray-400 hover:text-gray-600 flex items-center gap-1">
+            ← Voltar
+          </Link>
+        </div>
+
+        <div className="px-5 md:px-10 py-8">
+          <div className="flex items-center gap-4 mb-8">
+            {collection.isDefault
+              ? <Star size={28} className="text-amber-400 flex-shrink-0" fill="currentColor" />
+              : <Package size={28} className="text-blue-400 flex-shrink-0" />}
+            <div>
+              <h1 className="text-2xl font-extrabold tracking-tight">{collection.name}</h1>
+              {collection.description && <p className="text-gray-400 text-sm mt-1">{collection.description}</p>}
+              <div className="text-sm text-gray-400 mt-1">{artworks.length} obras</div>
+            </div>
+          </div>
+
+          {artworks.length === 0 ? (
+            <div className="text-center py-20 text-gray-300 font-bold">Este baú ainda não tem obras.</div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {artworks.map(w => <ArtworkCard key={w.id} artwork={w} showArtist={true} />)}
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // Coleção de artista
   return (
     <div>
-      {/* Breadcrumb */}
       <div className="px-5 md:px-10 py-3 border-b border-gray-100 flex items-center gap-2 text-xs text-gray-400 font-medium">
         <Link href="/" className="hover:text-gray-700">Início</Link>
         <ChevronRight size={12} />
-        <Link href={`/${collection.artist.username}`} className="hover:text-gray-700">{collection.artist.artistName}</Link>
+        <Link href={`/${collection.artist?.username}`} className="hover:text-gray-700">{collection.artist?.artistName}</Link>
         <ChevronRight size={12} />
         <span className="text-gray-600">{collection.name}</span>
       </div>
 
-      {/* Header */}
       <div className="relative">
         {collection.coverImageUrl && (
           <div className="h-48 md:h-64 overflow-hidden">
@@ -47,22 +97,23 @@ export default function CollectionPage() {
               <div className="text-xs font-bold text-purple-500 uppercase tracking-widest mb-2">Coleção</div>
               <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-2" style={{letterSpacing:'-0.03em'}}>{collection.name}</h1>
               {collection.description && <p className="text-gray-500 font-medium mb-4 max-w-xl">{collection.description}</p>}
-              <Link href={`/${collection.artist.username}`} className="flex items-center gap-2 w-fit hover:opacity-80 transition-opacity">
-                <ArtistAvatar src={collection.artist.user?.avatarUrl} name={collection.artist.artistName} size={8} />
-                <span className="text-sm font-bold text-gray-700">{collection.artist.artistName}</span>
-              </Link>
+              {collection.artist && (
+                <Link href={`/${collection.artist.username}`} className="flex items-center gap-2 w-fit hover:opacity-80 transition-opacity">
+                  <ArtistAvatar src={collection.artist.user?.avatarUrl} name={collection.artist.artistName} size={8} />
+                  <span className="text-sm font-bold text-gray-700">{collection.artist.artistName}</span>
+                </Link>
+              )}
             </div>
             <div className="text-right flex-shrink-0">
-              <div className="text-3xl font-extrabold text-gray-900">{collection.artworks?.length}</div>
+              <div className="text-3xl font-extrabold text-gray-900">{collection.artworks?.length || 0}</div>
               <div className="text-xs text-gray-400 font-bold uppercase tracking-widest">obras</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Grid de obras */}
       <div className="px-5 md:px-10 pb-12">
-        {collection.artworks?.length === 0 ? (
+        {!collection.artworks?.length ? (
           <div className="text-center py-16 text-gray-300 font-bold">Esta coleção ainda não tem obras.</div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
