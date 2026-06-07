@@ -6,7 +6,7 @@ import api from '../lib/api'
 import { useLocale } from '../context/LocaleContext'
 import { useAuth } from '../context/AuthContext'
 import Newsletter from '../components/ui/Newsletter'
-import AddToCollection from '../components/ui/AddToCollection'
+import AnchorButton from '../components/ui/AnchorButton'
 import ArtworkCard from '../components/ui/ArtworkCard'
 import ArtistCard from '../components/ui/ArtistCard'
 

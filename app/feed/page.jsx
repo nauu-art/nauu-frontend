@@ -94,32 +94,42 @@ export default function FeedPage() {
           <div className="flex flex-col gap-5">
             {feedItems.map(item => item._type === 'post' ? (
               <div key={item.id} className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
-                <a href={`/${item.artist.username}`} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
-                  <div className="w-9 h-9 rounded-full overflow-hidden bg-blue-100 flex-shrink-0">
-                    {item.artist.user?.avatarUrl
-                      ? <img src={item.artist.user.avatarUrl} alt={item.artist.artistName} className="w-full h-full object-cover" />
-                      : <div className="w-full h-full flex items-center justify-center text-blue-400 font-extrabold text-sm">{item.artist.artistName?.[0]}</div>}
-                  </div>
-                  <div>
-                    <div className="text-sm font-extrabold text-gray-900">{item.artist.artistName}</div>
-                    <div className="text-xs text-gray-400 font-medium flex items-center gap-1">
-                      ✍️ {t('feed.new_post')} · {new Date(item.createdAt).toLocaleDateString('pt-PT', { day: 'numeric', month: 'long' })}
-                    </div>
-                  </div>
-                </a>
-                {item.imageUrl && (
-                  <div className="aspect-video overflow-hidden">
-                    <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
-                  </div>
-                )}
-                <div className="p-5">
-                  <h3 className="text-lg font-extrabold text-gray-900 mb-2">{item.title}</h3>
-                  <div className="text-sm text-gray-600 font-medium leading-relaxed line-clamp-3"
-                    dangerouslySetInnerHTML={{ __html: (item.content || '').replace(/<[^>]*>/g, '').slice(0, 200) + '…' }} />
-                  <a href={`/${item.artist.username}?tab=posts`} className="text-xs font-bold text-blue-500 hover:text-blue-600 mt-2 block">
-                    {t('feed.read_more')}
-                  </a>
-                </div>
+                {(() => {
+                  const author = item.user || (item.artist ? { name: item.artist.artistName, username: null, avatarUrl: item.artist.user?.avatarUrl, artistProfile: { username: item.artist.username, artistName: item.artist.artistName } } : null)
+                  const authorName = author?.artistProfile?.artistName || author?.name || '?'
+                  const authorUsername = author?.artistProfile?.username || author?.username
+                  const profilePath = author?.artistProfile ? `/${authorUsername}` : `/u/${authorUsername}`
+                  const avatar = author?.avatarUrl
+                  return (
+                    <>
+                      <a href={profilePath} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <div className="w-9 h-9 rounded-full overflow-hidden bg-blue-100 flex-shrink-0">
+                          {avatar ? <img src={avatar} alt={authorName} className="w-full h-full object-cover" />
+                            : <div className="w-full h-full flex items-center justify-center text-blue-400 font-extrabold text-sm">{authorName?.[0]}</div>}
+                        </div>
+                        <div>
+                          <div className="text-sm font-extrabold text-gray-900">{authorName}</div>
+                          <div className="text-xs text-gray-400 font-medium">
+                            ✍️ {t('feed.new_post')} · {new Date(item.createdAt).toLocaleDateString('pt-PT', { day: 'numeric', month: 'long' })}
+                          </div>
+                        </div>
+                      </a>
+                      {item.imageUrl && (
+                        <div className="aspect-video overflow-hidden">
+                          <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      <div className="p-5">
+                        <h3 className="text-lg font-extrabold text-gray-900 mb-2">{item.title}</h3>
+                        <div className="text-sm text-gray-600 leading-relaxed line-clamp-3"
+                          dangerouslySetInnerHTML={{ __html: (item.content || '').replace(/<[^>]*>/g, '').slice(0, 200) + '…' }} />
+                        <a href={`/posts/${item.id}`} className="text-xs font-bold text-blue-500 hover:text-blue-600 mt-2 block">
+                          {t('feed.read_more')} →
+                        </a>
+                      </div>
+                    </>
+                  )
+                })()}
               </div>
             ) : (
               <ArtworkCard key={item.id} artwork={item} followingIds={following.map(f => f.id)} />

@@ -7,7 +7,7 @@ import api from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-import AddToCollection from '../../components/ui/AddToCollection'
+import AnchorButton from '../../components/ui/AnchorButton'
 import ImageCarousel from '../../components/ui/ImageCarousel'
 import ArtistAvatar from '../../components/ui/ArtistAvatar'
 import AvailabilityBadge from '../../components/ui/AvailabilityBadge'
@@ -247,7 +247,7 @@ export default function ArtistPage() {
                         <div className="relative">
                           <ImageCarousel images={w.images} title={w.title} aspect="4/5" />
                           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                            <AddToCollection artworkId={w.id} />
+                            <AnchorButton artworkId={w.id} />
                           </div>
                         </div>
                         <div className="p-3">
