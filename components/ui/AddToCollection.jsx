@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { Heart, FolderHeart, Plus, X, Check } from 'lucide-react'
+import { Bookmark, FolderHeart, Plus, X, Check } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import api from '../../lib/api'
 import toast from 'react-hot-toast'
@@ -72,8 +72,8 @@ export default function AddToCollection({ artworkId, className = '' }) {
   return (
     <>
       <button onClick={toggleFav} disabled={loading}
-        className={`flex items-center justify-center w-8 h-8 rounded-full transition-all shadow-sm ${faved ? 'bg-red-500 text-white' : 'bg-white/90 text-gray-400 hover:text-red-500'} ${className}`}>
-        <Heart size={14} fill={faved ? 'currentColor' : 'none'} />
+        className={`flex items-center justify-center w-8 h-8 rounded-full transition-all shadow-sm ${faved ? 'bg-blue-500 text-white' : 'bg-white/90 text-gray-400 hover:text-blue-500'} ${className}`}>
+        <Bookmark size={14} fill={faved ? 'currentColor' : 'none'} />
       </button>
 
       {open && (

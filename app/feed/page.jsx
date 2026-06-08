@@ -8,7 +8,7 @@ import api from '../../lib/api'
 import ArtworkCard from '../../components/ui/ArtworkCard'
 
 export default function FeedPage() {
-  const { isLoggedIn, loading } = useAuth()
+  const { isLoggedIn, loading, isArtist, user } = useAuth()
   const { t } = useLocale()
   const router = useRouter()
   const [artworks, setArtworks] = useState([])
@@ -60,9 +60,24 @@ export default function FeedPage() {
           </Link>
         </div>
 
-        {following.length > 0 && (
+        {(following.length > 0 || isArtist) && (
           <div className="flex gap-3 overflow-x-auto pb-4 mb-6 scrollbar-hide">
-            {following.map(a => (
+            {isArtist && (
+              <Link href="/dashboard/posts" className="flex flex-col items-center gap-1.5 flex-shrink-0">
+                <div className="relative w-14 h-14">
+                  <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-blue-500 bg-blue-50">
+                    {user?.avatarUrl
+                      ? <img src={user.avatarUrl} alt="Tu" className="w-full h-full object-cover" />
+                      : <div className="w-full h-full flex items-center justify-center text-blue-500 font-extrabold text-xl">{user?.name?.[0]}</div>}
+                  </div>
+                  <div className="absolute bottom-0 right-0 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white">
+                    <span className="text-white font-extrabold leading-none" style={{fontSize:'13px'}}>+</span>
+                  </div>
+                </div>
+                <span className="text-xs font-bold text-blue-500 text-center w-16 truncate">Publicar</span>
+              </Link>
+            )}
+            {following.filter(a => a.userId !== user?.id && a.status === 'APPROVED').map(a => (
               <Link href={`/${a.username}`} key={a.id} className="flex flex-col items-center gap-1.5 flex-shrink-0">
                 <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-blue-200 bg-blue-100">
                   {a.user?.avatarUrl
