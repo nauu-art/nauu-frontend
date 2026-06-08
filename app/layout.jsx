@@ -2,6 +2,7 @@ import './globals.css'
 import { AuthProvider } from '../context/AuthContext'
 import { LocaleProvider } from '../context/LocaleContext'
 import ConditionalLayout from '../components/layout/ConditionalLayout'
+import CookieBanner from '../components/ui/CookieBanner'
 import PWAInstall from '../components/PWAInstall'
 
 import { Toaster } from 'react-hot-toast'
@@ -48,6 +49,7 @@ export default function RootLayout({ children }) {
           <AuthProvider>
             <Toaster position="top-right" toastOptions={{ style: { fontFamily: 'Nunito', fontWeight: 600, fontSize: '14px' } }} />
             <ConditionalLayout>{children}</ConditionalLayout>
+            <CookieBanner />
             <PWAInstall />
           </AuthProvider>
         </LocaleProvider>

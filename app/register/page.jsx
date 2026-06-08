@@ -10,11 +10,12 @@ export default function RegisterPage() {
   const { t } = useLocale()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' })
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '', termsAccepted: false })
   const set = (k, v) => setForm(f => ({...f, [k]: v}))
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!form.termsAccepted) { toast.error('Tens de aceitar os termos para continuar'); return }
     if (form.password !== form.confirmPassword) { toast.error('Passwords não coincidem'); return }
     if (form.password.length < 8) { toast.error('Password com mínimo 8 caracteres'); return }
     setLoading(true)
@@ -59,8 +60,18 @@ export default function RegisterPage() {
               <input type="password" value={form.confirmPassword} onChange={e => set('confirmPassword', e.target.value)}
                 className="input" placeholder="••••••••" required />
             </div>
-            <button type="submit" disabled={loading}
-              className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-colors mt-2">
+            <label className="flex items-start gap-2.5 cursor-pointer mt-1">
+              <input type="checkbox" checked={form.termsAccepted} onChange={e => set('termsAccepted', e.target.checked)}
+                className="mt-0.5 w-4 h-4 accent-blue-500 flex-shrink-0" required />
+              <span className="text-xs text-gray-500 leading-relaxed">
+                Li e aceito os{' '}
+                <a href="/termos" target="_blank" className="text-blue-500 hover:underline font-bold">Termos e Condições</a>
+                {' '}e a{' '}
+                <a href="/privacidade" target="_blank" className="text-blue-500 hover:underline font-bold">Política de Privacidade</a>
+              </span>
+            </label>
+            <button type="submit" disabled={loading || !form.termsAccepted}
+              className="w-full py-3 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-colors mt-2">
               {loading ? 'A criar conta…' : 'Criar conta'}
             </button>
           </form>
