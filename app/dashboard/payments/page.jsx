@@ -197,33 +197,33 @@ export default function SalesPage() {
         </div>
 
         {/* Comissões info */}
-        <details className=bg-blue-50 border border-blue-100 rounded-xl mb-5 group>
-          <summary className=flex items-center justify-between px-4 py-3 cursor-pointer list-none>
-            <span className=text-sm font-bold text-blue-700>ℹ️ Como se calculam os valores que recebes?</span>
-            <span className=text-blue-400 text-xs font-bold group-open:hidden>Ver →</span>
+        <details className="bg-blue-50 border border-blue-100 rounded-xl mb-5 group">
+          <summary className="flex items-center justify-between px-4 py-3 cursor-pointer list-none">
+            <span className="text-sm font-bold text-blue-700">ℹ️ Como se calculam os valores que recebes?</span>
+            <span className="text-blue-400 text-xs font-bold group-open:hidden">Ver →</span>
           </summary>
-          <div className=px-4 pb-4>
-            <div className=grid grid-cols-1 md:grid-cols-3 gap-3 mt-2>
-              <div className=bg-white rounded-lg p-3 border border-blue-100>
-                <div className=text-xs font-extrabold uppercase tracking-widest text-blue-400 mb-1>Comissão nauu.art</div>
-                <div className=text-lg font-extrabold text-gray-900>5%</div>
-                <div className=text-xs text-gray-500 mt-0.5>sobre o preço da obra (não sobre os portes)</div>
+          <div className="px-4 pb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+              <div className="bg-white rounded-lg p-3 border border-blue-100">
+                <div className="text-xs font-extrabold uppercase tracking-widest text-blue-400 mb-1">Comissão nauu.art</div>
+                <div className="text-lg font-extrabold text-gray-900">5%</div>
+                <div className="text-xs text-gray-500 mt-0.5">sobre o preço da obra (não sobre os portes)</div>
               </div>
-              <div className=bg-white rounded-lg p-3 border border-blue-100>
-                <div className=text-xs font-extrabold uppercase tracking-widest text-blue-400 mb-1>Fee da Stripe</div>
-                <div className=text-lg font-extrabold text-gray-900>1.5% + €0.25</div>
-                <div className=text-xs text-gray-500 mt-0.5>por transação (cartões europeus) — descontada da comissão nauu</div>
+              <div className="bg-white rounded-lg p-3 border border-blue-100">
+                <div className="text-xs font-extrabold uppercase tracking-widest text-blue-400 mb-1">Fee da Stripe</div>
+                <div className="text-lg font-extrabold text-gray-900">1.5% + €0.25</div>
+                <div className="text-xs text-gray-500 mt-0.5">por transação (cartões europeus) — descontada da comissão nauu</div>
               </div>
-              <div className=bg-white rounded-lg p-3 border border-blue-100>
-                <div className=text-xs font-extrabold uppercase tracking-widest text-blue-400 mb-1>Exemplo — obra de €200</div>
-                <div className=flex flex-col gap-0.5 text-xs font-medium text-gray-600 mt-1>
-                  <div className=flex justify-between><span>Comprador paga</span><span className=font-bold>€ 200.00</span></div>
-                  <div className=flex justify-between text-red-500><span>- Comissão nauu (5%)</span><span>- € 10.00</span></div>
-                  <div className=flex justify-between border-t border-gray-100 pt-0.5 text-green-700 font-extrabold><span>Tu recebes</span><span>€ 190.00</span></div>
+              <div className="bg-white rounded-lg p-3 border border-blue-100">
+                <div className="text-xs font-extrabold uppercase tracking-widest text-blue-400 mb-1">Exemplo — obra de €200</div>
+                <div className="flex flex-col gap-0.5 text-xs font-medium text-gray-600 mt-1">
+                  <div className="flex justify-between"><span>Comprador paga</span><span className="font-bold">€ 200.00</span></div>
+                  <div className="flex justify-between text-red-500"><span>- Comissão nauu (5%)</span><span>- € 10.00</span></div>
+                  <div className="flex justify-between border-t border-gray-100 pt-0.5 text-green-700 font-extrabold"><span>Tu recebes</span><span>€ 190.00</span></div>
                 </div>
               </div>
             </div>
-            <p className=text-xs text-blue-500 font-medium mt-3>Os portes de envio que defines vão integralmente para ti — não são sujeitos a comissão.</p>
+            <p className="text-xs text-blue-500 font-medium mt-3">Os portes de envio que defines vão integralmente para ti — não são sujeitos a comissão.</p>
           </div>
         </details>
 
