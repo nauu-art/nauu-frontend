@@ -14,6 +14,7 @@ import ArtworkCard from '../../../components/ui/ArtworkCard'
 import ArtworkComments from '../../../components/ui/ArtworkComments'
 import AnchorButton from '../../../components/ui/AnchorButton'
 import ImageCarousel from '../../../components/ui/ImageCarousel'
+import ARViewer from '../../../components/ui/ARViewer'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
 
@@ -195,6 +196,15 @@ export default function ObraPage() {
                 </div>
               )}
             </div>
+
+            {artwork.dimensions && (
+              <div className="mb-4">
+                <ARViewer
+                  imageUrl={artwork.images?.[0]?.imageUrl}
+                  dimensions={artwork.dimensions}
+                />
+              </div>
+            )}
 
             {artist && (
               <Link href={`/${artist.username}`} className="flex items-center gap-3 border border-gray-100 rounded-xl p-3 hover:border-blue-200 transition-colors mb-4">
