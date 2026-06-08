@@ -25,7 +25,7 @@ export default function EditArtworkPage() {
     title: '', description: '', technique: '', dimensions: '',
     yearCreated: new Date().getFullYear(), price: '', priceOnRequest: false,
     availability: 'AVAILABLE', categoryIds: [], isDraft: false, collectionId: '',
-    stock: 1, commissionPercent: 5,
+    stock: 1, commissionPercent: 3,
   })
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export default function EditArtworkPage() {
           isDraft: w.isDraft || false,
           collectionId: w.collectionId || '',
           stock: w.stock || 1,
-          commissionPercent: w.commissionPercent || 5,
+          commissionPercent: w.commissionPercent || 3,
         })
       }).catch(() => toast.error('Erro ao carregar obra'))
     }
@@ -83,7 +83,7 @@ export default function EditArtworkPage() {
         price: form.priceOnRequest ? undefined : form.price ? Number(form.price) : undefined,
         yearCreated: form.yearCreated ? Number(form.yearCreated) : undefined,
         stock: Number(form.stock) || 1,
-        commissionPercent: parseFloat(form.commissionPercent) || 5,
+        commissionPercent: parseFloat(form.commissionPercent) || 3,
       })
       await api.put(`/payments/shipping/${id}`, shipping).catch(() => {})
       toast.success(asDraft ? 'Guardado como rascunho' : 'Obra atualizada!')
@@ -144,9 +144,11 @@ export default function EditArtworkPage() {
     categoryIds: f.categoryIds.includes(catId) ? f.categoryIds.filter(c => c !== catId) : [...f.categoryIds, catId]
   }))
 
-  const artistReceives = form.price && !form.priceOnRequest
-    ? ((parseFloat(form.price) || 0) * (1 - (Math.max(3, Math.min(90, parseFloat(form.commissionPercent) || 5)) / 100))).toFixed(2)
-    : null
+  const price = parseFloat(form.price) || 0
+  const commission = Math.max(3, Math.min(90, parseFloat(form.commissionPercent) || 3))
+  const commissionAmt = price > 0 && !form.priceOnRequest ? Math.round(price * commission) / 100 : 0
+  const stripeFee = price > 0 && !form.priceOnRequest ? Math.round((price * 0.015 + 0.25) * 100) / 100 : 0
+  const artistReceives = price > 0 && !form.priceOnRequest ? Math.round((price - commissionAmt - stripeFee) * 100) / 100 : null
 
   if (loading || !user || !artwork) return (
     <div className="flex items-center justify-center min-h-screen">
@@ -362,14 +364,25 @@ export default function EditArtworkPage() {
                 <h2 className="text-sm font-extrabold text-gray-900 mb-1">% Comissão nauu.art</h2>
                 <p className="text-xs text-gray-400 mb-3">Mínimo 3%, máximo 90%</p>
                 <div className="flex items-center gap-2 mb-2">
-                  <input type="number" min="3" max="90" step="0.5" value={form.commissionPercent || 5}
+                  <input type="number" min="3" max="90" step="0.5" value={form.commissionPercent || 3}
                     onChange={e => set('commissionPercent', e.target.value)} className="input w-20" />
                   <span className="text-sm font-bold text-gray-500">%</span>
                 </div>
-                {artistReceives && (
-                  <div className="bg-green-50 border border-green-100 rounded-lg px-3 py-2">
-                    <div className="text-xs text-gray-400">Tu recebes</div>
-                    <div className="text-base font-extrabold text-green-600">€ {artistReceives}</div>
+                {artistReceives !== null && (
+                  <div className="bg-blue-50 rounded-lg p-3 flex flex-col gap-1">
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>Comissão nauu ({commission}%)</span>
+                      <span className="text-red-400">- €{commissionAmt.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-400">
+                      <span>Fee Stripe (~1.5% + €0.25)</span>
+                      <span>- €{stripeFee.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm font-extrabold text-green-700 border-t border-blue-100 pt-1 mt-0.5">
+                      <span>Tu recebes</span>
+                      <span>€{artistReceives.toFixed(2)}</span>
+                    </div>
+                    <p className="text-xs text-blue-400 mt-0.5">Os portes vão integralmente para ti.</p>
                   </div>
                 )}
               </div>
