@@ -125,6 +125,7 @@ export default function NovaObraPage() {
   const price = parseFloat(form.price) || 0
   const commission = form.commissionPercent || 3
   const commissionAmt = price > 0 ? Math.round(price * commission) / 100 : 0
+  const stripeFee = price > 0 ? Math.round((price * 0.015 + 0.25) * 100) / 100 : 0
   const artistReceives = price > 0 ? Math.round((price - commissionAmt) * 100) / 100 : 0
 
   if (loading || !user) return <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
@@ -213,13 +214,17 @@ export default function NovaObraPage() {
                   <div className="bg-blue-50 rounded-lg p-3 flex flex-col gap-1 mt-1">
                     <div className="flex justify-between text-xs text-gray-500">
                       <span>Comissão nauu ({commission}%)</span>
-                      <span>- €{commissionAmt.toFixed(2)}</span>
+                      <span className="text-red-400">- €{commissionAmt.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-400">
+                      <span>Fee Stripe (~1.5% + €0.25)</span>
+                      <span>≈ - €{stripeFee.toFixed(2)} <span className="text-gray-300">(da comissão nauu)</span></span>
                     </div>
                     <div className="flex justify-between text-sm font-extrabold text-green-700 border-t border-blue-100 pt-1 mt-0.5">
                       <span>Tu recebes</span>
                       <span>€{artistReceives.toFixed(2)}</span>
                     </div>
-                    <p className="text-xs text-blue-400 mt-0.5">Os portes vão integralmente para ti.</p>
+                    <p className="text-xs text-blue-400 mt-0.5">A fee da Stripe é descontada da comissão nauu, não do teu valor. Os portes vão integralmente para ti.</p>
                   </div>
                 )}
               </div>
