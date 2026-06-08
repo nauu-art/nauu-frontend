@@ -112,7 +112,7 @@ export default function ARViewer({ imageUrl, dimensions }) {
       {/* Botão BETA discreto */}
       <button
         onClick={handleOpen}
-        className="w-full flex items-center justify-center gap-2 py-2.5 border-2 border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 font-bold text-sm rounded-xl transition-colors"
+        className="md:hidden w-full flex items-center justify-center gap-2 py-2.5 border-2 border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 font-bold text-sm rounded-xl transition-colors"
       >
         <span>🪄</span>
         Ver em Tua Casa
