@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
@@ -7,7 +7,6 @@ import api from '../../../../lib/api'
 import toast from 'react-hot-toast'
 import { ArrowLeft, Lock } from 'lucide-react'
 import Link from 'next/link'
-import { Suspense, useEffect } from 'react'
 
 function PaymentForm({ orderId, artworkId }) {
   const stripe = useStripe()
