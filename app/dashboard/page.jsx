@@ -47,7 +47,7 @@ export default function DashboardPage() {
       <DashboardNav />
 
       {/* Main */}
-      <div className="flex-1 md:ml-52 p-5 md:p-8">
+      <div className="flex-1 md:ml-52 p-5 md:p-8 pt-20 md:pt-8">
         <div className="flex justify-between items-center mb-5 gap-3">
           <div>
             <h1 className="text-xl md:text-2xl font-extrabold tracking-tight" style={{letterSpacing:'-0.03em'}}>

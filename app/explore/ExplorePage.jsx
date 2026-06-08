@@ -9,7 +9,7 @@ const CAT_SLUG_MAP = {
 
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Search, X, SlidersHorizontal } from 'lucide-react'
+import { Search, X, SlidersHorizontal, LayoutGrid, Square, List } from 'lucide-react'
 import api from '../../lib/api'
 import ArtworkCard from '../../components/ui/ArtworkCard'
 import { useAuth } from '../../context/AuthContext'
@@ -31,6 +31,16 @@ export default function ExplorePage() {
   const [maxPrice, setMaxPrice] = useState(5000)
   const [sort, setSort] = useState('createdAt_desc')
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [viewMode, setViewMode] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('exploreViewMode') || '2col'
+    return '2col'
+  })
+
+  const cycleViewMode = () => {
+    const next = viewMode === '2col' ? '1col' : viewMode === '1col' ? 'list' : '2col'
+    setViewMode(next)
+    localStorage.setItem('exploreViewMode', next)
+  }
 
   const CATEGORIES = [
     { key: 'pintura', pt: 'Pintura', slug: 'pintura' },
@@ -202,6 +212,10 @@ export default function ExplorePage() {
             <SlidersHorizontal size={15} />
             {activeFiltersCount > 0 && <span>{activeFiltersCount}</span>}
           </button>
+          <button onClick={cycleViewMode}
+            className="md:hidden flex items-center justify-center px-3 py-2.5 border border-gray-200 rounded-lg text-gray-500 bg-white flex-shrink-0">
+            {viewMode === '2col' ? <LayoutGrid size={15} /> : viewMode === '1col' ? <Square size={15} /> : <List size={15} />}
+          </button>
         </div>
 
         {/* Tags activas */}
@@ -222,8 +236,29 @@ export default function ExplorePage() {
         ) : artworks.length === 0 ? (
           <div className="text-center py-24 text-gray-300 font-bold text-lg">{t('explore.no_results')}</div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {artworks.map(w => <ArtworkCard key={w.id} artwork={w} followingIds={followingIds} />)}
+          <div className={
+            viewMode === 'list'
+              ? 'flex flex-col gap-3'
+              : viewMode === '1col'
+              ? 'grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3'
+              : 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3'
+          }>
+            {artworks.map(w => viewMode === 'list' ? (
+              <a key={w.id} href={`/artwork/${w.id}`} className="flex items-center gap-3 bg-white border border-gray-100 rounded-xl overflow-hidden hover:border-blue-200 transition-colors">
+                <div className="w-20 h-20 flex-shrink-0 overflow-hidden bg-gray-100">
+                  {w.images?.[0] ? <img src={w.images[0].imageUrl} alt={w.title} className="w-full h-full object-cover" /> : null}
+                </div>
+                <div className="flex-1 min-w-0 py-2 pr-3">
+                  <div className="text-sm font-extrabold text-gray-900 truncate">{w.title}</div>
+                  <div className="text-xs text-gray-400">{w.artist?.artistName}</div>
+                  <div className="text-xs font-bold text-gray-700 mt-1">
+                    {w.priceOnRequest ? 'Sob consulta' : w.price ? `€ ${Number(w.price).toFixed(2)}` : '—'}
+                  </div>
+                </div>
+              </a>
+            ) : (
+              <ArtworkCard key={w.id} artwork={w} followingIds={followingIds} showArtist={true} />
+            ))}
           </div>
         )}
 

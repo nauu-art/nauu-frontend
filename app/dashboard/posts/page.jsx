@@ -19,7 +19,7 @@ export default function PostsPage() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <DashboardNav />
-      <div className="flex-1 md:ml-52 p-5 md:p-8 max-w-3xl">
+      <div className="flex-1 md:ml-52 p-5 md:p-8 pt-20 md:pt-8 max-w-3xl">
         <PostsManager apiBase="/posts" showNewsletter={true} />
       </div>
     </div>

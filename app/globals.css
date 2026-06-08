@@ -62,38 +62,81 @@ header {
   border-color: var(--border) !important;
 }
 
-/* Cards e backgrounds */
-.bg-white { background-color: var(--bg-card) !important; }
-.bg-gray-50 { background-color: var(--bg-secondary) !important; }
-.bg-gray-100 { background-color: var(--bg-secondary) !important; }
+/* Dark mode — aplicar só em contexto dark */
+@media (prefers-color-scheme: dark) {
+  /* Cards e backgrounds */
+  .bg-white { background-color: var(--bg-card) !important; }
+  .bg-gray-50 { background-color: var(--bg-secondary) !important; }
+  .bg-gray-100 { background-color: var(--bg-secondary) !important; }
 
-/* Bordas */
-.border-gray-100 { border-color: var(--border-light) !important; }
-.border-gray-200 { border-color: var(--border) !important; }
+  /* Bordas */
+  .border-gray-100 { border-color: var(--border-light) !important; }
+  .border-gray-200 { border-color: var(--border) !important; }
 
-/* Texto */
-.text-gray-900 { color: var(--text) !important; }
-.text-gray-700 { color: var(--text-secondary) !important; }
-.text-gray-500 { color: var(--text-secondary) !important; }
-.text-gray-400 { color: var(--text-muted) !important; }
+  /* Texto */
+  .text-gray-900 { color: var(--text) !important; }
+  .text-gray-700 { color: #d4d4d8 !important; }
+  .text-gray-600 { color: var(--text-secondary) !important; }
+  .text-gray-500 { color: var(--text-secondary) !important; }
+  .text-gray-400 { color: var(--text-muted) !important; }
+  .text-gray-300 { color: #52525b !important; }
 
-/* Inputs */
-.input {
-  background: var(--bg-card) !important;
-  border-color: var(--border) !important;
-  color: var(--text) !important;
-}
+  /* Hover states */
+  .hover\:bg-gray-50:hover { background-color: var(--bg-secondary) !important; }
+  .hover\:bg-gray-100:hover { background-color: var(--bg-secondary) !important; }
+  .hover\:text-gray-900:hover { color: var(--text) !important; }
 
-/* Footer */
-footer {
-  background: var(--footer-bg) !important;
-  border-color: var(--border) !important;
-}
+  /* Inputs */
+  .input {
+    background: var(--bg-card) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+  }
 
-/* Bottom nav */
-nav.fixed {
-  background: var(--navbar-bg) !important;
-  border-color: var(--border) !important;
+  /* Footer */
+  footer { background: var(--footer-bg) !important; border-color: var(--border) !important; }
+
+  /* Bottom nav */
+  nav.fixed { background: var(--navbar-bg) !important; border-color: var(--border) !important; }
+
+  /* Dropdowns e sombras */
+  .shadow-lg { box-shadow: 0 10px 40px rgba(0,0,0,0.4) !important; }
+  .shadow-xl { box-shadow: 0 20px 60px rgba(0,0,0,0.5) !important; }
+
+  /* Placeholders */
+  ::placeholder { color: #52525b !important; }
+
+  /* Select */
+  select { background-color: var(--bg-card) !important; color: var(--text) !important; border-color: var(--border) !important; }
+
+  /* Separadores */
+  hr { border-color: var(--border) !important; }
+
+  /* Animações pulse */
+  .animate-pulse { background-color: var(--bg-secondary) !important; }
+
+  /* Badges */
+  .bg-blue-50 { background-color: rgba(59,130,246,0.1) !important; }
+  .bg-amber-50 { background-color: rgba(245,158,11,0.1) !important; }
+  .bg-red-50 { background-color: rgba(239,68,68,0.1) !important; }
+  .bg-green-50 { background-color: rgba(34,197,94,0.1) !important; }
+  .bg-purple-50 { background-color: rgba(168,85,247,0.1) !important; }
+  .bg-orange-50 { background-color: rgba(249,115,22,0.1) !important; }
+
+  /* Imagens */
+  img { filter: brightness(0.92); }
+  img[alt="nauu.art"][src="/logo.svg"] { filter: invert(1) brightness(2) !important; }
+
+  /* Gradientes */
+  .bg-gradient-to-br.from-blue-50 { --tw-gradient-from: #1a1a2e !important; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* Nav links ativos */
+  .border-blue-500.bg-blue-50 { background-color: rgba(59,130,246,0.15) !important; }
 }
 
 /* Botões */
@@ -114,107 +157,21 @@ nav.fixed {
 
 .input {
   @apply block w-full px-3.5 py-2.5 text-sm font-medium rounded-lg border outline-none transition-colors;
+  background: var(--bg-card);
+  border-color: var(--border);
+  color: var(--text);
 }
 
 .input:focus { border-color: #60a5fa; }
-
 textarea.input { resize: none; }
 
-/* Scrollbar dark mode */
-@media (prefers-color-scheme: dark) {
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  /* Melhorar contraste de imagens em dark mode */
-  img { filter: brightness(0.92); }
-  
-  /* Gradientes */
-  .bg-gradient-to-br.from-blue-50 {
-    --tw-gradient-from: #1a1a2e !important;
-  }
-
-  /* Select e dropdown */
-  select {
-    background: var(--bg-card);
-    color: var(--text);
-    border-color: var(--border);
-  }
+/* Drawer — nunca afectado pelo dark mode */
+[data-theme="light"] {
+  background-color: #ffffff !important;
+  color: #111111 !important;
 }
-
-/* Logo branco no dark mode */
-@media (prefers-color-scheme: dark) {
-  img[alt="nauu.art"][src="/logo.svg"] {
-    filter: invert(1) brightness(2) !important;
-  }
-}
-
-/* Placeholder cards sem imagem */
-.bg-blue-50 {
-  background-color: var(--bg-secondary) !important;
-}
-
-@media (prefers-color-scheme: dark) {
-  /* Placeholder letras mais suaves */
-  .text-blue-200 {
-    color: #2c2c3e !important;
-  }
-  /* CTA box */
-  .bg-blue-50.rounded-2xl {
-    background: var(--bg-card) !important;
-    border-color: var(--border) !important;
-  }
-}
-
-/* Dark mode adicional */
-@media (prefers-color-scheme: dark) {
-  /* Dropdowns e modais */
-  .shadow-lg { box-shadow: 0 10px 40px rgba(0,0,0,0.4) !important; }
-  .shadow-xl { box-shadow: 0 20px 60px rgba(0,0,0,0.5) !important; }
-
-  /* Textos que precisam de contraste */
-  .text-gray-600 { color: var(--text-secondary) !important; }
-  .text-gray-300 { color: #52525b !important; }
-
-  /* Hover states */
-  .hover\:bg-gray-50:hover { background-color: var(--bg-secondary) !important; }
-  .hover\:bg-gray-100:hover { background-color: var(--bg-secondary) !important; }
-  .hover\:text-gray-900:hover { color: var(--text) !important; }
-
-  /* Placeholders */
-  ::placeholder { color: #52525b !important; }
-
-  /* Select inputs */
-  select { 
-    background-color: var(--bg-card) !important;
-    color: var(--text) !important;
-    border-color: var(--border) !important;
-  }
-
-  /* Separadores */
-  hr { border-color: var(--border) !important; }
-
-  /* Animações pulse */
-  .animate-pulse { background-color: var(--bg-secondary) !important; }
-
-  /* Badges e tags */
-  .bg-blue-50 { background-color: rgba(59,130,246,0.1) !important; }
-  .bg-amber-50 { background-color: rgba(245,158,11,0.1) !important; }
-  .bg-red-50 { background-color: rgba(239,68,68,0.1) !important; }
-  .bg-green-50 { background-color: rgba(34,197,94,0.1) !important; }
-  .bg-purple-50 { background-color: rgba(168,85,247,0.1) !important; }
-  .bg-orange-50 { background-color: rgba(249,115,22,0.1) !important; }
-
-  /* Range input */
-  input[type="range"] { accent-color: #3b82f6; }
-
-  /* Botões com texto escuro no dark mode */
-  .text-gray-600 { color: #a1a1aa !important; }
-
-  /* Nav links ativos */
-  .border-blue-500.bg-blue-50 { background-color: rgba(59,130,246,0.15) !important; }
-
-  /* Texto legível no dark mode */
-  a.text-gray-700, span.text-gray-700 { color: #d4d4d8 !important; }
-  .text-gray-700 { color: #d4d4d8 !important; }
-}
+[data-theme="light"] .text-gray-900 { color: #111111 !important; }
+[data-theme="light"] .text-gray-600 { color: #4b5563 !important; }
+[data-theme="light"] .text-gray-400 { color: #9ca3af !important; }
+[data-theme="light"] .border-gray-100 { border-color: #f3f4f6 !important; }
+[data-theme="light"] .bg-gray-50 { background-color: #f9fafb !important; }

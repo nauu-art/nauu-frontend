@@ -20,7 +20,7 @@ export default function DashboardConversationPage() {
   return (
     <div className="flex min-h-screen">
       <DashboardNav />
-      <div className="flex-1 md:ml-52" style={{height: '100vh'}}>
+      <div className="flex-1 md:ml-52 pt-14 md:pt-0" style={{height: '100vh'}}>
         <MessagesInbox basePath="/dashboard/messages" selectedId={id} />
       </div>
     </div>

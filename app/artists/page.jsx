@@ -8,7 +8,7 @@ const CAT_SLUG_MAP = {
 }
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { Search, X, MapPin, Globe, Flag } from 'lucide-react'
+import { Search, X, ChevronDown, SlidersHorizontal, MapPin, Globe, Flag } from 'lucide-react'
 import api from '../../lib/api'
 import { useLocale } from '../../context/LocaleContext'
 import { DISTRITOS_CONCELHOS, getDistritoFromConcelho } from '../../lib/portugal'
@@ -64,6 +64,8 @@ export default function ArtistsPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('')
+  const [catOpen, setCatOpen] = useState(false)
+  const [locOpen, setLocOpen] = useState(false)
   const [distrito, setDistrito] = useState('')
   const [country, setCountry] = useState('')
   const [countries, setCountries] = useState([])
@@ -171,8 +173,56 @@ export default function ArtistsPage() {
       </div>
 
       <div className="px-5 md:px-10 py-6">
-        {/* Filtros */}
-        <div className="flex gap-3 mb-6 flex-wrap items-center">
+        {/* Filtros — mobile */}
+        <div className="flex gap-2 mb-4 md:hidden">
+          <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-2.5 flex-1" style={{background:'var(--bg-card)'}}>
+            <Search size={14} className="text-gray-300 flex-shrink-0" />
+            <input value={search} onChange={e => { setSearch(e.target.value); setPage(1) }}
+              placeholder={t("nav.search")}
+              className="bg-transparent outline-none text-sm font-medium w-full placeholder:text-gray-300" />
+            {search && <button onClick={() => { setSearch(''); setPage(1) }}><X size={13} className="text-gray-300" /></button>}
+          </div>
+          {/* Localização dropdown */}
+          <div className="relative">
+            <button onClick={() => { setLocOpen(!locOpen); setCatOpen(false) }}
+              className={`flex items-center gap-1.5 px-3 py-2.5 border rounded-xl text-xs font-bold flex-shrink-0 transition-all ${(distrito || country) ? 'bg-blue-500 border-blue-500 text-white' : 'border-gray-200 text-gray-500'}`}
+              style={{background: (distrito || country) ? undefined : 'var(--bg-card)'}}>
+              {distrito || country || (tab === 'portugal' ? 'Distrito' : tab === 'internacional' ? 'País' : 'Local')}
+              <ChevronDown size={12} />
+            </button>
+            {locOpen && (
+              <div className="absolute left-0 top-full mt-1 w-48 rounded-xl border border-gray-100 shadow-xl z-[100] overflow-y-auto max-h-64" style={{backgroundColor:'#ffffff'}}>
+                <button onClick={() => { setDistrito(''); setCountry(''); setPage(1); setLocOpen(false) }}
+                  className="flex w-full px-3 py-2.5 text-xs font-bold text-left text-gray-400 border-b border-gray-100">
+                  Todos
+                </button>
+                {tab === 'portugal' && DISTRITOS.map(d => (
+                  <button key={d} onClick={() => { setDistrito(d); setCountry(''); setPage(1); setLocOpen(false) }}
+                    className={`flex w-full px-3 py-2 text-xs font-semibold text-left hover:bg-gray-50 ${distrito === d ? 'text-blue-500 font-bold' : 'text-gray-700'}`}>
+                    {d}
+                  </button>
+                ))}
+                {tab === 'internacional' && (countries.length > 0 ? countries : COUNTRIES.map(c => ({country: c}))).map(c => (
+                  <button key={c.country} onClick={() => { setCountry(c.country); setDistrito(''); setPage(1); setLocOpen(false) }}
+                    className={`flex w-full px-3 py-2 text-xs font-semibold text-left hover:bg-gray-50 ${country === c.country ? 'text-blue-500 font-bold' : 'text-gray-700'}`}>
+                    {c.country}
+                  </button>
+                ))}
+                {tab === 'todos' && <div className="px-3 py-3 text-xs text-gray-400 text-center">Selecciona Portugal ou Internacional primeiro</div>}
+              </div>
+            )}
+          </div>
+          {/* Categorias drawer */}
+          <button onClick={() => { setCatOpen(true); setLocOpen(false) }}
+            className={`flex items-center gap-1.5 px-3 py-2.5 border rounded-xl text-xs font-bold flex-shrink-0 transition-all ${category ? 'bg-blue-500 border-blue-500 text-white' : 'border-gray-200 text-gray-500'}`}
+            style={{background: category ? undefined : 'var(--bg-card)'}}>
+            <SlidersHorizontal size={14} />
+            {category && <span>1</span>}
+          </button>
+        </div>
+
+        {/* Filtros — desktop */}
+        <div className="hidden md:flex gap-3 mb-6 flex-wrap items-center">
           <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 bg-white flex-1 max-w-xs">
             <Search size={14} className="text-gray-300 flex-shrink-0" />
             <input value={search} onChange={e => { setSearch(e.target.value); setPage(1) }}
@@ -180,8 +230,6 @@ export default function ArtistsPage() {
               className="bg-transparent outline-none text-sm font-medium w-full placeholder:text-gray-300" />
             {search && <button onClick={() => { setSearch(''); setPage(1) }}><X size={13} className="text-gray-300" /></button>}
           </div>
-
-          {/* Filtro por distrito (só Portugal) */}
           {tab === 'portugal' && (
             <select value={distrito} onChange={e => { setDistrito(e.target.value); setPage(1) }}
               className="text-sm font-semibold border border-gray-200 rounded-lg px-3 py-2 outline-none bg-white text-gray-600">
@@ -189,20 +237,15 @@ export default function ArtistsPage() {
               {DISTRITOS.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
           )}
-
-          {/* Filtro por país (Internacional) */}
           {tab === 'internacional' && (
             <select value={country} onChange={e => { setCountry(e.target.value); setPage(1) }}
               className="text-sm font-semibold border border-gray-200 rounded-lg px-3 py-2 outline-none text-gray-600" style={{background:'var(--bg-card)', borderColor:'var(--border)'}}>
               <option value="">{t("common.all_countries")}</option>
               {countries.length > 0
                 ? countries.map(c => <option key={c.country} value={c.country}>{c.country} ({c.count})</option>)
-                : COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)
-              }
+                : COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           )}
-
-          {/* Filtro por categoria */}
           <div className="flex gap-2 flex-wrap">
             {CATEGORIES.map(cat => (
               <button key={cat.key} onClick={() => { setCategory(category === cat.key ? '' : cat.key); setPage(1) }}
@@ -212,6 +255,33 @@ export default function ArtistsPage() {
             ))}
           </div>
         </div>
+
+        {/* Drawer categorias mobile */}
+        {catOpen && (
+          <div className="fixed inset-0 z-50 md:hidden">
+            <div className="absolute inset-0 bg-black/40" onClick={() => setCatOpen(false)} />
+            <div className="absolute bottom-0 left-0 right-0 rounded-t-2xl p-5 pb-8" style={{backgroundColor:'var(--bg-card)'}}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-extrabold">Categorias</span>
+                <button onClick={() => setCatOpen(false)} className="text-gray-400 p-1"><X size={18} /></button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {CATEGORIES.map(cat => (
+                  <button key={cat.key} onClick={() => { setCategory(category === cat.key ? '' : cat.key); setPage(1); setCatOpen(false) }}
+                    className={`text-xs font-bold px-3 py-2 rounded-full border transition-all ${category === cat.key ? 'bg-blue-500 border-blue-500 text-white' : 'border-gray-200 text-gray-500 bg-white'}`}>
+                    {t(`categories.${cat.key}`) || cat.pt}
+                  </button>
+                ))}
+              </div>
+              {category && (
+                <button onClick={() => { setCategory(''); setPage(1); setCatOpen(false) }}
+                  className="mt-4 w-full py-2.5 text-xs font-bold text-red-400 border border-red-100 rounded-xl">
+                  Limpar filtro
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="text-sm text-gray-400 font-medium mb-4">

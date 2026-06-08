@@ -19,7 +19,6 @@ export default function AccountLayout({ children }) {
     { href: '/account/profile', icon: User, label: 'Perfil' },
     { href: '/account/posts', icon: FileText, label: 'Posts' },
     { href: '/account/orders', icon: Package, label: 'Compras' },
-    { href: '/account/favorites', icon: Anchor, label: 'Âncoras' },
     
     { href: '/account/messages', icon: Mail, label: 'Mensagens' },
     { href: '/account/notifications', icon: Bell, label: 'Notificações' },

@@ -48,7 +48,7 @@ export default function DashboardContactsPage() {
     <div className="flex min-h-screen bg-gray-50">
       <DashboardNav />
 
-      <div className="flex-1 flex flex-col md:flex-row pt-16 md:pt-0 overflow-hidden" style={{height: '100vh'}}>
+      <div className="flex-1 flex flex-col md:flex-row pt-20 md:pt-0 overflow-hidden" style={{height: '100vh'}}>
 
         {/* Lista de threads — esconde no mobile quando há thread seleccionada */}
         <div className={`${selectedThread ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-gray-100 bg-white`}>

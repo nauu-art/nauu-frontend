@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, Image, Mail, User, LogOut, FileText, Menu, X, FolderOpen, MessageSquare, CreditCard } from 'lucide-react'
+import { LayoutDashboard, Image, Mail, User, LogOut, FileText, Menu, X, FolderOpen, MessageSquare, CreditCard, ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 
@@ -96,7 +96,11 @@ export default function DashboardNav() {
                 </Link>
               ))}
             </nav>
-            <div className="p-4 border-t border-gray-100">
+            <div className="p-4 border-t border-gray-100 flex flex-col gap-2">
+              <Link href="/" onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-500 hover:bg-gray-50 transition-colors">
+                <ArrowUpRight size={15} /> Ver site
+              </Link>
               <button onClick={() => { logout(); router.push('/') }}
                 className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-red-400 hover:bg-red-50 rounded-xl w-full">
                 <LogOut size={18} /> Sair

@@ -175,7 +175,7 @@ export default function SalesPage() {
   return (
     <div className="flex min-h-screen">
       <DashboardNav />
-      <div className="flex-1 md:ml-52 p-5 md:p-8">
+      <div className="flex-1 md:ml-52 p-5 md:p-8 pt-20 md:pt-8">
         <h1 className="text-xl font-extrabold text-gray-900 mb-6">Vendas</h1>
 
         {/* Métricas */}
