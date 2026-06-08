@@ -19,7 +19,10 @@ export default function NovaObraPage() {
   const [form, setForm] = useState({
     title: '', description: '', technique: '', dimensions: '',
     yearCreated: new Date().getFullYear(), price: '', priceOnRequest: false,
-    availability: 'AVAILABLE', categoryIds: [], collectionId: '', stock: 1, commissionPercent: 5,
+    availability: 'AVAILABLE', categoryIds: [], collectionId: '', stock: 1, commissionPercent: 3,
+  })
+  const [shipping, setShipping] = useState({
+    freeShipping: false, portugal: '', europe: '', world: '',
   })
 
   useEffect(() => {
@@ -30,6 +33,7 @@ export default function NovaObraPage() {
   }, [loading, isLoggedIn, isArtist])
 
   const set = (k, v) => setForm(f => ({...f, [k]: v}))
+  const setShip = (k, v) => setShipping(s => ({...s, [k]: v}))
 
   const handleImages = (e) => {
     const files = Array.from(e.target.files)
@@ -53,6 +57,18 @@ export default function NovaObraPage() {
     }))
   }
 
+  const saveShipping = async (artworkId) => {
+    if (!shipping.freeShipping && !shipping.portugal && !shipping.europe && !shipping.world) return
+    try {
+      await api.put(`/payments/shipping/${artworkId}`, {
+        freeShipping: shipping.freeShipping,
+        portugal: shipping.portugal ? parseFloat(shipping.portugal) : null,
+        europe: shipping.europe ? parseFloat(shipping.europe) : null,
+        world: shipping.world ? parseFloat(shipping.world) : null,
+      })
+    } catch {}
+  }
+
   const handleDraft = async () => {
     if (!form.title) { toast.error('Título obrigatório'); return }
     setSaving(true)
@@ -69,6 +85,7 @@ export default function NovaObraPage() {
         images.forEach(img => formData.append('images', img))
         await api.post(`/artworks/${res.data.id}/images`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       }
+      await saveShipping(res.data.id)
       toast.success('Rascunho guardado!')
       router.push('/dashboard/artworks')
     } catch (err) { toast.error(err.response?.data?.error || 'Erro') }
@@ -95,6 +112,7 @@ export default function NovaObraPage() {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
       }
+      await saveShipping(artworkId)
 
       toast.success('Obra publicada!')
       router.push('/dashboard/artworks')
@@ -103,6 +121,11 @@ export default function NovaObraPage() {
     }
     setSaving(false)
   }
+
+  const price = parseFloat(form.price) || 0
+  const commission = form.commissionPercent || 3
+  const commissionAmt = price > 0 ? Math.round(price * commission) / 100 : 0
+  const artistReceives = price > 0 ? Math.round((price - commissionAmt) * 100) / 100 : 0
 
   if (loading || !user) return <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
 
@@ -186,6 +209,49 @@ export default function NovaObraPage() {
                     className="w-4 h-4 accent-blue-500" />
                   <span className="text-sm font-semibold text-gray-600">Preço sob consulta</span>
                 </label>
+                {price > 0 && !form.priceOnRequest && (
+                  <div className="bg-blue-50 rounded-lg p-3 flex flex-col gap-1 mt-1">
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>Comissão nauu ({commission}%)</span>
+                      <span>- €{commissionAmt.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm font-extrabold text-green-700 border-t border-blue-100 pt-1 mt-0.5">
+                      <span>Tu recebes</span>
+                      <span>€{artistReceives.toFixed(2)}</span>
+                    </div>
+                    <p className="text-xs text-blue-400 mt-0.5">Os portes vão integralmente para ti.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white border border-gray-100 rounded-xl p-5">
+              <h2 className="text-sm font-extrabold text-gray-900 mb-4">Portes de envio</h2>
+              <div className="flex flex-col gap-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={shipping.freeShipping} onChange={e => setShip('freeShipping', e.target.checked)}
+                    className="w-4 h-4 accent-blue-500" />
+                  <span className="text-sm font-semibold text-gray-600">Envio grátis</span>
+                </label>
+                {!shipping.freeShipping && (
+                  <>
+                    <div>
+                      <label className="label">Portugal (€)</label>
+                      <input type="number" value={shipping.portugal} onChange={e => setShip('portugal', e.target.value)}
+                        className="input" placeholder="0.00" />
+                    </div>
+                    <div>
+                      <label className="label">Europa (€)</label>
+                      <input type="number" value={shipping.europe} onChange={e => setShip('europe', e.target.value)}
+                        className="input" placeholder="0.00" />
+                    </div>
+                    <div>
+                      <label className="label">Resto do mundo (€)</label>
+                      <input type="number" value={shipping.world} onChange={e => setShip('world', e.target.value)}
+                        className="input" placeholder="0.00" />
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
