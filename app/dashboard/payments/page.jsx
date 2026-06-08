@@ -148,7 +148,7 @@ export default function SalesPage() {
   useEffect(() => {
     if (isArtist) {
       api.get('/payments/sales').then(res => setSales(res.data || [])).catch(() => {}).finally(() => setLoadingSales(false))
-      api.get('/payments/stripe-status').then(res => setStripeStatus(res.data)).catch(() => {})
+      api.get('/payments/connect/status').then(res => setStripeStatus(res.data)).catch(() => {})
     }
   }, [isArtist])
 
