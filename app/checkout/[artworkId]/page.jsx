@@ -64,12 +64,14 @@ export default function CheckoutPage() {
       const res = await api.post('/payments/intent', {
         artworkId,
         shippingAddress: address,
+        shippingCost,
         notes: ''
       })
-      // Redirecionar para Stripe (simplificado — sem Stripe.js por agora)
-      // TODO: integrar Stripe Elements
-      toast.success('A redirecionar para pagamento…')
-      router.push(`/checkout/${artworkId}/payment?clientSecret=${res.data.clientSecret}&orderId=${res.data.orderId}`)
+      sessionStorage.setItem('nauu_payment', JSON.stringify({
+        clientSecret: res.data.clientSecret,
+        orderId: res.data.orderId
+      }))
+      router.push(`/checkout/${artworkId}/payment`)
     } catch (err) {
       toast.error(err.response?.data?.error || 'Erro ao processar')
     }

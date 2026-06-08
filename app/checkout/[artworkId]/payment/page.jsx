@@ -1,13 +1,13 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { useParams, useSearchParams, useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import api from '../../../../lib/api'
 import toast from 'react-hot-toast'
 import { ArrowLeft, Lock } from 'lucide-react'
 import Link from 'next/link'
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 
 function PaymentForm({ orderId, artworkId }) {
   const stripe = useStripe()
@@ -50,12 +50,17 @@ function PaymentForm({ orderId, artworkId }) {
 
 function PaymentContent() {
   const { artworkId } = useParams()
-  const searchParams = useSearchParams()
   const [stripePromise, setStripePromise] = useState(null)
-  const clientSecret = searchParams.get('clientSecret')
-  const orderId = searchParams.get('orderId')
+  const [clientSecret, setClientSecret] = useState(null)
+  const [orderId, setOrderId] = useState(null)
+  const router = useRouter()
 
   useEffect(() => {
+    const stored = sessionStorage.getItem('nauu_payment')
+    if (!stored) { router.replace(`/artwork/${artworkId}`); return }
+    const { clientSecret: cs, orderId: oid } = JSON.parse(stored)
+    setClientSecret(cs)
+    setOrderId(oid)
     api.get('/payments/config').then(res => {
       setStripePromise(loadStripe(res.data.publishableKey))
     })
