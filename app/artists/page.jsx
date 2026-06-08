@@ -183,7 +183,7 @@ export default function ArtistsPage() {
             {search && <button onClick={() => { setSearch(''); setPage(1) }}><X size={13} className="text-gray-300" /></button>}
           </div>
           {/* Localização dropdown */}
-          <div className="relative">
+          <div className="relative flex items-stretch">
             <button onClick={() => { setLocOpen(!locOpen); setCatOpen(false) }}
               className={`flex items-center gap-1.5 px-3 py-2.5 border rounded-xl text-xs font-bold flex-shrink-0 transition-all ${(distrito || country) ? 'bg-blue-500 border-blue-500 text-white' : 'border-gray-200 text-gray-500'}`}
               style={{background: (distrito || country) ? undefined : 'var(--bg-card)'}}>
@@ -191,20 +191,20 @@ export default function ArtistsPage() {
               <ChevronDown size={12} />
             </button>
             {locOpen && (
-              <div className="absolute left-0 top-full mt-1 w-48 rounded-xl border border-gray-100 shadow-xl z-[100] overflow-y-auto max-h-64" style={{backgroundColor:'#ffffff'}}>
+              <div className="absolute left-0 top-full mt-1 w-48 rounded-xl border border-gray-100 shadow-xl z-[100] overflow-y-auto max-h-64" style={{backgroundColor:'var(--bg-card)',borderColor:'var(--border)'}}>
                 <button onClick={() => { setDistrito(''); setCountry(''); setPage(1); setLocOpen(false) }}
                   className="flex w-full px-3 py-2.5 text-xs font-bold text-left text-gray-400 border-b border-gray-100">
                   Todos
                 </button>
                 {tab === 'portugal' && DISTRITOS.map(d => (
                   <button key={d} onClick={() => { setDistrito(d); setCountry(''); setPage(1); setLocOpen(false) }}
-                    className={`flex w-full px-3 py-2 text-xs font-semibold text-left hover:bg-gray-50 ${distrito === d ? 'text-blue-500 font-bold' : 'text-gray-700'}`}>
+                    className={`flex w-full px-3 py-2 text-xs font-semibold text-left transition-colors ${distrito === d ? 'text-blue-500 font-bold' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
                     {d}
                   </button>
                 ))}
                 {tab === 'internacional' && (countries.length > 0 ? countries : COUNTRIES.map(c => ({country: c}))).map(c => (
                   <button key={c.country} onClick={() => { setCountry(c.country); setDistrito(''); setPage(1); setLocOpen(false) }}
-                    className={`flex w-full px-3 py-2 text-xs font-semibold text-left hover:bg-gray-50 ${country === c.country ? 'text-blue-500 font-bold' : 'text-gray-700'}`}>
+                    className={`flex w-full px-3 py-2 text-xs font-semibold text-left transition-colors ${country === c.country ? 'text-blue-500 font-bold' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
                     {c.country}
                   </button>
                 ))}
@@ -223,7 +223,7 @@ export default function ArtistsPage() {
 
         {/* Filtros — desktop */}
         <div className="hidden md:flex gap-3 mb-6 flex-wrap items-center">
-          <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 bg-white flex-1 max-w-xs">
+          <div className="flex items-center gap-2 border rounded-lg px-3 py-1.5 flex-1 max-w-xs" style={{background:"var(--bg-card)",borderColor:"var(--border)"}}>
             <Search size={14} className="text-gray-300 flex-shrink-0" />
             <input value={search} onChange={e => { setSearch(e.target.value); setPage(1) }}
               placeholder={t("nav.search")}
@@ -232,14 +232,14 @@ export default function ArtistsPage() {
           </div>
           {tab === 'portugal' && (
             <select value={distrito} onChange={e => { setDistrito(e.target.value); setPage(1) }}
-              className="text-sm font-semibold border border-gray-200 rounded-lg px-3 py-2 outline-none bg-white text-gray-600">
+              className="text-sm font-semibold border rounded-lg px-3 py-1.5 outline-none self-center" style={{background:"var(--bg-card)",borderColor:"var(--border)",color:"var(--text-secondary)"}}>
               <option value="">{t("common.all_districts")}</option>
               {DISTRITOS.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
           )}
           {tab === 'internacional' && (
             <select value={country} onChange={e => { setCountry(e.target.value); setPage(1) }}
-              className="text-sm font-semibold border border-gray-200 rounded-lg px-3 py-2 outline-none text-gray-600" style={{background:'var(--bg-card)', borderColor:'var(--border)'}}>
+              className="text-sm font-semibold border border-gray-200 rounded-lg px-3 py-1.5 outline-none text-gray-600 self-center" style={{background:'var(--bg-card)', borderColor:'var(--border)'}}>
               <option value="">{t("common.all_countries")}</option>
               {countries.length > 0
                 ? countries.map(c => <option key={c.country} value={c.country}>{c.country} ({c.count})</option>)

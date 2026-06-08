@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, Image, Mail, User, LogOut, FileText, Menu, X, FolderOpen, MessageSquare, CreditCard, ArrowLeft, ShoppingBag } from 'lucide-react'
+import { LayoutDashboard, Image, Mail, User, LogOut, FileText, Menu, X, FolderOpen, MessageSquare, CreditCard, ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 
@@ -18,8 +18,8 @@ export default function DashboardNav() {
     { href: '/dashboard/posts', label: 'Posts', icon: FileText },
     { href: '/dashboard/collections', label: 'Coleções', icon: FolderOpen },
     { href: '/dashboard/messages', label: 'Mensagens', icon: MessageSquare },
-    { href: '/dashboard/orders', label: 'Encomendas', icon: ShoppingBag },
-    { href: '/dashboard/payments', label: 'Pagamentos', icon: CreditCard },
+    
+    { href: '/dashboard/payments', label: 'Vendas', icon: CreditCard },
     { href: '/dashboard/profile', label: 'Perfil', icon: User },
   ]
 
