@@ -212,18 +212,19 @@ export default function SalesPage() {
               <div className="bg-white rounded-lg p-3 border border-blue-100">
                 <div className="text-xs font-extrabold uppercase tracking-widest text-blue-400 mb-1">Fee da Stripe</div>
                 <div className="text-lg font-extrabold text-gray-900">1.5% + €0.25</div>
-                <div className="text-xs text-gray-500 mt-0.5">por transação (cartões europeus) — descontada da comissão nauu</div>
+                <div className="text-xs text-gray-500 mt-0.5">por transação (cartões europeus) — paga pelo artista, a nauu recebe a comissão limpa</div>
               </div>
               <div className="bg-white rounded-lg p-3 border border-blue-100">
                 <div className="text-xs font-extrabold uppercase tracking-widest text-blue-400 mb-1">Exemplo — obra de €200</div>
                 <div className="flex flex-col gap-0.5 text-xs font-medium text-gray-600 mt-1">
                   <div className="flex justify-between"><span>Comprador paga</span><span className="font-bold">€ 200.00</span></div>
                   <div className="flex justify-between text-red-500"><span>- Comissão nauu (3%)</span><span>- € 6.00</span></div>
-                  <div className="flex justify-between border-t border-gray-100 pt-0.5 text-green-700 font-extrabold"><span>Tu recebes</span><span>€ 194.00</span></div>
+                  <div className="flex justify-between text-red-400"><span>- Fee Stripe (~1.5%+€0.25)</span><span>- € 3.25</span></div>
+                  <div className="flex justify-between border-t border-gray-100 pt-0.5 text-green-700 font-extrabold"><span>Tu recebes</span><span>€ 190.75</span></div>
                 </div>
               </div>
             </div>
-            <p className="text-xs text-blue-500 font-medium mt-3">Os portes de envio que defines vão integralmente para ti — não são sujeitos a comissão.</p>
+            <p className="text-xs text-blue-500 font-medium mt-3">Os portes vão integralmente para ti. A nauu recebe a comissão sem descontos — a fee da Stripe é suportada pelo artista.</p>
           </div>
         </details>
 

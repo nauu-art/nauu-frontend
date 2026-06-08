@@ -126,7 +126,7 @@ export default function NovaObraPage() {
   const commission = form.commissionPercent || 3
   const commissionAmt = price > 0 ? Math.round(price * commission) / 100 : 0
   const stripeFee = price > 0 ? Math.round((price * 0.015 + 0.25) * 100) / 100 : 0
-  const artistReceives = price > 0 ? Math.round((price - commissionAmt) * 100) / 100 : 0
+  const artistReceives = price > 0 ? Math.round((price - commissionAmt - stripeFee) * 100) / 100 : 0
 
   if (loading || !user) return <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
 
@@ -224,7 +224,7 @@ export default function NovaObraPage() {
                       <span>Tu recebes</span>
                       <span>€{artistReceives.toFixed(2)}</span>
                     </div>
-                    <p className="text-xs text-blue-400 mt-0.5">A fee da Stripe é descontada da comissão nauu, não do teu valor. Os portes vão integralmente para ti.</p>
+                    <p className="text-xs text-blue-400 mt-0.5">A nauu recebe a comissão sem descontos. Os portes vão integralmente para ti.</p>
                   </div>
                 )}
               </div>
