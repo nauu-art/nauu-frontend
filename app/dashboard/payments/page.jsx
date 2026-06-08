@@ -206,7 +206,7 @@ export default function SalesPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
               <div className="bg-white rounded-lg p-3 border border-blue-100">
                 <div className="text-xs font-extrabold uppercase tracking-widest text-blue-400 mb-1">Comissão nauu.art</div>
-                <div className="text-lg font-extrabold text-gray-900">5%</div>
+                <div className="text-lg font-extrabold text-gray-900">3% <span className="text-sm font-medium text-gray-400">(pode variar até 90%)</span></div>
                 <div className="text-xs text-gray-500 mt-0.5">sobre o preço da obra (não sobre os portes)</div>
               </div>
               <div className="bg-white rounded-lg p-3 border border-blue-100">
@@ -218,8 +218,8 @@ export default function SalesPage() {
                 <div className="text-xs font-extrabold uppercase tracking-widest text-blue-400 mb-1">Exemplo — obra de €200</div>
                 <div className="flex flex-col gap-0.5 text-xs font-medium text-gray-600 mt-1">
                   <div className="flex justify-between"><span>Comprador paga</span><span className="font-bold">€ 200.00</span></div>
-                  <div className="flex justify-between text-red-500"><span>- Comissão nauu (5%)</span><span>- € 10.00</span></div>
-                  <div className="flex justify-between border-t border-gray-100 pt-0.5 text-green-700 font-extrabold"><span>Tu recebes</span><span>€ 190.00</span></div>
+                  <div className="flex justify-between text-red-500"><span>- Comissão nauu (3%)</span><span>- € 6.00</span></div>
+                  <div className="flex justify-between border-t border-gray-100 pt-0.5 text-green-700 font-extrabold"><span>Tu recebes</span><span>€ 194.00</span></div>
                 </div>
               </div>
             </div>
