@@ -66,7 +66,15 @@ export default function AdminPage() {
 
   useEffect(() => {
     const t = localStorage.getItem('nauu_admin_token')
-    if (t) { setToken(t); api.defaults.headers.common['Authorization'] = `Bearer ${t}` }
+    if (t) {
+      api.defaults.headers.common['Authorization'] = `Bearer ${t}`
+      api.get('/admin/stats')
+        .then(r => { setToken(t); setStats(r.data) })
+        .catch(() => {
+          localStorage.removeItem('nauu_admin_token')
+          api.defaults.headers.common['Authorization'] = ''
+        })
+    }
   }, [])
 
   useEffect(() => {
@@ -92,8 +100,8 @@ export default function AdminPage() {
     setLogging(false)
   }
 
-  const fetchStats = async () => { try { const r = await api.get('/admin/stats'); setStats(r.data) } catch (e) { if (e.response?.status === 401) handleUnauthorized() } }
-  const fetchUsers = async () => { try { const r = await api.get(`/admin/users?limit=100&search=${search}&type=USER`); setUsers(r.data.data || []) } catch {} }
+  const fetchStats = async () => { try { const r = await api.get('/admin/stats'); setStats(r.data) } catch (e) { if (e.response?.status === 401 || e.response?.status === 403) handleUnauthorized() } }
+  const fetchUsers = async () => { try { const r = await api.get(`/admin/users?limit=100&search=${search}&type=USER`); setUsers(r.data.data || []) } catch (e) { if (e.response?.status === 401 || e.response?.status === 403) handleUnauthorized() } }
   const fetchArtists = async () => {
     const statusParam = artistFilter !== 'all' ? `&status=${artistFilter}` : ''
     try { const r = await api.get(`/admin/users?limit=100&search=${search}&type=ARTIST${statusParam}`); setArtists(r.data.data || []) } catch {}

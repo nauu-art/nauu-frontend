@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import DOMPurify from 'isomorphic-dompurify'
 import { notFound } from 'next/navigation'
 
 async function getPost(slug) {
@@ -40,7 +41,7 @@ export default async function BlogPostPage({ params }) {
           </div>
         )}
         <div className="text-gray-600 font-medium leading-relaxed prose prose-sm max-w-none"
-          dangerouslySetInnerHTML={{ __html: post.content?.replace(/\n\n/g, '</p><p class="mb-4">').replace(/^/, '<p class="mb-4">').replace(/$/, '</p>').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold mt-8 mb-4">$1</h1>').replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold mt-6 mb-3">$1</h2>') || '' }} />
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content?.replace(/\n\n/g, '</p><p class="mb-4">').replace(/^/, '<p class="mb-4">').replace(/$/, '</p>').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold mt-8 mb-4">$1</h1>').replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold mt-6 mb-3">$1</h2>') || '') }} />
         <div className="mt-12 pt-8 border-t border-gray-100 flex justify-between">
           <Link href="/blog" className="text-sm font-bold text-gray-400 hover:text-gray-600">← Todos os artigos</Link>
           <Link href="/explore" className="text-sm font-bold text-blue-500 hover:text-blue-600">Explorar obras →</Link>

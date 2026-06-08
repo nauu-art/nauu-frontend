@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ChevronLeft, ChevronRight, Calendar, User } from 'lucide-react'
 import api from '../../../lib/api'
 import AnchorButton from '../../../components/ui/AnchorButton'
+import DOMPurify from 'dompurify'
 
 function PostCarousel({ urls }) {
   const [current, setCurrent] = useState(0)
@@ -95,7 +96,7 @@ export default function PostPage() {
 
         {/* Conteúdo */}
         <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: post.content }} />
+          dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(post.content || '') : '' }} />
       </div>
     </div>
   )
