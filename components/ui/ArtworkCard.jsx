@@ -23,6 +23,7 @@ export default function ArtworkCard({ artwork: w, aspect = '4/5', showArtist = t
   const { t } = useLocale()
   const { isLoggedIn, user } = useAuth()
   const [followed, setFollowed] = useState(false)
+  const [expanded, setExpanded] = useState(false)
 
   useEffect(() => {
     if (followingIds.length > 0 && w.artist?.id) {
@@ -102,6 +103,19 @@ export default function ArtworkCard({ artwork: w, aspect = '4/5', showArtist = t
           {w.collection?.name && w.yearCreated && <span className="text-gray-300 text-xs">·</span>}
           {w.yearCreated && <div className="text-xs text-gray-400">{w.yearCreated}</div>}
         </div>
+        {w.description && (
+          <div className="mt-1.5">
+            <p className={`text-xs text-gray-500 leading-relaxed ${expanded ? '' : 'line-clamp-3'}`}>{w.description}</p>
+            {w.description.length > 150 && (
+              <button
+                type="button"
+                onClick={e => { e.preventDefault(); e.stopPropagation(); setExpanded(x => !x) }}
+                className="text-xs font-bold text-blue-400 hover:text-blue-600 mt-0.5">
+                {expanded ? 'Ver menos ↑' : 'Ver mais ↓'}
+              </button>
+            )}
+          </div>
+        )}
         <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
           <PriceTag price={w.price} priceOnRequest={w.priceOnRequest} className="text-sm font-bold text-gray-900 dark:text-white" />
           <AvailabilityBadge availability={w.availability} />
