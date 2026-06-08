@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '../../context/AuthContext'
-import { LayoutDashboard, Image, Mail, User, Eye, Heart, MessageSquare, Plus, LogOut, FileText } from 'lucide-react'
+import { LayoutDashboard, Image, Mail, User, Eye, Bookmark, MessageSquare, Plus, LogOut, FileText } from 'lucide-react'
 import DashboardNav from '../../components/ui/DashboardNav'
 import api from '../../lib/api'
 
@@ -66,7 +66,7 @@ export default function DashboardPage() {
           {[
             { label: 'Obras publicadas', value: stats?.stats?.totalArtworks ?? '—', icon: Image, color: 'text-blue-500', bg: 'bg-blue-50' },
             { label: 'Visualizações', value: stats?.stats?.totalViews ?? '—', icon: Eye, color: 'text-green-500', bg: 'bg-green-50' },
-            { label: 'Favoritos', value: stats?.stats?.totalFavorites ?? '—', icon: Heart, color: 'text-pink-500', bg: 'bg-pink-50' },
+            { label: 'Guardados', value: stats?.stats?.totalFavorites ?? '—', icon: Bookmark, color: 'text-blue-500', bg: 'bg-blue-50' },
             { label: 'Contactos (30 dias)', value: stats?.stats?.recentContacts ?? '—', icon: MessageSquare, color: 'text-amber-500', bg: 'bg-amber-50' },
           ].map(m => (
             <div key={m.label} className="bg-white border border-gray-100 rounded-xl p-4">
