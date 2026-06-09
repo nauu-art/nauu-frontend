@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '../../../context/AuthContext'
 import api from '../../../lib/api'
-import { Package, ChevronDown, ChevronUp, MessageSquare, ExternalLink } from 'lucide-react'
+import { Package, ChevronDown, ChevronUp, MessageSquare, ExternalLink, Award } from 'lucide-react'
 
 const FULFILLMENT = {
   PAID:       { label: 'Pago',        color: 'text-blue-500 bg-blue-50',    step: 0 },
@@ -89,6 +89,10 @@ function OrderDetail({ order }) {
             className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 hover:border-blue-300 hover:text-blue-500 text-gray-600 font-bold text-xs rounded-lg transition-colors">
             <ExternalLink size={12} /> Ver obra
           </Link>
+          <a href={`/api/certificates/${order.id}`} target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-2 bg-amber-50 border border-amber-200 hover:border-amber-400 hover:bg-amber-100 text-amber-700 font-bold text-xs rounded-lg transition-colors">
+            <Award size={12} /> Certificado
+          </a>
         </div>
       </div>
     </div>
