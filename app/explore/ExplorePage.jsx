@@ -14,10 +14,12 @@ import api from '../../lib/api'
 import ArtworkCard from '../../components/ui/ArtworkCard'
 import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
+import { useFeatures } from '../../context/FeaturesContext'
 
 export default function ExplorePage() {
   const { t } = useLocale()
   const { isLoggedIn } = useAuth()
+  const features = useFeatures()
   const searchParams = useSearchParams()
   const [artworks, setArtworks] = useState([])
   const [followingIds, setFollowingIds] = useState([])
@@ -29,6 +31,7 @@ export default function ExplorePage() {
   const [activeCategories, setActiveCategories] = useState([])
   const [availability, setAvailability] = useState([])
   const [maxPrice, setMaxPrice] = useState(5000)
+  const [activeColor, setActiveColor] = useState(null)
   const [sort, setSort] = useState('createdAt_desc')
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [viewMode, setViewMode] = useState(() => {
@@ -83,13 +86,14 @@ export default function ExplorePage() {
         else if (slugs.length > 1) params.set('categories', slugs.join(','))
       }
       if (availability.length > 0) params.set('availability', availability.join(','))
+      if (activeColor) params.set('colorBucket', activeColor)
       const res = await api.get(`/artworks?${params}`)
       setArtworks(res.data.data || [])
       setTotal(res.data.pagination?.total || 0)
       setTotalPages(res.data.pagination?.totalPages || 1)
     } catch {}
     setLoading(false)
-  }, [page, sort, search, activeCategories, maxPrice, availability])
+  }, [page, sort, search, activeCategories, maxPrice, availability, activeColor])
 
   useEffect(() => { fetchArtworks() }, [fetchArtworks])
 
@@ -98,12 +102,25 @@ export default function ExplorePage() {
     setPage(1)
   }
 
-  const activeFiltersCount = activeCategories.length + (maxPrice < 5000 ? 1 : 0) + availability.length
+  const COLOR_FILTERS = [
+    { key: 'vermelho', label: 'Vermelho', hex: '#E74C3C' },
+    { key: 'laranja',  label: 'Laranja',  hex: '#E67E22' },
+    { key: 'amarelo',  label: 'Amarelo',  hex: '#F1C40F' },
+    { key: 'verde',    label: 'Verde',    hex: '#27AE60' },
+    { key: 'azul',     label: 'Azul',     hex: '#2980B9' },
+    { key: 'roxo',     label: 'Roxo',     hex: '#8E44AD' },
+    { key: 'cinzento', label: 'Cinzento', hex: '#95A5A6' },
+    { key: 'branco',   label: 'Claro',    hex: '#ECF0F1' },
+    { key: 'preto',    label: 'Escuro',   hex: '#2C3E50' },
+  ]
+
+  const activeFiltersCount = activeCategories.length + (maxPrice < 5000 ? 1 : 0) + availability.length + (activeColor ? 1 : 0)
 
   const activeTags = [
     ...activeCategories.map(c => { const cat = CATEGORIES.find(x => x.key === c); return { label: t(`categories.${c}`) || cat?.pt || c, remove: () => toggleCategory(c) } }),
     ...(maxPrice < 5000 ? [{ label: `Até €${maxPrice}`, remove: () => setMaxPrice(5000) }] : []),
     ...availability.map(v => ({ label: t(`explore.${v.toLowerCase()}`), remove: () => { setAvailability(prev => prev.filter(a => a !== v)); setPage(1) } })),
+    ...(activeColor ? [{ label: COLOR_FILTERS.find(c => c.key === activeColor)?.label || activeColor, hex: COLOR_FILTERS.find(c => c.key === activeColor)?.hex, remove: () => { setActiveColor(null); setPage(1) } }] : []),
   ]
 
   const FilterPanel = () => (
@@ -149,6 +166,28 @@ export default function ExplorePage() {
           ))}
         </div>
       </div>
+
+      {features.colorPalette && (
+        <div>
+          <div className="flex justify-between items-center mb-3">
+            <div className="text-xs font-extrabold uppercase tracking-widest text-gray-300">Cor</div>
+            {activeColor && (
+              <button onClick={() => { setActiveColor(null); setPage(1) }} className="text-xs text-blue-400 font-bold">Limpar</button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {COLOR_FILTERS.map(c => (
+              <button
+                key={c.key}
+                onClick={() => { setActiveColor(activeColor === c.key ? null : c.key); setPage(1) }}
+                title={c.label}
+                className={`w-7 h-7 rounded-lg border-2 transition-transform hover:scale-110 ${activeColor === c.key ? 'border-blue-500 scale-110 shadow-md' : 'border-black/10'}`}
+                style={{ backgroundColor: c.hex }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 
@@ -223,6 +262,7 @@ export default function ExplorePage() {
           <div className="flex gap-2 flex-wrap mb-4">
             {activeTags.map((tag, i) => (
               <span key={i} className="flex items-center gap-1.5 text-xs font-bold bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full">
+                {tag.hex && <span className="w-3 h-3 rounded-full border border-black/10 flex-shrink-0" style={{ backgroundColor: tag.hex }} />}
                 {tag.label}<button onClick={tag.remove}><X size={12}/></button>
               </span>
             ))}

@@ -57,6 +57,8 @@ export default function AdminPage() {
   const [savingContent, setSavingContent] = useState('')
   const [analytics, setAnalytics] = useState(null)
   const [curated, setCurated] = useState([])
+  const [features, setFeatures] = useState({ ar: true, colorPalette: true })
+  const [savingFeature, setSavingFeature] = useState(null)
   const [newCollection, setNewCollection] = useState({ title: '', slug: '', description: '' })
   const [savingCollection, setSavingCollection] = useState(false)
   const [expandedCol, setExpandedCol] = useState(null)
@@ -66,15 +68,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     const t = localStorage.getItem('nauu_admin_token')
-    if (t) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${t}`
-      api.get('/admin/stats')
-        .then(r => { setToken(t); setStats(r.data) })
-        .catch(() => {
-          localStorage.removeItem('nauu_admin_token')
-          api.defaults.headers.common['Authorization'] = ''
-        })
-    }
+    if (t) { setToken(t); api.defaults.headers.common['Authorization'] = `Bearer ${t}` }
   }, [])
 
   useEffect(() => {
@@ -100,14 +94,30 @@ export default function AdminPage() {
     setLogging(false)
   }
 
-  const fetchStats = async () => { try { const r = await api.get('/admin/stats'); setStats(r.data) } catch (e) { if (e.response?.status === 401 || e.response?.status === 403) handleUnauthorized() } }
-  const fetchUsers = async () => { try { const r = await api.get(`/admin/users?limit=100&search=${search}&type=USER`); setUsers(r.data.data || []) } catch (e) { if (e.response?.status === 401 || e.response?.status === 403) handleUnauthorized() } }
+  const fetchStats = async () => { try { const r = await api.get('/admin/stats'); setStats(r.data) } catch (e) { if (e.response?.status === 401) handleUnauthorized() } }
+  const fetchUsers = async () => { try { const r = await api.get(`/admin/users?limit=100&search=${search}&type=USER`); setUsers(r.data.data || []) } catch {} }
   const fetchArtists = async () => {
     const statusParam = artistFilter !== 'all' ? `&status=${artistFilter}` : ''
     try { const r = await api.get(`/admin/users?limit=100&search=${search}&type=ARTIST${statusParam}`); setArtists(r.data.data || []) } catch {}
   }
   const fetchArtworks = async () => { try { const r = await api.get(`/admin/artworks?limit=100&search=${search}`); setArtworks(r.data.data || []) } catch {} }
-  const fetchSettings = async () => { try { const r = await api.get('/admin/settings'); setLogoUrl(r.data.logoUrl) } catch {} }
+  const fetchSettings = async () => {
+    try {
+      const r = await api.get('/admin/settings')
+      setLogoUrl(r.data.logoUrl)
+      if (r.data.features) setFeatures(r.data.features)
+    } catch {}
+  }
+
+  const toggleFeature = async (key) => {
+    setSavingFeature(key)
+    const newVal = !features[key]
+    try {
+      await api.patch('/admin/settings/features', { key, value: newVal })
+      setFeatures(f => ({ ...f, [key]: newVal }))
+    } catch {}
+    setSavingFeature(null)
+  }
   const fetchAnalytics = async () => {
     try { const r = await api.get('/analytics'); setAnalytics(r.data) } catch {}
   }
@@ -667,6 +677,34 @@ export default function AdminPage() {
             <div>
               <h1 className="text-2xl font-extrabold mb-6">Definições</h1>
               <div className="grid gap-6">
+
+                <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                  <h2 className="text-sm font-extrabold uppercase tracking-widest text-gray-500 mb-5">Funcionalidades</h2>
+                  <div className="flex flex-col gap-4">
+                    {[
+                      { key: 'ar', label: 'AR — Ver em Tua Casa', desc: 'Visualização em realidade aumentada na página de cada obra', icon: '🪄' },
+                      { key: 'colorPalette', label: 'Paleta de cores', desc: 'Extracção e filtro por cor no explorar e na página da obra', icon: '🎨' },
+                    ].map(({ key, label, desc, icon }) => (
+                      <div key={key} className="flex items-center justify-between gap-4 py-2 border-b border-gray-800 last:border-0">
+                        <div className="flex items-start gap-3">
+                          <span className="text-xl mt-0.5">{icon}</span>
+                          <div>
+                            <div className="text-sm font-bold text-white">{label}</div>
+                            <div className="text-xs text-gray-500 mt-0.5">{desc}</div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => toggleFeature(key)}
+                          disabled={savingFeature === key}
+                          className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${features[key] ? 'bg-blue-500' : 'bg-gray-700'} ${savingFeature === key ? 'opacity-50' : ''}`}
+                        >
+                          <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${features[key] ? 'translate-x-5' : 'translate-x-0'}`} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
                   <h2 className="text-sm font-extrabold uppercase tracking-widest text-gray-500 mb-4">Logo</h2>
                   {logoUrl && <img src={logoUrl} alt="Logo" className="h-10 mb-4 opacity-80" />}

@@ -1,6 +1,7 @@
 import './globals.css'
 import { AuthProvider } from '../context/AuthContext'
 import { LocaleProvider } from '../context/LocaleContext'
+import { FeaturesProvider } from '../context/FeaturesContext'
 import ConditionalLayout from '../components/layout/ConditionalLayout'
 import CookieBanner from '../components/ui/CookieBanner'
 import PWAInstall from '../components/PWAInstall'
@@ -46,12 +47,14 @@ export default function RootLayout({ children }) {
       <link rel="apple-touch-icon" href="/icon-192.png" />
       <body>
         <LocaleProvider>
-          <AuthProvider>
-            <Toaster position="top-right" toastOptions={{ style: { fontFamily: 'Nunito', fontWeight: 600, fontSize: '14px' } }} />
-            <ConditionalLayout>{children}</ConditionalLayout>
-            <CookieBanner />
-            <PWAInstall />
-          </AuthProvider>
+          <FeaturesProvider>
+            <AuthProvider>
+              <Toaster position="top-right" toastOptions={{ style: { fontFamily: 'Nunito', fontWeight: 600, fontSize: '14px' } }} />
+              <ConditionalLayout>{children}</ConditionalLayout>
+              <CookieBanner />
+              <PWAInstall />
+            </AuthProvider>
+          </FeaturesProvider>
         </LocaleProvider>
       </body>
     </html>
