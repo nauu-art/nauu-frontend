@@ -69,26 +69,19 @@ async function generateGLB(imageUrl, wCm, hCm) {
   return URL.createObjectURL(new Blob([glb], { type: 'model/gltf-binary' }))
 }
 
-export default function ARViewer({ imageUrl, dimensions, artworkId }) {
+export default function ARViewer({ imageUrl, dimensions }) {
   const [open, setOpen] = useState(false)
-  const [phase, setPhase] = useState('idle') // idle | loading | ready | error
+  const [phase, setPhase] = useState('idle')
   const [glbUrl, setGlbUrl] = useState(null)
-  const [isIOS, setIsIOS] = useState(false)
   const glbRef = useRef(null)
 
   const dims = parseDimensions(dimensions)
 
   useEffect(() => {
-    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent))
     return () => { if (glbRef.current) URL.revokeObjectURL(glbRef.current) }
   }, [])
 
   if (!dims || !imageUrl) return null
-
-  // URL do USDZ para iOS AR Quick Look (abre diretamente em câmara AR, sem preview de objeto)
-  const usdzUrl = artworkId
-    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/api/ar/usdz/${artworkId}`
-    : null
 
   const handleOpen = async () => {
     setOpen(true)
@@ -126,9 +119,7 @@ export default function ARViewer({ imageUrl, dimensions, artworkId }) {
           <div className="absolute top-0 left-0 right-0 z-10 px-4 pt-safe-top flex items-center justify-between bg-gradient-to-b from-black/80 to-transparent py-4">
             <div>
               <p className="text-white font-extrabold text-sm leading-tight">Ver em Tua Casa</p>
-              <p className="text-purple-300 text-xs font-medium">
-                {dims.w} × {dims.h} cm
-              </p>
+              <p className="text-purple-300 text-xs font-medium">{dims.w} × {dims.h} cm</p>
             </div>
             <button
               onClick={handleClose}
@@ -152,7 +143,7 @@ export default function ARViewer({ imageUrl, dimensions, artworkId }) {
                 <p className="text-5xl mb-4">⚠️</p>
                 <p className="text-white font-extrabold text-lg mb-2">Não foi possível carregar</p>
                 <p className="text-gray-400 text-sm mb-6 leading-relaxed">
-                  Verifica se a obra tem dimensões definidas no formato correto (ex: 80 × 60 cm) e tenta novamente.
+                  Verifica se a obra tem dimensões definidas (ex: 80 × 60 cm) e tenta novamente.
                 </p>
                 <button
                   onClick={handleClose}
@@ -164,80 +155,44 @@ export default function ARViewer({ imageUrl, dimensions, artworkId }) {
             )}
 
             {phase === 'ready' && glbUrl && (
-              <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
-                <model-viewer
-                  src={glbUrl}
-                  ar
-                  ar-modes="webxr scene-viewer"
-                  camera-controls
-                  auto-rotate
-                  auto-rotate-delay="500"
-                  rotation-per-second="20deg"
-                  shadow-intensity="1"
-                  shadow-softness="0.5"
-                  environment-image="neutral"
-                  style={{ width: '100%', height: '100%', background: '#111' }}
+              <model-viewer
+                src={glbUrl}
+                ar
+                ar-modes="webxr scene-viewer quick-look"
+                ar-placement="wall"
+                camera-controls
+                auto-rotate
+                auto-rotate-delay="500"
+                rotation-per-second="20deg"
+                shadow-intensity="1"
+                shadow-softness="0.5"
+                environment-image="neutral"
+                style={{ width: '100vw', height: '100vh', background: '#111' }}
+              >
+                <div slot="progress-bar" />
+
+                <button
+                  slot="ar-button"
+                  style={{
+                    position: 'absolute',
+                    bottom: 32,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: 'linear-gradient(135deg, #7c3aed, #5b21b6)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 16,
+                    padding: '16px 32px',
+                    fontWeight: 800,
+                    fontSize: 15,
+                    cursor: 'pointer',
+                    boxShadow: '0 8px 32px rgba(124,58,237,0.5)',
+                    whiteSpace: 'nowrap',
+                    letterSpacing: '-0.01em',
+                  }}
                 >
-                  <div slot="progress-bar" />
-
-                  {/* Botão AR para Android/WebXR */}
-                  {!isIOS && (
-                    <button
-                      slot="ar-button"
-                      style={{
-                        position: 'absolute',
-                        bottom: 32,
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        background: 'linear-gradient(135deg, #7c3aed, #5b21b6)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: 16,
-                        padding: '16px 32px',
-                        fontWeight: 800,
-                        fontSize: 15,
-                        cursor: 'pointer',
-                        boxShadow: '0 8px 32px rgba(124,58,237,0.5)',
-                        whiteSpace: 'nowrap',
-                        letterSpacing: '-0.01em',
-                      }}
-                    >
-                      📱 Ver na Minha Parede
-                    </button>
-                  )}
-                </model-viewer>
-
-                {/* iOS: <a rel="ar"> vai direto para câmara AR sem mostrar preview de objeto */}
-                {isIOS && usdzUrl && (
-                  <a
-                    rel="ar"
-                    href={usdzUrl}
-                    style={{
-                      position: 'absolute',
-                      bottom: 32,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      display: 'block',
-                      textDecoration: 'none',
-                    }}
-                  >
-                    <img src={imageUrl.startsWith('http') ? imageUrl : `${window.location.origin}${imageUrl}`} alt="" style={{ display: 'none' }} />
-                    <span style={{
-                      display: 'block',
-                      background: 'linear-gradient(135deg, #7c3aed, #5b21b6)',
-                      color: 'white',
-                      borderRadius: 16,
-                      padding: '16px 32px',
-                      fontWeight: 800,
-                      fontSize: 15,
-                      boxShadow: '0 8px 32px rgba(124,58,237,0.5)',
-                      whiteSpace: 'nowrap',
-                      letterSpacing: '-0.01em',
-                    }}>
-                      📱 Ver na Minha Parede
-                    </span>
-                  </a>
-                )}
+                  📱 Ver na Minha Parede
+                </button>
 
                 <div style={{
                   position: 'absolute',
@@ -252,11 +207,10 @@ export default function ARViewer({ imageUrl, dimensions, artworkId }) {
                   borderRadius: 20,
                   whiteSpace: 'nowrap',
                   backdropFilter: 'blur(8px)',
-                  pointerEvents: 'none',
                 }}>
                   Tamanho real: {dims.w} × {dims.h} cm
                 </div>
-              </div>
+              </model-viewer>
             )}
           </div>
         </div>
