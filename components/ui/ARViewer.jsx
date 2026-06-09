@@ -28,25 +28,22 @@ async function generateGLB(imageUrl, wCm, hCm) {
   const THREE = (await import('three')).default || await import('three')
   const { GLTFExporter } = await import('three/addons/exporters/GLTFExporter.js')
 
-  // Fetch imagem (mesmo domínio — sem CORS)
   const fullUrl = imageUrl.startsWith('http') ? imageUrl : `${window.location.origin}${imageUrl}`
   const resp = await fetch(fullUrl)
   const blob = await resp.blob()
   const localUrl = URL.createObjectURL(blob)
 
   const texture = await new Promise((resolve, reject) => {
-    const loader = new THREE.TextureLoader()
-    loader.load(localUrl, (t) => { URL.revokeObjectURL(localUrl); resolve(t) }, undefined, reject)
+    new THREE.TextureLoader().load(localUrl, (t) => { URL.revokeObjectURL(localUrl); resolve(t) }, undefined, reject)
   })
   texture.colorSpace = THREE.SRGBColorSpace
 
   const wM = wCm / 100
   const hM = hCm / 100
+  const frameSize = 0.03
 
   const scene = new THREE.Scene()
 
-  // Moldura simples — plano ligeiramente maior e escuro por trás
-  const frameSize = 0.03 // 3cm de margem
   const frameMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(wM + frameSize * 2, hM + frameSize * 2),
     new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 1, metalness: 0 })
@@ -54,14 +51,12 @@ async function generateGLB(imageUrl, wCm, hCm) {
   frameMesh.position.z = -0.002
   scene.add(frameMesh)
 
-  // Obra
   const artMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(wM, hM),
     new THREE.MeshStandardMaterial({ map: texture, roughness: 0.7, metalness: 0 })
   )
   scene.add(artMesh)
 
-  // Luz ambiente
   scene.add(new THREE.AmbientLight(0xffffff, 1.5))
   const dir = new THREE.DirectionalLight(0xffffff, 1)
   dir.position.set(0, 1, 2)
@@ -74,7 +69,7 @@ async function generateGLB(imageUrl, wCm, hCm) {
   return URL.createObjectURL(new Blob([glb], { type: 'model/gltf-binary' }))
 }
 
-export default function ARViewer({ imageUrl, dimensions }) {
+export default function ARViewer({ imageUrl, dimensions, artworkId }) {
   const [open, setOpen] = useState(false)
   const [phase, setPhase] = useState('idle') // idle | loading | ready | error
   const [glbUrl, setGlbUrl] = useState(null)
@@ -82,12 +77,16 @@ export default function ARViewer({ imageUrl, dimensions }) {
 
   const dims = parseDimensions(dimensions)
 
-  // Cleanup ao desmontar
   useEffect(() => {
     return () => { if (glbRef.current) URL.revokeObjectURL(glbRef.current) }
   }, [])
 
   if (!dims || !imageUrl) return null
+
+  // URL absoluta do USDZ — necessária para iOS AR Quick Look abrir fora do browser
+  const usdzUrl = artworkId
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/api/ar/usdz/${artworkId}`
+    : null
 
   const handleOpen = async () => {
     setOpen(true)
@@ -109,10 +108,9 @@ export default function ARViewer({ imageUrl, dimensions }) {
 
   return (
     <>
-      {/* Botão BETA discreto */}
       <button
         onClick={handleOpen}
-        className="md:hidden w-full flex items-center justify-center gap-2 py-2.5 border-2 border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 font-bold text-sm rounded-xl transition-colors"
+        className="w-full flex items-center justify-center gap-2 py-2.5 border-2 border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 font-bold text-sm rounded-xl transition-colors md:hidden"
       >
         <span>🪄</span>
         Ver em Tua Casa
@@ -121,10 +119,8 @@ export default function ARViewer({ imageUrl, dimensions }) {
         </span>
       </button>
 
-      {/* Modal fullscreen */}
       {open && (
         <div className="fixed inset-0 z-[200] bg-black flex flex-col" style={{ touchAction: 'none' }}>
-          {/* Header */}
           <div className="absolute top-0 left-0 right-0 z-10 px-4 pt-safe-top flex items-center justify-between bg-gradient-to-b from-black/80 to-transparent py-4">
             <div>
               <p className="text-white font-extrabold text-sm leading-tight">Ver em Tua Casa</p>
@@ -140,7 +136,6 @@ export default function ARViewer({ imageUrl, dimensions }) {
             </button>
           </div>
 
-          {/* Conteúdo */}
           <div className="flex-1 flex flex-col items-center justify-center">
             {phase === 'loading' && (
               <div className="text-center px-8">
@@ -169,8 +164,11 @@ export default function ARViewer({ imageUrl, dimensions }) {
             {phase === 'ready' && glbUrl && (
               <model-viewer
                 src={glbUrl}
+                {...(usdzUrl ? { 'ios-src': usdzUrl } : {})}
                 ar
                 ar-modes="webxr scene-viewer quick-look"
+                ar-placement="wall"
+                ar-scale="fixed"
                 camera-controls
                 auto-rotate
                 auto-rotate-delay="500"
@@ -180,10 +178,8 @@ export default function ARViewer({ imageUrl, dimensions }) {
                 environment-image="neutral"
                 style={{ width: '100vw', height: '100vh', background: '#111' }}
               >
-                {/* Instrução */}
                 <div slot="progress-bar" />
 
-                {/* Botão AR nativo */}
                 <button
                   slot="ar-button"
                   style={{
@@ -207,7 +203,6 @@ export default function ARViewer({ imageUrl, dimensions }) {
                   📱 Ver na Minha Parede
                 </button>
 
-                {/* Info de escala */}
                 <div style={{
                   position: 'absolute',
                   bottom: 100,

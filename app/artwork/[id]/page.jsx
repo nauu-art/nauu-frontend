@@ -201,6 +201,7 @@ export default function ObraPage() {
               <div className="mb-4">
                 <ARViewer
                   imageUrl={artwork.images?.[0]?.imageUrl}
+                  artworkId={id}
                   dimensions={artwork.dimensions}
                 />
               </div>
