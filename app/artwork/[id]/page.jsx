@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { Mail, Share2, ChevronRight } from 'lucide-react'
+import { Mail, Share2, ChevronRight, Lock } from 'lucide-react'
 import api from '../../../lib/api'
 import { useAuth } from '../../../context/AuthContext'
 import { useLocale } from '../../../context/LocaleContext'
@@ -15,6 +15,8 @@ import ArtworkComments from '../../../components/ui/ArtworkComments'
 import AnchorButton from '../../../components/ui/AnchorButton'
 import ImageCarousel from '../../../components/ui/ImageCarousel'
 import ARViewer from '../../../components/ui/ARViewer'
+import ColorPalette from '../../../components/ui/ColorPalette'
+import { useFeatures } from '../../../context/FeaturesContext'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
 
@@ -22,6 +24,7 @@ export default function ObraPage() {
   const { id } = useParams()
   const { isLoggedIn, user } = useAuth()
   const { t } = useLocale()
+  const features = useFeatures()
   const [artwork, setArtwork] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activeImg, setActiveImg] = useState(0)
@@ -115,6 +118,7 @@ export default function ObraPage() {
               onClick={() => { if(images[activeImg]) { setLightboxIndex(activeImg); setLightboxOpen(true) } }}>
               <ImageCarousel images={images} title={artwork.title} aspect="4/5" />
             </div>
+            {features.colorPalette && <ColorPalette imageUrl={artwork.images?.[0]?.imageUrl} />}
           </div>
 
           {/* Info */}
@@ -147,14 +151,32 @@ export default function ObraPage() {
             <div className="flex flex-col gap-2 mb-6">
               {/* Botão Comprar */}
               {artwork.availability === 'AVAILABLE' && !artwork.priceOnRequest && artwork.price && artwork.artist?.stripeOnboarded && (
-                <Link href={`/checkout/${id}`}
-                  className="flex items-center justify-center gap-2 w-full py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-colors mb-2">
-                  🛒 Comprar — € {parseFloat(artwork.price).toFixed(2)}
-                  {artworkShipping && !artworkShipping.freeShipping && artworkShipping.portugal && (
-                    <span className="text-xs font-medium opacity-80">+ €{parseFloat(artworkShipping.portugal).toFixed(2)} portes</span>
-                  )}
-                  {artworkShipping?.freeShipping && <span className="text-xs font-medium opacity-80">portes incluídos</span>}
-                </Link>
+                <>
+                  <Link href={`/checkout/${id}`}
+                    className="flex items-center justify-center gap-2 w-full py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-colors">
+                    🛒 Comprar — € {parseFloat(artwork.price).toFixed(2)}
+                    {artworkShipping && !artworkShipping.freeShipping && artworkShipping.portugal && (
+                      <span className="text-xs font-medium opacity-80">+ €{parseFloat(artworkShipping.portugal).toFixed(2)} portes</span>
+                    )}
+                    {artworkShipping?.freeShipping && <span className="text-xs font-medium opacity-80">portes incluídos</span>}
+                  </Link>
+                  <div className="flex items-center justify-center gap-2.5 flex-wrap py-1">
+                    <span className="flex items-center gap-1 text-gray-400">
+                      <Lock size={10} className="text-green-500" />
+                      <span className="text-[11px] font-medium">Pagamento seguro</span>
+                    </span>
+                    <span className="text-gray-200 text-xs">·</span>
+                    <div className="flex items-center gap-1.5">
+                      <div className="bg-[#1A1F71] text-white text-[8px] font-extrabold italic px-1.5 py-[3px] rounded leading-none">VISA</div>
+                      <div className="flex items-center">
+                        <div className="w-[13px] h-[13px] rounded-full bg-[#EB001B]" />
+                        <div className="w-[13px] h-[13px] rounded-full bg-[#F79E1B] opacity-90 -ml-[6px]" />
+                      </div>
+                      <div className="bg-[#00A0DF] text-white text-[8px] font-extrabold px-1.5 py-[3px] rounded leading-none">MB WAY</div>
+                      <div className="text-[#635BFF] text-[8px] font-extrabold border border-[#635BFF]/40 px-1.5 py-[3px] rounded leading-none">stripe</div>
+                    </div>
+                  </div>
+                </>
               )}
 
               {existingConversation ? (
@@ -197,10 +219,11 @@ export default function ObraPage() {
               )}
             </div>
 
-            {artwork.dimensions && (
+            {features.ar && artwork.dimensions && (
               <div className="mb-4">
                 <ARViewer
                   imageUrl={artwork.images?.[0]?.imageUrl}
+                  artworkId={id}
                   dimensions={artwork.dimensions}
                 />
               </div>
