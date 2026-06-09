@@ -28,25 +28,22 @@ async function generateGLB(imageUrl, wCm, hCm) {
   const THREE = (await import('three')).default || await import('three')
   const { GLTFExporter } = await import('three/addons/exporters/GLTFExporter.js')
 
-  // Fetch imagem (mesmo domínio — sem CORS)
   const fullUrl = imageUrl.startsWith('http') ? imageUrl : `${window.location.origin}${imageUrl}`
   const resp = await fetch(fullUrl)
   const blob = await resp.blob()
   const localUrl = URL.createObjectURL(blob)
 
   const texture = await new Promise((resolve, reject) => {
-    const loader = new THREE.TextureLoader()
-    loader.load(localUrl, (t) => { URL.revokeObjectURL(localUrl); resolve(t) }, undefined, reject)
+    new THREE.TextureLoader().load(localUrl, (t) => { URL.revokeObjectURL(localUrl); resolve(t) }, undefined, reject)
   })
   texture.colorSpace = THREE.SRGBColorSpace
 
   const wM = wCm / 100
   const hM = hCm / 100
+  const frameSize = 0.03
 
   const scene = new THREE.Scene()
 
-  // Moldura simples — plano ligeiramente maior e escuro por trás
-  const frameSize = 0.03 // 3cm de margem
   const frameMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(wM + frameSize * 2, hM + frameSize * 2),
     new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 1, metalness: 0 })
@@ -54,14 +51,12 @@ async function generateGLB(imageUrl, wCm, hCm) {
   frameMesh.position.z = -0.002
   scene.add(frameMesh)
 
-  // Obra
   const artMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(wM, hM),
     new THREE.MeshStandardMaterial({ map: texture, roughness: 0.7, metalness: 0 })
   )
   scene.add(artMesh)
 
-  // Luz ambiente
   scene.add(new THREE.AmbientLight(0xffffff, 1.5))
   const dir = new THREE.DirectionalLight(0xffffff, 1)
   dir.position.set(0, 1, 2)
@@ -74,20 +69,26 @@ async function generateGLB(imageUrl, wCm, hCm) {
   return URL.createObjectURL(new Blob([glb], { type: 'model/gltf-binary' }))
 }
 
-export default function ARViewer({ imageUrl, dimensions }) {
+export default function ARViewer({ imageUrl, dimensions, artworkId }) {
   const [open, setOpen] = useState(false)
   const [phase, setPhase] = useState('idle') // idle | loading | ready | error
   const [glbUrl, setGlbUrl] = useState(null)
+  const [isIOS, setIsIOS] = useState(false)
   const glbRef = useRef(null)
 
   const dims = parseDimensions(dimensions)
 
-  // Cleanup ao desmontar
   useEffect(() => {
+    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent))
     return () => { if (glbRef.current) URL.revokeObjectURL(glbRef.current) }
   }, [])
 
   if (!dims || !imageUrl) return null
+
+  // URL do USDZ para iOS AR Quick Look (abre diretamente em câmara AR, sem preview de objeto)
+  const usdzUrl = artworkId
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/api/ar/usdz/${artworkId}`
+    : null
 
   const handleOpen = async () => {
     setOpen(true)
@@ -109,10 +110,9 @@ export default function ARViewer({ imageUrl, dimensions }) {
 
   return (
     <>
-      {/* Botão BETA discreto */}
       <button
         onClick={handleOpen}
-        className="md:hidden w-full flex items-center justify-center gap-2 py-2.5 border-2 border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 font-bold text-sm rounded-xl transition-colors"
+        className="w-full flex items-center justify-center gap-2 py-2.5 border-2 border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 font-bold text-sm rounded-xl transition-colors md:hidden"
       >
         <span>🪄</span>
         Ver em Tua Casa
@@ -121,10 +121,8 @@ export default function ARViewer({ imageUrl, dimensions }) {
         </span>
       </button>
 
-      {/* Modal fullscreen */}
       {open && (
         <div className="fixed inset-0 z-[200] bg-black flex flex-col" style={{ touchAction: 'none' }}>
-          {/* Header */}
           <div className="absolute top-0 left-0 right-0 z-10 px-4 pt-safe-top flex items-center justify-between bg-gradient-to-b from-black/80 to-transparent py-4">
             <div>
               <p className="text-white font-extrabold text-sm leading-tight">Ver em Tua Casa</p>
@@ -140,7 +138,6 @@ export default function ARViewer({ imageUrl, dimensions }) {
             </button>
           </div>
 
-          {/* Conteúdo */}
           <div className="flex-1 flex flex-col items-center justify-center">
             {phase === 'loading' && (
               <div className="text-center px-8">
@@ -167,47 +164,81 @@ export default function ARViewer({ imageUrl, dimensions }) {
             )}
 
             {phase === 'ready' && glbUrl && (
-              <model-viewer
-                src={glbUrl}
-                ar
-                ar-modes="webxr scene-viewer quick-look"
-                camera-controls
-                auto-rotate
-                auto-rotate-delay="500"
-                rotation-per-second="20deg"
-                shadow-intensity="1"
-                shadow-softness="0.5"
-                environment-image="neutral"
-                style={{ width: '100vw', height: '100vh', background: '#111' }}
-              >
-                {/* Instrução */}
-                <div slot="progress-bar" />
-
-                {/* Botão AR nativo */}
-                <button
-                  slot="ar-button"
-                  style={{
-                    position: 'absolute',
-                    bottom: 32,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    background: 'linear-gradient(135deg, #7c3aed, #5b21b6)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: 16,
-                    padding: '16px 32px',
-                    fontWeight: 800,
-                    fontSize: 15,
-                    cursor: 'pointer',
-                    boxShadow: '0 8px 32px rgba(124,58,237,0.5)',
-                    whiteSpace: 'nowrap',
-                    letterSpacing: '-0.01em',
-                  }}
+              <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
+                <model-viewer
+                  src={glbUrl}
+                  ar
+                  ar-modes="webxr scene-viewer"
+                  camera-controls
+                  auto-rotate
+                  auto-rotate-delay="500"
+                  rotation-per-second="20deg"
+                  shadow-intensity="1"
+                  shadow-softness="0.5"
+                  environment-image="neutral"
+                  style={{ width: '100%', height: '100%', background: '#111' }}
                 >
-                  📱 Ver na Minha Parede
-                </button>
+                  <div slot="progress-bar" />
 
-                {/* Info de escala */}
+                  {/* Botão AR para Android/WebXR */}
+                  {!isIOS && (
+                    <button
+                      slot="ar-button"
+                      style={{
+                        position: 'absolute',
+                        bottom: 32,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        background: 'linear-gradient(135deg, #7c3aed, #5b21b6)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 16,
+                        padding: '16px 32px',
+                        fontWeight: 800,
+                        fontSize: 15,
+                        cursor: 'pointer',
+                        boxShadow: '0 8px 32px rgba(124,58,237,0.5)',
+                        whiteSpace: 'nowrap',
+                        letterSpacing: '-0.01em',
+                      }}
+                    >
+                      📱 Ver na Minha Parede
+                    </button>
+                  )}
+                </model-viewer>
+
+                {/* iOS: <a rel="ar"> vai direto para câmara AR sem mostrar preview de objeto */}
+                {isIOS && usdzUrl && (
+                  <a
+                    rel="ar"
+                    href={usdzUrl}
+                    style={{
+                      position: 'absolute',
+                      bottom: 32,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      display: 'block',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    <img src={imageUrl.startsWith('http') ? imageUrl : `${window.location.origin}${imageUrl}`} alt="" style={{ display: 'none' }} />
+                    <span style={{
+                      display: 'block',
+                      background: 'linear-gradient(135deg, #7c3aed, #5b21b6)',
+                      color: 'white',
+                      borderRadius: 16,
+                      padding: '16px 32px',
+                      fontWeight: 800,
+                      fontSize: 15,
+                      boxShadow: '0 8px 32px rgba(124,58,237,0.5)',
+                      whiteSpace: 'nowrap',
+                      letterSpacing: '-0.01em',
+                    }}>
+                      📱 Ver na Minha Parede
+                    </span>
+                  </a>
+                )}
+
                 <div style={{
                   position: 'absolute',
                   bottom: 100,
@@ -221,10 +252,11 @@ export default function ARViewer({ imageUrl, dimensions }) {
                   borderRadius: 20,
                   whiteSpace: 'nowrap',
                   backdropFilter: 'blur(8px)',
+                  pointerEvents: 'none',
                 }}>
                   Tamanho real: {dims.w} × {dims.h} cm
                 </div>
-              </model-viewer>
+              </div>
             )}
           </div>
         </div>
