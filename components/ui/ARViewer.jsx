@@ -73,17 +73,19 @@ export default function ARViewer({ imageUrl, dimensions, artworkId }) {
   const [open, setOpen] = useState(false)
   const [phase, setPhase] = useState('idle') // idle | loading | ready | error
   const [glbUrl, setGlbUrl] = useState(null)
+  const [isIOS, setIsIOS] = useState(false)
   const glbRef = useRef(null)
 
   const dims = parseDimensions(dimensions)
 
   useEffect(() => {
+    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent))
     return () => { if (glbRef.current) URL.revokeObjectURL(glbRef.current) }
   }, [])
 
   if (!dims || !imageUrl) return null
 
-  // URL absoluta do USDZ — necessária para iOS AR Quick Look abrir fora do browser
+  // URL do USDZ para iOS AR Quick Look (abre diretamente em câmara AR, sem preview de objeto)
   const usdzUrl = artworkId
     ? `${typeof window !== 'undefined' ? window.location.origin : ''}/api/ar/usdz/${artworkId}`
     : null
@@ -162,46 +164,80 @@ export default function ARViewer({ imageUrl, dimensions, artworkId }) {
             )}
 
             {phase === 'ready' && glbUrl && (
-              <model-viewer
-                src={glbUrl}
-                {...(usdzUrl ? { 'ios-src': usdzUrl } : {})}
-                ar
-                ar-modes="webxr scene-viewer quick-look"
-                ar-placement="wall"
-                ar-scale="fixed"
-                camera-controls
-                auto-rotate
-                auto-rotate-delay="500"
-                rotation-per-second="20deg"
-                shadow-intensity="1"
-                shadow-softness="0.5"
-                environment-image="neutral"
-                style={{ width: '100vw', height: '100vh', background: '#111' }}
-              >
-                <div slot="progress-bar" />
-
-                <button
-                  slot="ar-button"
-                  style={{
-                    position: 'absolute',
-                    bottom: 32,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    background: 'linear-gradient(135deg, #7c3aed, #5b21b6)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: 16,
-                    padding: '16px 32px',
-                    fontWeight: 800,
-                    fontSize: 15,
-                    cursor: 'pointer',
-                    boxShadow: '0 8px 32px rgba(124,58,237,0.5)',
-                    whiteSpace: 'nowrap',
-                    letterSpacing: '-0.01em',
-                  }}
+              <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
+                <model-viewer
+                  src={glbUrl}
+                  ar
+                  ar-modes="webxr scene-viewer"
+                  camera-controls
+                  auto-rotate
+                  auto-rotate-delay="500"
+                  rotation-per-second="20deg"
+                  shadow-intensity="1"
+                  shadow-softness="0.5"
+                  environment-image="neutral"
+                  style={{ width: '100%', height: '100%', background: '#111' }}
                 >
-                  📱 Ver na Minha Parede
-                </button>
+                  <div slot="progress-bar" />
+
+                  {/* Botão AR para Android/WebXR */}
+                  {!isIOS && (
+                    <button
+                      slot="ar-button"
+                      style={{
+                        position: 'absolute',
+                        bottom: 32,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        background: 'linear-gradient(135deg, #7c3aed, #5b21b6)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 16,
+                        padding: '16px 32px',
+                        fontWeight: 800,
+                        fontSize: 15,
+                        cursor: 'pointer',
+                        boxShadow: '0 8px 32px rgba(124,58,237,0.5)',
+                        whiteSpace: 'nowrap',
+                        letterSpacing: '-0.01em',
+                      }}
+                    >
+                      📱 Ver na Minha Parede
+                    </button>
+                  )}
+                </model-viewer>
+
+                {/* iOS: <a rel="ar"> vai direto para câmara AR sem mostrar preview de objeto */}
+                {isIOS && usdzUrl && (
+                  <a
+                    rel="ar"
+                    href={usdzUrl}
+                    style={{
+                      position: 'absolute',
+                      bottom: 32,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      display: 'block',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    <img src={imageUrl.startsWith('http') ? imageUrl : `${window.location.origin}${imageUrl}`} alt="" style={{ display: 'none' }} />
+                    <span style={{
+                      display: 'block',
+                      background: 'linear-gradient(135deg, #7c3aed, #5b21b6)',
+                      color: 'white',
+                      borderRadius: 16,
+                      padding: '16px 32px',
+                      fontWeight: 800,
+                      fontSize: 15,
+                      boxShadow: '0 8px 32px rgba(124,58,237,0.5)',
+                      whiteSpace: 'nowrap',
+                      letterSpacing: '-0.01em',
+                    }}>
+                      📱 Ver na Minha Parede
+                    </span>
+                  </a>
+                )}
 
                 <div style={{
                   position: 'absolute',
@@ -216,10 +252,11 @@ export default function ARViewer({ imageUrl, dimensions, artworkId }) {
                   borderRadius: 20,
                   whiteSpace: 'nowrap',
                   backdropFilter: 'blur(8px)',
+                  pointerEvents: 'none',
                 }}>
                   Tamanho real: {dims.w} × {dims.h} cm
                 </div>
-              </model-viewer>
+              </div>
             )}
           </div>
         </div>
